@@ -57,6 +57,12 @@ const Index = () => {
     setTipEntries(prev => prev.filter(entry => entry.id !== id));
   };
 
+  const confirmProjection = (id: string) => {
+    setTipEntries(prev => prev.map(entry => 
+      entry.id === id ? { ...entry, isPlaceholder: false } : entry
+    ));
+  };
+
   const addGoal = (goal: Omit<Goal, 'id'>) => {
     const newGoal: Goal = {
       ...goal,
@@ -282,11 +288,36 @@ const Index = () => {
                     </div>
                     
                     {selectedEntry.isPlaceholder ? (
-                      <div className="text-center p-3 bg-purple-50 rounded-lg border border-purple-200">
-                        <p className="text-sm text-purple-700 font-medium">Projected Shift</p>
-                        <p className="text-xs text-purple-600">
-                          This is a planning scenario based on your work patterns
-                        </p>
+                      <div className="space-y-3">
+                        <div className="text-center p-3 bg-purple-50 rounded-lg border border-purple-200">
+                          <p className="text-sm text-purple-700 font-medium">Projected Shift</p>
+                          <p className="text-xs text-purple-600">
+                            This is a planning scenario based on your work patterns
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2">
+                          <Button 
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowEntryForm(true)}
+                          >
+                            Edit
+                          </Button>
+                          <Button 
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => deleteTipEntry(selectedEntry.id)}
+                          >
+                            Delete
+                          </Button>
+                          <Button 
+                            variant="default"
+                            size="sm"
+                            onClick={() => confirmProjection(selectedEntry.id)}
+                          >
+                            Confirm
+                          </Button>
+                        </div>
                       </div>
                     ) : (
                       <Button 
