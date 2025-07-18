@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,6 +18,9 @@ export interface TipEntry {
   guestCount: number;
   section: string;
   isPlaceholder?: boolean;
+  shift: 'AM' | 'PM';
+  hoursWorked: number;
+  hourlyRate: number;
 }
 
 export interface Goal {
@@ -76,6 +78,16 @@ const Index = () => {
 
   const getTipPercentage = (entry: TipEntry) => {
     return entry.totalSales > 0 ? (getTotalTips(entry) / entry.totalSales) * 100 : 0;
+  };
+
+  const getTotalEarnings = (entry: TipEntry) => {
+    return getTotalTips(entry) + (entry.hoursWorked * entry.hourlyRate);
+  };
+
+  const getMostRecentEntry = () => {
+    return tipEntries
+      .filter(entry => !entry.isPlaceholder)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
   };
 
   const selectedEntry = getEntryForDate(selectedDate);
@@ -187,6 +199,22 @@ const Index = () => {
                         </p>
                       </div>
                     </div>
+                    
+                    <div className="grid grid-cols-3 gap-4 pt-2 border-t">
+                      <div>
+                        <p className="text-sm text-gray-600">Shift</p>
+                        <p className="font-medium">{selectedEntry.shift}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">Hours</p>
+                        <p className="font-medium">{selectedEntry.hoursWorked}h</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">Rate</p>
+                        <p className="font-medium">${selectedEntry.hourlyRate}/hr</p>
+                      </div>
+                    </div>
+
                     <div className="grid grid-cols-3 gap-4 pt-2">
                       <div>
                         <p className="text-sm text-gray-600">Credit Tips</p>
@@ -201,10 +229,20 @@ const Index = () => {
                         <p className="font-medium">{selectedEntry.guestCount}</p>
                       </div>
                     </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Section</p>
-                      <p className="font-medium">{selectedEntry.section}</p>
+                    
+                    <div className="flex justify-between items-center pt-2 border-t">
+                      <div>
+                        <p className="text-sm text-gray-600">Section</p>
+                        <p className="font-medium">{selectedEntry.section}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-gray-600">Total Earnings</p>
+                        <p className="text-lg font-semibold text-green-600">
+                          ${getTotalEarnings(selectedEntry).toFixed(2)}
+                        </p>
+                      </div>
                     </div>
+                    
                     <Button 
                       variant="outline" 
                       className="w-full"
@@ -246,6 +284,7 @@ const Index = () => {
           <TipEntryForm
             selectedDate={selectedDate}
             existingEntry={selectedEntry}
+            previousEntry={getMostRecentEntry()}
             onSave={selectedEntry ? 
               (entry) => updateTipEntry(selectedEntry.id, entry) : 
               addTipEntry

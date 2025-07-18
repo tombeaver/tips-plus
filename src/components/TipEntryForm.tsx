@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Trash2, Save, X } from 'lucide-react';
 import { TipEntry } from '@/pages/Index';
 
@@ -15,6 +16,7 @@ interface TipEntryFormProps {
   onSave: (entry: Omit<TipEntry, 'id'>) => void;
   onCancel: () => void;
   onDelete?: () => void;
+  previousEntry?: TipEntry;
 }
 
 export const TipEntryForm: React.FC<TipEntryFormProps> = ({
@@ -22,7 +24,8 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
   existingEntry,
   onSave,
   onCancel,
-  onDelete
+  onDelete,
+  previousEntry
 }) => {
   const [totalSales, setTotalSales] = useState(existingEntry?.totalSales.toString() || '');
   const [creditTips, setCreditTips] = useState(existingEntry?.creditTips.toString() || '');
@@ -30,6 +33,11 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
   const [guestCount, setGuestCount] = useState(existingEntry?.guestCount.toString() || '');
   const [section, setSection] = useState(existingEntry?.section || '');
   const [isPlaceholder, setIsPlaceholder] = useState(existingEntry?.isPlaceholder || false);
+  const [shift, setShift] = useState<'AM' | 'PM'>(existingEntry?.shift || 'PM');
+  const [hoursWorked, setHoursWorked] = useState(existingEntry?.hoursWorked.toString() || '');
+  const [hourlyRate, setHourlyRate] = useState(
+    existingEntry?.hourlyRate.toString() || previousEntry?.hourlyRate.toString() || ''
+  );
 
   const sections = [
     'Section 1', 'Section 2', 'Section 3', 'Section 4', 'Section 5',
@@ -46,14 +54,20 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
       cashTips: parseFloat(cashTips) || 0,
       guestCount: parseInt(guestCount) || 0,
       section: section || 'Other',
-      isPlaceholder
+      isPlaceholder,
+      shift,
+      hoursWorked: parseFloat(hoursWorked) || 0,
+      hourlyRate: parseFloat(hourlyRate) || 0
     };
 
     onSave(entry);
   };
 
   const isValid = totalSales && creditTips !== undefined && cashTips !== undefined && 
-                  guestCount && section;
+                  guestCount && section && hoursWorked && hourlyRate;
+
+  const totalTips = (parseFloat(creditTips) || 0) + (parseFloat(cashTips) || 0);
+  const totalEarnings = totalTips + ((parseFloat(hoursWorked) || 0) * (parseFloat(hourlyRate) || 0));
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
@@ -141,6 +155,49 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
               </Select>
             </div>
 
+            <div className="space-y-2">
+              <Label>Shift</Label>
+              <RadioGroup value={shift} onValueChange={(value) => setShift(value as 'AM' | 'PM')}>
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="AM" id="am" />
+                    <Label htmlFor="am">AM</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="PM" id="pm" />
+                    <Label htmlFor="pm">PM</Label>
+                  </div>
+                </div>
+              </RadioGroup>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="hoursWorked">Hours Worked</Label>
+                <Input
+                  id="hoursWorked"
+                  type="number"
+                  step="0.25"
+                  placeholder="0.0"
+                  value={hoursWorked}
+                  onChange={(e) => setHoursWorked(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="hourlyRate">Hourly Rate ($)</Label>
+                <Input
+                  id="hourlyRate"
+                  type="number"
+                  step="0.01"
+                  placeholder="0.00"
+                  value={hourlyRate}
+                  onChange={(e) => setHourlyRate(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
             <div className="flex items-center space-x-2">
               <Switch
                 id="placeholder"
@@ -150,28 +207,46 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
               <Label htmlFor="placeholder">Planning scenario (placeholder)</Label>
             </div>
 
-            {/* Calculated Statistics */}
-            {totalSales && (creditTips || cashTips) && (
+            {/* Enhanced Calculated Statistics */}
+            {totalSales && (creditTips || cashTips) && hoursWorked && hourlyRate && (
               <div className="bg-gray-50 p-3 rounded-lg space-y-2">
                 <h4 className="font-medium text-sm text-gray-700">Quick Stats</h4>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <span className="text-gray-600">Total Tips:</span>
                     <span className="font-medium ml-2">
-                      ${((parseFloat(creditTips) || 0) + (parseFloat(cashTips) || 0)).toFixed(2)}
+                      ${totalTips.toFixed(2)}
                     </span>
                   </div>
                   <div>
                     <span className="text-gray-600">Tip %:</span>
                     <span className="font-medium ml-2">
-                      {totalSales ? (((parseFloat(creditTips) || 0) + (parseFloat(cashTips) || 0)) / parseFloat(totalSales) * 100).toFixed(1) : 0}%
+                      {totalSales ? (totalTips / parseFloat(totalSales) * 100).toFixed(1) : 0}%
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Hourly Wage:</span>
+                    <span className="font-medium ml-2">
+                      ${hourlyRate}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Tips/Hour:</span>
+                    <span className="font-medium ml-2">
+                      ${(totalTips / parseFloat(hoursWorked)).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-gray-600">Total Earnings:</span>
+                    <span className="font-medium ml-2 text-green-600">
+                      ${totalEarnings.toFixed(2)}
                     </span>
                   </div>
                   {guestCount && (
                     <div className="col-span-2">
                       <span className="text-gray-600">Per Guest:</span>
                       <span className="font-medium ml-2">
-                        ${(((parseFloat(creditTips) || 0) + (parseFloat(cashTips) || 0)) / parseInt(guestCount)).toFixed(2)}
+                        ${(totalTips / parseInt(guestCount)).toFixed(2)}
                       </span>
                     </div>
                   )}
