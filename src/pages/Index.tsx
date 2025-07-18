@@ -31,9 +31,54 @@ export interface Goal {
   period: string;
 }
 
+// ==================== TEST DATA GENERATOR - REMOVE IN PRODUCTION ====================
+const generateTestData = (): TipEntry[] => {
+  const testEntries: TipEntry[] = [];
+  const today = new Date();
+  const sections = ['Bar', 'Dining Room', 'Patio', 'VIP', 'Main Floor'];
+  const shifts: ('AM' | 'PM')[] = ['AM', 'PM'];
+  
+  // Generate 15 days of random data (past 10 days + next 5 days)
+  for (let i = -10; i <= 4; i++) {
+    const entryDate = new Date(today);
+    entryDate.setDate(today.getDate() + i);
+    
+    // Skip some days randomly to simulate realistic work schedule
+    if (Math.random() < 0.3) continue;
+    
+    const totalSales = Math.floor(Math.random() * 2000) + 500; // $500-$2500
+    const creditTipPercent = 0.15 + (Math.random() * 0.1); // 15-25%
+    const creditTips = Math.floor(totalSales * creditTipPercent);
+    const cashTips = Math.floor(Math.random() * 150) + 20; // $20-$170
+    const guestCount = Math.floor(Math.random() * 30) + 10; // 10-40 guests
+    const section = sections[Math.floor(Math.random() * sections.length)];
+    const shift = shifts[Math.floor(Math.random() * shifts.length)];
+    const hoursWorked = Math.floor(Math.random() * 4) + 4; // 4-8 hours
+    const hourlyRate = Math.floor(Math.random() * 5) + 12; // $12-$17/hour
+    
+    testEntries.push({
+      id: `test-${i}-${Date.now()}`,
+      date: entryDate,
+      totalSales,
+      creditTips,
+      cashTips,
+      guestCount,
+      section,
+      shift,
+      hoursWorked,
+      hourlyRate,
+      isPlaceholder: false
+    });
+  }
+  
+  return testEntries;
+};
+// ==================== END TEST DATA GENERATOR ====================
+
 const Index = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [tipEntries, setTipEntries] = useState<TipEntry[]>([]);
+  // Initialize with test data - REMOVE generateTestData() call in production
+  const [tipEntries, setTipEntries] = useState<TipEntry[]>(generateTestData());
   const [goals, setGoals] = useState<Goal[]>([]);
   const [showEntryForm, setShowEntryForm] = useState(false);
   const [activeTab, setActiveTab] = useState("calendar");
