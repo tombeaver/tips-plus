@@ -32,7 +32,7 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
   const [cashTips, setCashTips] = useState(existingEntry?.cashTips.toString() || '');
   const [guestCount, setGuestCount] = useState(existingEntry?.guestCount.toString() || '');
   const [section, setSection] = useState(existingEntry?.section || '');
-  const [isPlaceholder, setIsPlaceholder] = useState(existingEntry?.isPlaceholder || false);
+  
   const [shift, setShift] = useState<'AM' | 'PM'>(existingEntry?.shift || 'PM');
   const [hoursWorked, setHoursWorked] = useState(existingEntry?.hoursWorked.toString() || '');
   const [hourlyRate, setHourlyRate] = useState(
@@ -54,7 +54,7 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
       cashTips: parseFloat(cashTips) || 0,
       guestCount: parseInt(guestCount) || 0,
       section: section || 'Other',
-      isPlaceholder,
+      
       shift,
       hoursWorked: parseFloat(hoursWorked) || 0,
       hourlyRate: parseFloat(hourlyRate) || 0
@@ -198,14 +198,6 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="placeholder"
-                checked={isPlaceholder}
-                onCheckedChange={setIsPlaceholder}
-              />
-              <Label htmlFor="placeholder">Planning scenario (placeholder)</Label>
-            </div>
 
             {/* Enhanced Calculated Statistics */}
             {totalSales && (creditTips || cashTips) && hoursWorked && hourlyRate && (
