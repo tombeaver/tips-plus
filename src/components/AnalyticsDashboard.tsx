@@ -75,16 +75,17 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       const weekStart = startOfWeek(entry.date);
       const weekKey = format(weekStart, 'MMM d');
       
-      const existing = weeks.get(weekKey) || { week: weekKey, tips: 0, sales: 0, guests: 0 };
+      const existing = weeks.get(weekKey) || { week: weekKey, tips: 0, sales: 0, guests: 0, weekStart };
       weeks.set(weekKey, {
         ...existing,
         tips: existing.tips + entry.creditTips + entry.cashTips,
         sales: existing.sales + entry.totalSales,
-        guests: existing.guests + entry.guestCount
+        guests: existing.guests + entry.guestCount,
+        weekStart
       });
     });
 
-    return Array.from(weeks.values()).sort((a, b) => a.week.localeCompare(b.week));
+    return Array.from(weeks.values()).sort((a, b) => a.weekStart.getTime() - b.weekStart.getTime());
   }, [realEntries]);
 
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'];
