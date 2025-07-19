@@ -205,41 +205,6 @@ export const TipsRecommendations: React.FC<TipsRecommendationsProps> = ({ tipEnt
           </div>
         </div>
 
-        {/* Selected Day Recommendation */}
-        {targetDayStats && (
-          <div className="flex items-start gap-3 p-3 bg-primary/5 border border-primary/20 rounded-lg">
-            <div className="p-2 bg-primary/10 rounded-full">
-              <TrendingUp className="h-4 w-4 text-primary" />
-            </div>
-            <div className="flex-1">
-              <h4 className="font-medium text-sm">
-                {isSelectedDay ? `${targetDayStats.dayName} Outlook` : "Today's Outlook"}
-              </h4>
-              <p className="text-sm text-muted-foreground">
-                {targetDayStats.day === bestDay.day ? (
-                  <>
-                    {isSelectedDay ? 'This' : 'Today'} is your best day! 
-                    Consider working {bestSection.section} for optimal earnings.
-                  </>
-                ) : targetDayStats.avgTips >= bestDay.avgTips * 0.8 ? (
-                  <>
-                    On {targetDayStats.dayName}s you typically earn ${targetDayStats.avgTips.toFixed(0)} in tips. 
-                    Try {bestSection.section} for best results.
-                  </>
-                ) : (
-                  <>
-                    {targetDayStats.dayName}s are slower (avg ${targetDayStats.avgTips.toFixed(0)} tips). 
-                    {alternativeSections.length > 0 ? (
-                      <>Consider trying {alternativeSections[0].section} - you haven't worked it on {targetDayStats.dayName}s yet!</>
-                    ) : (
-                      <>Consider requesting {bestSection.section} for better results.</>
-                    )}
-                  </>
-                )}
-              </p>
-            </div>
-          </div>
-        )}
 
         {/* Weather-based recommendations */}
         {weatherRecommendations && weatherRecommendations.length > 0 && (
