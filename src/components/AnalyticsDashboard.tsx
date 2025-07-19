@@ -2,9 +2,9 @@
 import React, { useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, DollarSign, Users, MapPin } from 'lucide-react';
+import { TrendingUp, DollarSign, Users, MapPin, Calendar } from 'lucide-react';
 import { TipEntry } from '@/pages/Index';
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isWithinInterval, getDay } from 'date-fns';
 
 interface AnalyticsDashboardProps {
   tipEntries: TipEntry[];
@@ -66,6 +66,40 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       averagePerGuest: section.totalGuests > 0 ? section.totalTips / section.totalGuests : 0,
       averageTipsPerShift: section.shifts > 0 ? section.totalTips / section.shifts : 0
     })).sort((a, b) => b.totalTips - a.totalTips);
+  }, [realEntries]);
+
+  const dayStats = useMemo(() => {
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const dayMap = new Map();
+
+    realEntries.forEach(entry => {
+      const dayIndex = getDay(entry.date);
+      const dayName = dayNames[dayIndex];
+      
+      const existing = dayMap.get(dayName) || {
+        day: dayName,
+        dayIndex,
+        totalTips: 0,
+        totalSales: 0,
+        totalGuests: 0,
+        shifts: 0
+      };
+      
+      dayMap.set(dayName, {
+        ...existing,
+        totalTips: existing.totalTips + entry.creditTips + entry.cashTips,
+        totalSales: existing.totalSales + entry.totalSales,
+        totalGuests: existing.totalGuests + entry.guestCount,
+        shifts: existing.shifts + 1
+      });
+    });
+
+    return Array.from(dayMap.values()).map(day => ({
+      ...day,
+      averageTipPercentage: day.totalSales > 0 ? (day.totalTips / day.totalSales) * 100 : 0,
+      averagePerGuest: day.totalGuests > 0 ? day.totalTips / day.totalGuests : 0,
+      averageTipsPerShift: day.shifts > 0 ? day.totalTips / day.shifts : 0
+    })).sort((a, b) => b.averageTipsPerShift - a.averageTipsPerShift);
   }, [realEntries]);
 
   const weeklyData = useMemo(() => {
@@ -209,6 +243,49 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                   <div>
                     <span className="block">Shifts</span>
                     <span className="font-medium">{section.shifts}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Day of Week Performance */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Day of Week Performance</CardTitle>
+          <CardDescription>Your earnings by day of the week</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {dayStats.map((day, index) => (
+              <div key={day.day} className="p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-medium flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    {day.day}
+                  </h4>
+                  <span className="text-lg font-bold text-green-600">
+                    ${day.averageTipsPerShift.toFixed(2)}/shift
+                  </span>
+                </div>
+                <div className="grid grid-cols-4 gap-2 text-sm text-gray-600">
+                  <div>
+                    <span className="block">Total Tips</span>
+                    <span className="font-medium">${day.totalTips.toFixed(2)}</span>
+                  </div>
+                  <div>
+                    <span className="block">Avg Tip %</span>
+                    <span className="font-medium">{day.averageTipPercentage.toFixed(1)}%</span>
+                  </div>
+                  <div>
+                    <span className="block">Per Guest</span>
+                    <span className="font-medium">${day.averagePerGuest.toFixed(2)}</span>
+                  </div>
+                  <div>
+                    <span className="block">Shifts</span>
+                    <span className="font-medium">{day.shifts}</span>
                   </div>
                 </div>
               </div>
