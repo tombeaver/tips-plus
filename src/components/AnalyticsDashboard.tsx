@@ -2,6 +2,7 @@
 import React, { useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrendingUp, DollarSign, Users, MapPin, Calendar } from 'lucide-react';
 import { TipEntry } from '@/pages/Index';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isWithinInterval, getDay } from 'date-fns';
@@ -215,82 +216,84 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         </CardContent>
       </Card>
 
-      {/* Section Performance */}
+      {/* Performance Analysis */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Section Performance</CardTitle>
-          <CardDescription>Compare your earnings by section</CardDescription>
+          <CardTitle className="text-lg">Performance Analysis</CardTitle>
+          <CardDescription>Compare your earnings by section and day of week</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {sectionStats.map((section, index) => (
-              <div key={section.section} className="p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium">{section.section}</h4>
-                  <span className="text-lg font-bold text-green-600">
-                    ${section.totalTips.toFixed(2)}
-                  </span>
-                </div>
-                <div className="grid grid-cols-3 gap-2 text-sm text-gray-600">
-                  <div>
-                    <span className="block">Avg Tip %</span>
-                    <span className="font-medium">{section.averageTipPercentage.toFixed(1)}%</span>
+          <Tabs defaultValue="sections" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="sections">By Section</TabsTrigger>
+              <TabsTrigger value="days">By Day</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="sections" className="mt-4">
+              <div className="space-y-4">
+                {sectionStats.map((section, index) => (
+                  <div key={section.section} className="p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium">{section.section}</h4>
+                      <span className="text-lg font-bold text-green-600">
+                        ${section.totalTips.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-sm text-gray-600">
+                      <div>
+                        <span className="block">Avg Tip %</span>
+                        <span className="font-medium">{section.averageTipPercentage.toFixed(1)}%</span>
+                      </div>
+                      <div>
+                        <span className="block">Per Guest</span>
+                        <span className="font-medium">${section.averagePerGuest.toFixed(2)}</span>
+                      </div>
+                      <div>
+                        <span className="block">Shifts</span>
+                        <span className="font-medium">{section.shifts}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <span className="block">Per Guest</span>
-                    <span className="font-medium">${section.averagePerGuest.toFixed(2)}</span>
-                  </div>
-                  <div>
-                    <span className="block">Shifts</span>
-                    <span className="font-medium">{section.shifts}</span>
-                  </div>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Day of Week Performance */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Day of Week Performance</CardTitle>
-          <CardDescription>Your earnings by day of the week</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {dayStats.map((day, index) => (
-              <div key={day.day} className="p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    {day.day}
-                  </h4>
-                  <span className="text-lg font-bold text-green-600">
-                    ${day.averageTipsPerShift.toFixed(2)}/shift
-                  </span>
-                </div>
-                <div className="grid grid-cols-4 gap-2 text-sm text-gray-600">
-                  <div>
-                    <span className="block">Total Tips</span>
-                    <span className="font-medium">${day.totalTips.toFixed(2)}</span>
+            </TabsContent>
+            
+            <TabsContent value="days" className="mt-4">
+              <div className="space-y-4">
+                {dayStats.map((day, index) => (
+                  <div key={day.day} className="p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium flex items-center gap-2">
+                        <Calendar className="h-4 w-4" />
+                        {day.day}
+                      </h4>
+                      <span className="text-lg font-bold text-green-600">
+                        ${day.averageTipsPerShift.toFixed(2)}/shift
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-4 gap-2 text-sm text-gray-600">
+                      <div>
+                        <span className="block">Total Tips</span>
+                        <span className="font-medium">${day.totalTips.toFixed(2)}</span>
+                      </div>
+                      <div>
+                        <span className="block">Avg Tip %</span>
+                        <span className="font-medium">{day.averageTipPercentage.toFixed(1)}%</span>
+                      </div>
+                      <div>
+                        <span className="block">Per Guest</span>
+                        <span className="font-medium">${day.averagePerGuest.toFixed(2)}</span>
+                      </div>
+                      <div>
+                        <span className="block">Shifts</span>
+                        <span className="font-medium">{day.shifts}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <span className="block">Avg Tip %</span>
-                    <span className="font-medium">{day.averageTipPercentage.toFixed(1)}%</span>
-                  </div>
-                  <div>
-                    <span className="block">Per Guest</span>
-                    <span className="font-medium">${day.averagePerGuest.toFixed(2)}</span>
-                  </div>
-                  <div>
-                    <span className="block">Shifts</span>
-                    <span className="font-medium">{day.shifts}</span>
-                  </div>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 
