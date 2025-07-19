@@ -112,17 +112,21 @@ export const TipsRecommendations: React.FC<TipsRecommendationsProps> = ({ tipEnt
     const usedSections = new Set(targetDaySections.map(s => s.section));
     const alternativeSections = sectionAverages.filter(s => !usedSections.has(s.section));
 
-    // Get weather data for today (not selected date, always current day)
-    const today = new Date();
-    const todayKey = today.toISOString().split('T')[0];
+    // Get weather data for the target date
     const weatherHistory = getWeatherHistory();
-    const todaysWeather = weatherHistory[todayKey];
+    const dateKey = targetDate.toISOString().split('T')[0];
+    const todaysWeather = weatherHistory[dateKey];
     const weatherRecommendations = todaysWeather ? getWeatherRecommendations(todaysWeather) : [];
 
     return {
       bestDay,
       bestSection,
+      targetDayStats,
+      targetDayIndex,
+      targetDaySections,
+      alternativeSections,
       totalEntries: realEntries.length,
+      isSelectedDay: !!selectedDate,
       todaysWeather,
       weatherRecommendations
     };
@@ -146,7 +150,7 @@ export const TipsRecommendations: React.FC<TipsRecommendationsProps> = ({ tipEnt
     );
   }
 
-  const { bestDay, bestSection, todaysWeather, weatherRecommendations } = recommendations;
+  const { bestDay, bestSection, targetDayStats, targetDayIndex, targetDaySections, alternativeSections, isSelectedDay, todaysWeather, weatherRecommendations } = recommendations;
 
   return (
     <Card className="mb-6">
@@ -201,56 +205,64 @@ export const TipsRecommendations: React.FC<TipsRecommendationsProps> = ({ tipEnt
           </div>
         </div>
 
-        {/* Weather-based drink recommendations */}
-        {todaysWeather && (
-          <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        {/* Selected Day Recommendation */}
+        {targetDayStats && (
+          <div className="flex items-start gap-3 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+            <div className="p-2 bg-primary/10 rounded-full">
+              <TrendingUp className="h-4 w-4 text-primary" />
+            </div>
+            <div className="flex-1">
+              <h4 className="font-medium text-sm">
+                {isSelectedDay ? `${targetDayStats.dayName} Outlook` : "Today's Outlook"}
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                {targetDayStats.day === bestDay.day ? (
+                  <>
+                    {isSelectedDay ? 'This' : 'Today'} is your best day! 
+                    Consider working {bestSection.section} for optimal earnings.
+                  </>
+                ) : targetDayStats.avgTips >= bestDay.avgTips * 0.8 ? (
+                  <>
+                    On {targetDayStats.dayName}s you typically earn ${targetDayStats.avgTips.toFixed(0)} in tips. 
+                    Try {bestSection.section} for best results.
+                  </>
+                ) : (
+                  <>
+                    {targetDayStats.dayName}s are slower (avg ${targetDayStats.avgTips.toFixed(0)} tips). 
+                    {alternativeSections.length > 0 ? (
+                      <>Consider trying {alternativeSections[0].section} - you haven't worked it on {targetDayStats.dayName}s yet!</>
+                    ) : (
+                      <>Consider requesting {bestSection.section} for better results.</>
+                    )}
+                  </>
+                )}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Weather-based recommendations */}
+        {weatherRecommendations && weatherRecommendations.length > 0 && (
+          <div className="flex items-start gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <div className="p-2 bg-blue-100 rounded-full">
               <CloudRain className="h-4 w-4 text-blue-600" />
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <h4 className="font-medium">Today's Weather & Drink Suggestions</h4>
-                <Badge variant="secondary" className="text-xs">
-                  {todaysWeather.temperature}°F - {todaysWeather.description}
-                </Badge>
+                <h4 className="font-medium text-sm">Weather-Based Tips</h4>
+                {todaysWeather && (
+                  <Badge variant="secondary" className="text-xs">
+                    {todaysWeather.temperature}°F - {todaysWeather.description}
+                  </Badge>
+                )}
               </div>
-              
-              <div className="grid grid-cols-3 gap-3 mb-3 text-sm">
-                <div>
-                  <span className="text-blue-600 font-medium">Temperature:</span>
-                  <div>{todaysWeather.temperature}°F</div>
-                </div>
-                <div>
-                  <span className="text-blue-600 font-medium">Feels Like:</span>
-                  <div>{todaysWeather.feelsLike}°F</div>
-                </div>
-                <div>
-                  <span className="text-blue-600 font-medium">Heat Index:</span>
-                  <div className={todaysWeather.heatIndex >= 90 ? 'text-red-600 font-semibold' : ''}>{todaysWeather.heatIndex}°F</div>
-                </div>
+              <div className="space-y-1">
+                {weatherRecommendations.slice(0, 3).map((recommendation, index) => (
+                  <p key={index} className="text-sm text-gray-700">
+                    {recommendation}
+                  </p>
+                ))}
               </div>
-
-              <div className="space-y-2">
-                <h5 className="text-sm font-medium text-blue-700">Recommended Drinks to Suggest:</h5>
-                <div className="space-y-1">
-                  {weatherRecommendations.slice(0, 4).map((recommendation, index) => (
-                    <p key={index} className="text-sm text-gray-700 leading-relaxed">
-                      {recommendation}
-                    </p>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* No weather data message */}
-        {!todaysWeather && (
-          <div className="flex items-center justify-center p-4 bg-gray-50 border border-gray-200 rounded-lg">
-            <div className="text-center">
-              <CloudRain className="h-6 w-6 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-gray-600 mb-2">No weather data for today</p>
-              <p className="text-xs text-gray-500">Click the weather icon in the top right to record today's weather for drink suggestions</p>
             </div>
           </div>
         )}
