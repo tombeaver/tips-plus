@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Trash2, Save, X } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Trash2, Save, X, Edit2, Plus } from 'lucide-react';
 import { TipEntry } from '@/pages/Index';
 
 interface TipEntryFormProps {
@@ -17,6 +18,8 @@ interface TipEntryFormProps {
   onCancel: () => void;
   onDelete?: () => void;
   previousEntry?: TipEntry;
+  sections: { [key: string]: string };
+  onUpdateSections: (sections: { [key: string]: string }) => void;
 }
 
 export const TipEntryForm: React.FC<TipEntryFormProps> = ({
@@ -25,7 +28,9 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
   onSave,
   onCancel,
   onDelete,
-  previousEntry
+  previousEntry,
+  sections,
+  onUpdateSections
 }) => {
   const [totalSales, setTotalSales] = useState(existingEntry?.totalSales.toString() || '');
   const [creditTips, setCreditTips] = useState(existingEntry?.creditTips.toString() || '');
@@ -38,11 +43,9 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
   const [hourlyRate, setHourlyRate] = useState(
     existingEntry?.hourlyRate.toString() || previousEntry?.hourlyRate.toString() || ''
   );
-
-  const sections = [
-    'Section 1', 'Section 2', 'Section 3', 'Section 4', 'Section 5',
-    'Bar', 'Patio', 'Private Dining', 'Takeout', 'Other'
-  ];
+  const [showSectionEditor, setShowSectionEditor] = useState(false);
+  const [editingSectionId, setEditingSectionId] = useState<string>('');
+  const [editingSectionName, setEditingSectionName] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +56,7 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
       creditTips: parseFloat(creditTips) || 0,
       cashTips: parseFloat(cashTips) || 0,
       guestCount: parseInt(guestCount) || 0,
-      section: section || 'Other',
+      section: section || Object.keys(sections)[0],
       
       shift,
       hoursWorked: parseFloat(hoursWorked) || 0,
@@ -140,15 +143,63 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="section">Section</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="section">Section</Label>
+                <Dialog open={showSectionEditor} onOpenChange={setShowSectionEditor}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Edit2 className="h-3 w-3 mr-1" />
+                      Edit Sections
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Manage Sections</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-3 max-h-60 overflow-y-auto">
+                      {Object.entries(sections).map(([id, name]) => (
+                        <div key={id} className="flex items-center gap-2">
+                          <Input
+                            value={editingSectionId === id ? editingSectionName : name}
+                            onChange={(e) => {
+                              if (editingSectionId === id) {
+                                setEditingSectionName(e.target.value);
+                              } else {
+                                setEditingSectionId(id);
+                                setEditingSectionName(e.target.value);
+                              }
+                            }}
+                            onBlur={() => {
+                              if (editingSectionId === id && editingSectionName.trim()) {
+                                onUpdateSections({
+                                  ...sections,
+                                  [id]: editingSectionName.trim()
+                                });
+                              }
+                              setEditingSectionId('');
+                              setEditingSectionName('');
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.currentTarget.blur();
+                              }
+                            }}
+                            className="flex-1"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
               <Select value={section} onValueChange={setSection} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select section" />
                 </SelectTrigger>
                 <SelectContent>
-                  {sections.map((sec) => (
-                    <SelectItem key={sec} value={sec}>
-                      {sec}
+                  {Object.entries(sections).map(([id, name]) => (
+                    <SelectItem key={id} value={name}>
+                      {name}
                     </SelectItem>
                   ))}
                 </SelectContent>

@@ -35,7 +35,7 @@ export interface Goal {
 const generateTestData = (): TipEntry[] => {
   const testEntries: TipEntry[] = [];
   const today = new Date();
-  const sections = ['Bar', 'Dining Room', 'Patio', 'VIP', 'Main Floor'];
+  const sections = ['Section 1', 'Section 2', 'Section 3', 'Section 4', 'Section 5'];
   const shifts: ('AM' | 'PM')[] = ['AM', 'PM'];
   
   // Generate 15 days of random data (past 10 days + next 5 days)
@@ -75,6 +75,15 @@ const generateTestData = (): TipEntry[] => {
 };
 // ==================== END TEST DATA GENERATOR ====================
 
+// Create default numbered sections (1-20)
+const createDefaultSections = () => {
+  const sections: { [key: string]: string } = {};
+  for (let i = 1; i <= 20; i++) {
+    sections[`section-${i}`] = `Section ${i}`;
+  }
+  return sections;
+};
+
 const Index = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   // Initialize with test data - REMOVE generateTestData() call in production
@@ -82,6 +91,7 @@ const Index = () => {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [showEntryForm, setShowEntryForm] = useState(false);
   const [activeTab, setActiveTab] = useState("calendar");
+  const [sections, setSections] = useState<{ [key: string]: string }>(createDefaultSections());
 
   const addTipEntry = (entry: Omit<TipEntry, 'id'>) => {
     const newEntry: TipEntry = {
@@ -365,13 +375,20 @@ const Index = () => {
                         </div>
                       </div>
                     ) : (
-                      <Button 
-                        variant="outline" 
-                        className="w-full"
-                        onClick={() => setShowEntryForm(true)}
-                      >
-                        Edit Entry
-                      </Button>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button 
+                          variant="outline" 
+                          onClick={() => setShowEntryForm(true)}
+                        >
+                          Edit Entry
+                        </Button>
+                        <Button 
+                          variant="destructive"
+                          onClick={() => deleteTipEntry(selectedEntry.id)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
                     )}
                   </div>
                 ) : (
@@ -416,6 +433,7 @@ const Index = () => {
             selectedDate={selectedDate}
             existingEntry={selectedEntry}
             previousEntry={getMostRecentEntry()}
+            sections={sections}
             onSave={selectedEntry ? 
               (entry) => updateTipEntry(selectedEntry.id, entry) : 
               addTipEntry
@@ -428,6 +446,7 @@ const Index = () => {
               } : 
               undefined
             }
+            onUpdateSections={setSections}
           />
         )}
       </div>
