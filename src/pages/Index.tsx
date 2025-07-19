@@ -276,7 +276,7 @@ const Index = () => {
             </Card>
 
             {/* Tips & Recommendations */}
-            <TipsRecommendations tipEntries={tipEntries} />
+            <TipsRecommendations tipEntries={tipEntries} selectedDate={selectedDate} />
 
             {/* Selected Date Info */}
             <Card>

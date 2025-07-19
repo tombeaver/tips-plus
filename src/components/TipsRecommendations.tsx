@@ -20,9 +20,10 @@ interface TipEntry {
 
 interface TipsRecommendationsProps {
   tipEntries: TipEntry[];
+  selectedDate?: Date;
 }
 
-export const TipsRecommendations: React.FC<TipsRecommendationsProps> = ({ tipEntries }) => {
+export const TipsRecommendations: React.FC<TipsRecommendationsProps> = ({ tipEntries, selectedDate }) => {
   const recommendations = useMemo(() => {
     // Add null safety check
     if (!tipEntries || !Array.isArray(tipEntries)) {
@@ -93,18 +94,34 @@ export const TipsRecommendations: React.FC<TipsRecommendationsProps> = ({ tipEnt
       current.avgTips > best.avgTips ? current : best
     );
 
-    // Get today's day of week for specific recommendation
-    const today = new Date();
-    const todayIndex = getDay(today);
-    const todayStats = dayAverages.find(d => d.day === todayIndex);
+    // Get selected day's stats (or today if no date selected)
+    const targetDate = selectedDate || new Date();
+    const targetDayIndex = getDay(targetDate);
+    const targetDayStats = dayAverages.find(d => d.day === targetDayIndex);
+    
+    // Find sections used on this day of week
+    const targetDaySections = realEntries
+      .filter(entry => entry.date && getDay(entry.date) === targetDayIndex)
+      .map(entry => ({
+        section: entry.section || 'Unknown',
+        tips: (entry.creditTips || 0) + (entry.cashTips || 0)
+      }));
+      
+    // Get alternative sections (ones not tried on this day)
+    const usedSections = new Set(targetDaySections.map(s => s.section));
+    const alternativeSections = sectionAverages.filter(s => !usedSections.has(s.section));
 
     return {
       bestDay,
       bestSection,
-      todayStats,
-      totalEntries: realEntries.length
+      targetDayStats,
+      targetDayIndex,
+      targetDaySections,
+      alternativeSections,
+      totalEntries: realEntries.length,
+      isSelectedDay: !!selectedDate
     };
-  }, [tipEntries]);
+  }, [tipEntries, selectedDate]);
 
   if (!recommendations) {
     return (
@@ -124,7 +141,7 @@ export const TipsRecommendations: React.FC<TipsRecommendationsProps> = ({ tipEnt
     );
   }
 
-  const { bestDay, bestSection, todayStats } = recommendations;
+  const { bestDay, bestSection, targetDayStats, targetDayIndex, targetDaySections, alternativeSections, isSelectedDay } = recommendations;
 
   return (
     <Card className="mb-6">
@@ -179,19 +196,36 @@ export const TipsRecommendations: React.FC<TipsRecommendationsProps> = ({ tipEnt
           </div>
         </div>
 
-        {/* Today's Recommendation */}
-        {todayStats && (
+        {/* Selected Day Recommendation */}
+        {targetDayStats && (
           <div className="flex items-start gap-3 p-3 bg-primary/5 border border-primary/20 rounded-lg">
             <div className="p-2 bg-primary/10 rounded-full">
               <TrendingUp className="h-4 w-4 text-primary" />
             </div>
             <div className="flex-1">
-              <h4 className="font-medium text-sm">Today's Outlook</h4>
+              <h4 className="font-medium text-sm">
+                {isSelectedDay ? `${targetDayStats.dayName} Outlook` : "Today's Outlook"}
+              </h4>
               <p className="text-sm text-muted-foreground">
-                {todayStats.day === bestDay.day ? (
-                  <>Today is your best day! Consider working {bestSection.section} for optimal earnings.</>
+                {targetDayStats.day === bestDay.day ? (
+                  <>
+                    {isSelectedDay ? 'This' : 'Today'} is your best day! 
+                    Consider working {bestSection.section} for optimal earnings.
+                  </>
+                ) : targetDayStats.avgTips >= bestDay.avgTips * 0.8 ? (
+                  <>
+                    On {targetDayStats.dayName}s you typically earn ${targetDayStats.avgTips.toFixed(0)} in tips. 
+                    Try {bestSection.section} for best results.
+                  </>
                 ) : (
-                  <>On {todayStats.dayName}s you typically earn ${todayStats.avgTips.toFixed(0)} in tips. Try {bestSection.section} for best results.</>
+                  <>
+                    {targetDayStats.dayName}s are slower (avg ${targetDayStats.avgTips.toFixed(0)} tips). 
+                    {alternativeSections.length > 0 ? (
+                      <>Consider trying {alternativeSections[0].section} - you haven't worked it on {targetDayStats.dayName}s yet!</>
+                    ) : (
+                      <>Consider requesting {bestSection.section} for better results.</>
+                    )}
+                  </>
                 )}
               </p>
             </div>
