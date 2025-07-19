@@ -9,7 +9,8 @@ import { GoalSettings } from '@/components/GoalSettings';
 
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { TipsRecommendations } from '@/components/TipsRecommendations';
-import { CalendarDays, TrendingUp, Target, Plus } from 'lucide-react';
+import { DayOutlook } from '@/components/DayOutlook';
+import { CalendarDays, TrendingUp, Target, Plus, Star } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
 
 export interface TipEntry {
@@ -164,10 +165,14 @@ const Index = () => {
 
         {/* Main Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="calendar" className="flex items-center gap-1">
               <CalendarDays className="h-4 w-4" />
               <span className="hidden sm:inline">Calendar</span>
+            </TabsTrigger>
+            <TabsTrigger value="tips" className="flex items-center gap-1">
+              <Star className="h-4 w-4" />
+              <span className="hidden sm:inline">Tips</span>
             </TabsTrigger>
             <TabsTrigger value="analytics" className="flex items-center gap-1">
               <TrendingUp className="h-4 w-4" />
@@ -229,8 +234,8 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            {/* Tips & Recommendations */}
-            <TipsRecommendations tipEntries={tipEntries} selectedDate={selectedDate} />
+            {/* Day Outlook */}
+            <DayOutlook tipEntries={tipEntries} selectedDate={selectedDate} />
 
             {/* Selected Date Info */}
             <Card>
@@ -342,6 +347,11 @@ const Index = () => {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Tips Tab */}
+          <TabsContent value="tips">
+            <TipsRecommendations tipEntries={tipEntries} selectedDate={selectedDate} />
           </TabsContent>
 
           {/* Analytics Tab */}
