@@ -8,6 +8,7 @@ import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
 import { GoalSettings } from '@/components/GoalSettings';
 import { PredictivePlanning } from '@/components/PredictivePlanning';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
+import { TipsRecommendations } from '@/components/TipsRecommendations';
 import { CalendarDays, TrendingUp, Target, Plus, Brain } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
 
@@ -273,6 +274,9 @@ const Index = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Tips & Recommendations */}
+            <TipsRecommendations tipEntries={tipEntries} />
 
             {/* Selected Date Info */}
             <Card>
