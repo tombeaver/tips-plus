@@ -10,6 +10,7 @@ import { GoalSettings } from '@/components/GoalSettings';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { TipsRecommendations } from '@/components/TipsRecommendations';
 import { DayOutlook } from '@/components/DayOutlook';
+import { WeatherTracker, WeatherData } from '@/components/WeatherTracker';
 import { CalendarDays, TrendingUp, Target, Plus, Star } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
 
@@ -25,6 +26,7 @@ export interface TipEntry {
   shift: 'AM' | 'PM';
   hoursWorked: number;
   hourlyRate: number;
+  weather?: WeatherData;
 }
 
 export interface Goal {
@@ -233,6 +235,9 @@ const Index = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Weather Tracker */}
+            <WeatherTracker selectedDate={selectedDate} />
 
             {/* Day Outlook */}
             <DayOutlook tipEntries={tipEntries} selectedDate={selectedDate} />

@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, Calendar, MapPin, Star } from 'lucide-react';
+import { TrendingUp, Calendar, MapPin, Star, CloudRain } from 'lucide-react';
 import { format, getDay, isAfter, startOfWeek } from 'date-fns';
+import { getWeatherHistory, getWeatherRecommendations } from '@/components/WeatherTracker';
 
 interface TipEntry {
   id: string;
@@ -111,6 +112,12 @@ export const TipsRecommendations: React.FC<TipsRecommendationsProps> = ({ tipEnt
     const usedSections = new Set(targetDaySections.map(s => s.section));
     const alternativeSections = sectionAverages.filter(s => !usedSections.has(s.section));
 
+    // Get weather data for the target date
+    const weatherHistory = getWeatherHistory();
+    const dateKey = targetDate.toISOString().split('T')[0];
+    const todaysWeather = weatherHistory[dateKey];
+    const weatherRecommendations = todaysWeather ? getWeatherRecommendations(todaysWeather) : [];
+
     return {
       bestDay,
       bestSection,
@@ -119,7 +126,9 @@ export const TipsRecommendations: React.FC<TipsRecommendationsProps> = ({ tipEnt
       targetDaySections,
       alternativeSections,
       totalEntries: realEntries.length,
-      isSelectedDay: !!selectedDate
+      isSelectedDay: !!selectedDate,
+      todaysWeather,
+      weatherRecommendations
     };
   }, [tipEntries, selectedDate]);
 
@@ -141,7 +150,7 @@ export const TipsRecommendations: React.FC<TipsRecommendationsProps> = ({ tipEnt
     );
   }
 
-  const { bestDay, bestSection, targetDayStats, targetDayIndex, targetDaySections, alternativeSections, isSelectedDay } = recommendations;
+  const { bestDay, bestSection, targetDayStats, targetDayIndex, targetDaySections, alternativeSections, isSelectedDay, todaysWeather, weatherRecommendations } = recommendations;
 
   return (
     <Card className="mb-6">
@@ -228,6 +237,32 @@ export const TipsRecommendations: React.FC<TipsRecommendationsProps> = ({ tipEnt
                   </>
                 )}
               </p>
+            </div>
+          </div>
+        )}
+
+        {/* Weather-based recommendations */}
+        {weatherRecommendations && weatherRecommendations.length > 0 && (
+          <div className="flex items-start gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="p-2 bg-blue-100 rounded-full">
+              <CloudRain className="h-4 w-4 text-blue-600" />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <h4 className="font-medium text-sm">Weather-Based Tips</h4>
+                {todaysWeather && (
+                  <Badge variant="secondary" className="text-xs">
+                    {todaysWeather.temperature}°F - {todaysWeather.description}
+                  </Badge>
+                )}
+              </div>
+              <div className="space-y-1">
+                {weatherRecommendations.slice(0, 3).map((recommendation, index) => (
+                  <p key={index} className="text-sm text-gray-700">
+                    {recommendation}
+                  </p>
+                ))}
+              </div>
             </div>
           </div>
         )}
