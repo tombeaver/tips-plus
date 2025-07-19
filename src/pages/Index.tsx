@@ -219,9 +219,11 @@ const Index = () => {
                   onSelect={(date) => date && setSelectedDate(date)}
                   className="rounded-md border pointer-events-auto"
                   modifiers={{
-                    hasRealEntry: (date) => hasRealEntryForDate(date),
-                    hasProjectedEntry: (date) => hasProjectedEntryForDate(date) && !hasRealEntryForDate(date),
-                    today: (date) => isToday(date)
+                     hasRealEntry: (date) => hasRealEntryForDate(date) && !isToday(date),
+                     hasProjectedEntry: (date) => hasProjectedEntryForDate(date) && !hasRealEntryForDate(date) && !isToday(date),
+                     todayWithEntry: (date) => isToday(date) && hasRealEntryForDate(date),
+                     todayWithProjection: (date) => isToday(date) && hasProjectedEntryForDate(date) && !hasRealEntryForDate(date),
+                     today: (date) => isToday(date) && !hasRealEntryForDate(date) && !hasProjectedEntryForDate(date)
                   }}
                   modifiersStyles={{
                     hasRealEntry: { 
@@ -235,10 +237,21 @@ const Index = () => {
                       fontWeight: 'bold',
                       opacity: 0.8
                     },
-                    today: {
-                      backgroundColor: 'rgb(59 130 246)',
-                      color: 'white'
-                    }
+                     today: {
+                       backgroundColor: 'rgb(59 130 246)',
+                       color: 'white'
+                     },
+                     todayWithEntry: {
+                       backgroundColor: 'rgb(59 130 246)',
+                       color: 'white',
+                       fontWeight: 'bold'
+                     },
+                     todayWithProjection: {
+                       backgroundColor: 'rgb(59 130 246)',
+                       color: 'white',
+                       fontWeight: 'bold',
+                       opacity: 0.9
+                     }
                   }}
                 />
                 <div className="mt-4 space-y-2 text-sm text-gray-600">
