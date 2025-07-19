@@ -10,6 +10,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Trash2, Save, X, Edit2, Plus } from 'lucide-react';
 import { TipEntry } from '@/pages/Index';
+import { ConfirmationModal } from '@/components/ConfirmationModal';
 
 interface TipEntryFormProps {
   selectedDate: Date;
@@ -47,6 +48,9 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
   const [editingSectionId, setEditingSectionId] = useState<string>('');
   const [editingSectionName, setEditingSectionName] = useState('');
   const [newSectionName, setNewSectionName] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showSectionDeleteConfirm, setShowSectionDeleteConfirm] = useState(false);
+  const [sectionToDelete, setSectionToDelete] = useState<string>('');
 
   const addNewSection = () => {
     if (newSectionName.trim()) {
@@ -216,7 +220,10 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
                               type="button"
                               variant="destructive"
                               size="sm"
-                              onClick={() => deleteSection(id)}
+                              onClick={() => {
+                                setSectionToDelete(id);
+                                setShowSectionDeleteConfirm(true);
+                              }}
                               disabled={Object.keys(sections).length <= 1}
                             >
                               <X className="h-3 w-3" />
@@ -364,7 +371,7 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
                 <Button 
                   type="button" 
                   variant="destructive" 
-                  onClick={onDelete}
+                  onClick={() => setShowDeleteConfirm(true)}
                   className="flex-1"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
@@ -383,6 +390,30 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
           </form>
         </CardContent>
       </Card>
+
+      <ConfirmationModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={onDelete!}
+        title="Delete Tip Entry"
+        description="Are you sure you want to delete this tip entry? This action cannot be undone."
+        confirmText="Delete Entry"
+      />
+
+      <ConfirmationModal
+        isOpen={showSectionDeleteConfirm}
+        onClose={() => {
+          setShowSectionDeleteConfirm(false);
+          setSectionToDelete('');
+        }}
+        onConfirm={() => {
+          deleteSection(sectionToDelete);
+          setSectionToDelete('');
+        }}
+        title="Delete Section"
+        description={`Are you sure you want to delete the section "${sections[sectionToDelete]}"? This action cannot be undone.`}
+        confirmText="Delete Section"
+      />
     </div>
   );
 };
