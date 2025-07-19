@@ -24,7 +24,12 @@ interface TipsRecommendationsProps {
 
 export const TipsRecommendations: React.FC<TipsRecommendationsProps> = ({ tipEntries }) => {
   const recommendations = useMemo(() => {
-    const realEntries = tipEntries.filter(entry => !entry.isPlaceholder);
+    // Add null safety check
+    if (!tipEntries || !Array.isArray(tipEntries)) {
+      return null;
+    }
+    
+    const realEntries = tipEntries.filter(entry => entry && !entry.isPlaceholder);
     
     if (realEntries.length < 5) {
       return null; // Not enough data for meaningful recommendations
@@ -35,9 +40,12 @@ export const TipsRecommendations: React.FC<TipsRecommendationsProps> = ({ tipEnt
     const sectionStats: { [key: string]: { total: number; count: number } } = {};
 
     realEntries.forEach(entry => {
+      // Add null safety for entry properties
+      if (!entry || !entry.date) return;
+      
       const dayOfWeek = getDay(entry.date);
-      const totalTips = entry.creditTips + entry.cashTips;
-      const totalEarnings = totalTips + (entry.hoursWorked * entry.hourlyRate);
+      const totalTips = (entry.creditTips || 0) + (entry.cashTips || 0);
+      const totalEarnings = totalTips + ((entry.hoursWorked || 0) * (entry.hourlyRate || 0));
       
       // Day statistics
       if (!dayStats[dayOfWeek]) {
@@ -48,7 +56,7 @@ export const TipsRecommendations: React.FC<TipsRecommendationsProps> = ({ tipEnt
       dayStats[dayOfWeek].count += 1;
 
       // Section statistics
-      const section = entry.section;
+      const section = entry.section || 'Unknown';
       if (totalTips > 0) {
         if (!sectionStats[section]) {
           sectionStats[section] = { total: 0, count: 0 };
@@ -72,7 +80,11 @@ export const TipsRecommendations: React.FC<TipsRecommendationsProps> = ({ tipEnt
       workCount: stats.count
     }));
 
-    // Find best day and section
+    // Find best day and section - add safety checks
+    if (dayAverages.length === 0 || sectionAverages.length === 0) {
+      return null;
+    }
+
     const bestDay = dayAverages.reduce((best, current) => 
       current.avgTips > best.avgTips ? current : best
     );
