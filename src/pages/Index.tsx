@@ -7,6 +7,7 @@ import { TipEntryForm } from '@/components/TipEntryForm';
 import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
 import { GoalSettings } from '@/components/GoalSettings';
 import { PredictivePlanning } from '@/components/PredictivePlanning';
+import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { CalendarDays, TrendingUp, Target, Plus, Brain } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
 
@@ -92,6 +93,8 @@ const Index = () => {
   const [showEntryForm, setShowEntryForm] = useState(false);
   const [activeTab, setActiveTab] = useState("calendar");
   const [sections, setSections] = useState<{ [key: string]: string }>(createDefaultSections());
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [entryToDelete, setEntryToDelete] = useState<string>('');
 
   const addTipEntry = (entry: Omit<TipEntry, 'id'>) => {
     const newEntry: TipEntry = {
@@ -374,7 +377,10 @@ const Index = () => {
                           <Button 
                             variant="destructive"
                             size="sm"
-                            onClick={() => deleteTipEntry(selectedEntry.id)}
+                            onClick={() => {
+                              setEntryToDelete(selectedEntry.id);
+                              setShowDeleteConfirm(true);
+                            }}
                           >
                             Delete
                           </Button>
@@ -397,7 +403,10 @@ const Index = () => {
                         </Button>
                         <Button 
                           variant="destructive"
-                          onClick={() => deleteTipEntry(selectedEntry.id)}
+                          onClick={() => {
+                            setEntryToDelete(selectedEntry.id);
+                            setShowDeleteConfirm(true);
+                          }}
                         >
                           Delete
                         </Button>
@@ -462,6 +471,24 @@ const Index = () => {
             onUpdateSections={setSections}
           />
         )}
+
+        <ConfirmationModal
+          isOpen={showDeleteConfirm}
+          onClose={() => {
+            setShowDeleteConfirm(false);
+            setEntryToDelete('');
+          }}
+          onConfirm={() => {
+            deleteTipEntry(entryToDelete);
+            setEntryToDelete('');
+          }}
+          title="Delete Tip Entry"
+          description={selectedEntry ? 
+            `Are you sure you want to delete the tip entry for ${format(selectedEntry.date, 'MMMM d, yyyy')}? This action cannot be undone.` :
+            "Are you sure you want to delete this tip entry? This action cannot be undone."
+          }
+          confirmText="Delete Entry"
+        />
       </div>
     </div>
   );
