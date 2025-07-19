@@ -10,7 +10,7 @@ import { GoalSettings } from '@/components/GoalSettings';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { TipsRecommendations } from '@/components/TipsRecommendations';
 import { DayOutlook } from '@/components/DayOutlook';
-import { WeatherTracker, WeatherData } from '@/components/WeatherTracker';
+import { WeatherIcon } from '@/components/WeatherIcon';
 import { CalendarDays, TrendingUp, Target, Plus, Star } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
 
@@ -26,7 +26,7 @@ export interface TipEntry {
   shift: 'AM' | 'PM';
   hoursWorked: number;
   hourlyRate: number;
-  weather?: WeatherData;
+  weather?: any;
 }
 
 export interface Goal {
@@ -160,9 +160,14 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="max-w-md mx-auto space-y-4">
         {/* Header */}
-        <div className="text-center py-4">
+        <div className="text-center py-4 relative">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Tip Tracker</h1>
           <p className="text-gray-600">Track your earnings & reach your goals</p>
+          
+          {/* Weather Icon in top right */}
+          <div className="absolute top-4 right-4">
+            <WeatherIcon selectedDate={selectedDate} />
+          </div>
         </div>
 
         {/* Main Navigation */}
@@ -235,9 +240,6 @@ const Index = () => {
                 </div>
               </CardContent>
             </Card>
-
-            {/* Weather Tracker */}
-            <WeatherTracker selectedDate={selectedDate} />
 
             {/* Day Outlook */}
             <DayOutlook tipEntries={tipEntries} selectedDate={selectedDate} />
