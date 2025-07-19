@@ -6,10 +6,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TipEntryForm } from '@/components/TipEntryForm';
 import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
 import { GoalSettings } from '@/components/GoalSettings';
-import { PredictivePlanning } from '@/components/PredictivePlanning';
+
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { TipsRecommendations } from '@/components/TipsRecommendations';
-import { CalendarDays, TrendingUp, Target, Plus, Brain } from 'lucide-react';
+import { CalendarDays, TrendingUp, Target, Plus } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
 
 export interface TipEntry {
@@ -116,11 +116,6 @@ const Index = () => {
     setTipEntries(prev => prev.filter(entry => entry.id !== id));
   };
 
-  const confirmProjection = (id: string) => {
-    setTipEntries(prev => prev.map(entry => 
-      entry.id === id ? { ...entry, isPlaceholder: false } : entry
-    ));
-  };
 
   const addGoal = (goal: Omit<Goal, 'id'>) => {
     const newGoal: Goal = {
@@ -138,17 +133,6 @@ const Index = () => {
     return tipEntries.some(entry => isSameDay(entry.date, date));
   };
 
-  const hasProjectedEntryForDate = (date: Date) => {
-    return tipEntries.some(entry => 
-      isSameDay(entry.date, date) && entry.isPlaceholder
-    );
-  };
-
-  const hasRealEntryForDate = (date: Date) => {
-    return tipEntries.some(entry => 
-      isSameDay(entry.date, date) && !entry.isPlaceholder
-    );
-  };
 
   const getTotalTips = (entry: TipEntry) => {
     return entry.creditTips + entry.cashTips;
@@ -164,15 +148,7 @@ const Index = () => {
 
   const getMostRecentEntry = () => {
     return tipEntries
-      .filter(entry => !entry.isPlaceholder)
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
-  };
-
-  const addProjectedEntries = (projectedEntries: TipEntry[]) => {
-    // Remove existing placeholders first
-    setTipEntries(prev => prev.filter(entry => !entry.isPlaceholder));
-    // Add new projected entries
-    setTipEntries(prev => [...prev, ...projectedEntries]);
   };
 
   const selectedEntry = getEntryForDate(selectedDate);
@@ -188,7 +164,7 @@ const Index = () => {
 
         {/* Main Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="calendar" className="flex items-center gap-1">
               <CalendarDays className="h-4 w-4" />
               <span className="hidden sm:inline">Calendar</span>
@@ -196,10 +172,6 @@ const Index = () => {
             <TabsTrigger value="analytics" className="flex items-center gap-1">
               <TrendingUp className="h-4 w-4" />
               <span className="hidden sm:inline">Analytics</span>
-            </TabsTrigger>
-            <TabsTrigger value="planning" className="flex items-center gap-1">
-              <Brain className="h-4 w-4" />
-              <span className="hidden sm:inline">Planning</span>
             </TabsTrigger>
             <TabsTrigger value="goals" className="flex items-center gap-1">
               <Target className="h-4 w-4" />
@@ -223,23 +195,15 @@ const Index = () => {
                   onSelect={(date) => date && setSelectedDate(date)}
                   className="rounded-md border pointer-events-auto"
                   modifiers={{
-                     hasRealEntry: (date) => hasRealEntryForDate(date) && !isToday(date),
-                     hasProjectedEntry: (date) => hasProjectedEntryForDate(date) && !hasRealEntryForDate(date) && !isToday(date),
-                     todayWithEntry: (date) => isToday(date) && hasRealEntryForDate(date),
-                     todayWithProjection: (date) => isToday(date) && hasProjectedEntryForDate(date) && !hasRealEntryForDate(date),
-                     today: (date) => isToday(date) && !hasRealEntryForDate(date) && !hasProjectedEntryForDate(date)
+                     hasEntry: (date) => hasEntryForDate(date) && !isToday(date),
+                     todayWithEntry: (date) => isToday(date) && hasEntryForDate(date),
+                     today: (date) => isToday(date) && !hasEntryForDate(date)
                   }}
                   modifiersStyles={{
-                    hasRealEntry: { 
+                    hasEntry: { 
                       backgroundColor: 'rgb(34 197 94)',
                       color: 'white',
                       fontWeight: 'bold'
-                    },
-                    hasProjectedEntry: {
-                      backgroundColor: 'rgb(168 85 247)',
-                      color: 'white',
-                      fontWeight: 'bold',
-                      opacity: 0.8
                     },
                      today: {
                        backgroundColor: 'rgb(59 130 246)',
@@ -249,23 +213,13 @@ const Index = () => {
                        backgroundColor: 'rgb(59 130 246)',
                        color: 'white',
                        fontWeight: 'bold'
-                     },
-                     todayWithProjection: {
-                       backgroundColor: 'rgb(59 130 246)',
-                       color: 'white',
-                       fontWeight: 'bold',
-                       opacity: 0.9
                      }
                   }}
                 />
                 <div className="mt-4 space-y-2 text-sm text-gray-600">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                    <span>Real entries</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-purple-500 rounded-full opacity-80"></div>
-                    <span>Projected shifts</span>
+                    <span>Entries</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
@@ -285,10 +239,7 @@ const Index = () => {
                   {format(selectedDate, 'EEEE, MMMM d, yyyy')}
                 </CardTitle>
                 <CardDescription>
-                  {selectedEntry ? 
-                    selectedEntry.isPlaceholder ? 'Projected shift (planning scenario)' : 'Your shift details' 
-                    : 'No entry for this date'
-                  }
+                  {selectedEntry ? 'Your shift details' : 'No entry for this date'}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -362,60 +313,23 @@ const Index = () => {
                       </div>
                     </div>
                     
-                    {selectedEntry.isPlaceholder ? (
-                      <div className="space-y-3">
-                        <div className="text-center p-3 bg-purple-50 rounded-lg border border-purple-200">
-                          <p className="text-sm text-purple-700 font-medium">Projected Shift</p>
-                          <p className="text-xs text-purple-600">
-                            This is a planning scenario based on your work patterns
-                          </p>
-                        </div>
-                        <div className="grid grid-cols-3 gap-2">
-                          <Button 
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setShowEntryForm(true)}
-                          >
-                            Edit
-                          </Button>
-                          <Button 
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => {
-                              setEntryToDelete(selectedEntry.id);
-                              setShowDeleteConfirm(true);
-                            }}
-                          >
-                            Delete
-                          </Button>
-                          <Button 
-                            variant="default"
-                            size="sm"
-                            onClick={() => confirmProjection(selectedEntry.id)}
-                          >
-                            Confirm
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-2 gap-2">
-                        <Button 
-                          variant="outline" 
-                          onClick={() => setShowEntryForm(true)}
-                        >
-                          Edit Entry
-                        </Button>
-                        <Button 
-                          variant="destructive"
-                          onClick={() => {
-                            setEntryToDelete(selectedEntry.id);
-                            setShowDeleteConfirm(true);
-                          }}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    )}
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setShowEntryForm(true)}
+                      >
+                        Edit Entry
+                      </Button>
+                      <Button 
+                        variant="destructive"
+                        onClick={() => {
+                          setEntryToDelete(selectedEntry.id);
+                          setShowDeleteConfirm(true);
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </div>
                   </div>
                 ) : (
                   <Button 
@@ -435,13 +349,6 @@ const Index = () => {
             <AnalyticsDashboard tipEntries={tipEntries} />
           </TabsContent>
 
-          {/* Planning Tab */}
-          <TabsContent value="planning">
-            <PredictivePlanning 
-              tipEntries={tipEntries}
-              onAddProjectedEntries={addProjectedEntries}
-            />
-          </TabsContent>
 
           {/* Goals Tab */}
           <TabsContent value="goals">
