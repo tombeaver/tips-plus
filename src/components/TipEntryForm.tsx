@@ -46,6 +46,31 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
   const [showSectionEditor, setShowSectionEditor] = useState(false);
   const [editingSectionId, setEditingSectionId] = useState<string>('');
   const [editingSectionName, setEditingSectionName] = useState('');
+  const [newSectionName, setNewSectionName] = useState('');
+
+  const addNewSection = () => {
+    if (newSectionName.trim()) {
+      const newId = `section-${Date.now()}`;
+      onUpdateSections({
+        ...sections,
+        [newId]: newSectionName.trim()
+      });
+      setNewSectionName('');
+    }
+  };
+
+  const deleteSection = (sectionId: string) => {
+    const updatedSections = { ...sections };
+    delete updatedSections[sectionId];
+    onUpdateSections(updatedSections);
+    
+    // If the currently selected section was deleted, reset to first available
+    const sectionName = sections[sectionId];
+    if (section === sectionName) {
+      const remainingSections = Object.values(updatedSections);
+      setSection(remainingSections[0] || '');
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -156,38 +181,75 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
                     <DialogHeader>
                       <DialogTitle>Manage Sections</DialogTitle>
                     </DialogHeader>
-                    <div className="space-y-3 max-h-60 overflow-y-auto">
-                      {Object.entries(sections).map(([id, name]) => (
-                        <div key={id} className="flex items-center gap-2">
+                    <div className="space-y-3">
+                      <div className="max-h-40 overflow-y-auto space-y-2">
+                        {Object.entries(sections).map(([id, name]) => (
+                          <div key={id} className="flex items-center gap-2">
+                            <Input
+                              value={editingSectionId === id ? editingSectionName : name}
+                              onChange={(e) => {
+                                if (editingSectionId === id) {
+                                  setEditingSectionName(e.target.value);
+                                } else {
+                                  setEditingSectionId(id);
+                                  setEditingSectionName(e.target.value);
+                                }
+                              }}
+                              onBlur={() => {
+                                if (editingSectionId === id && editingSectionName.trim()) {
+                                  onUpdateSections({
+                                    ...sections,
+                                    [id]: editingSectionName.trim()
+                                  });
+                                }
+                                setEditingSectionId('');
+                                setEditingSectionName('');
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.currentTarget.blur();
+                                }
+                              }}
+                              className="flex-1"
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => deleteSection(id)}
+                              disabled={Object.keys(sections).length <= 1}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <div className="border-t pt-3">
+                        <div className="flex items-center gap-2">
                           <Input
-                            value={editingSectionId === id ? editingSectionName : name}
-                            onChange={(e) => {
-                              if (editingSectionId === id) {
-                                setEditingSectionName(e.target.value);
-                              } else {
-                                setEditingSectionId(id);
-                                setEditingSectionName(e.target.value);
-                              }
-                            }}
-                            onBlur={() => {
-                              if (editingSectionId === id && editingSectionName.trim()) {
-                                onUpdateSections({
-                                  ...sections,
-                                  [id]: editingSectionName.trim()
-                                });
-                              }
-                              setEditingSectionId('');
-                              setEditingSectionName('');
-                            }}
+                            placeholder="New section name"
+                            value={newSectionName}
+                            onChange={(e) => setNewSectionName(e.target.value)}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') {
-                                e.currentTarget.blur();
+                                addNewSection();
                               }
                             }}
                             className="flex-1"
                           />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={addNewSection}
+                            disabled={!newSectionName.trim()}
+                          >
+                            <Plus className="h-3 w-3 mr-1" />
+                            Add
+                          </Button>
                         </div>
-                      ))}
+                      </div>
                     </div>
                   </DialogContent>
                 </Dialog>
