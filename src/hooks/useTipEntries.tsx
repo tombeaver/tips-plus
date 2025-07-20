@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
 
 export interface TipEntry {
   id: string;
@@ -71,13 +72,10 @@ export const useTipEntries = () => {
         throw new Error('User not authenticated');
       }
 
-      // Format date as YYYY-MM-DD ensuring no timezone conversion
-      const year = entry.date.getFullYear();
-      const month = (entry.date.getMonth() + 1).toString().padStart(2, '0');
-      const day = entry.date.getDate().toString().padStart(2, '0');
-      const dateString = `${year}-${month}-${day}`;
+      // Format date using date-fns to ensure consistent formatting
+      const dateString = format(entry.date, 'yyyy-MM-dd');
       
-      console.log('Saving entry for date:', dateString, 'Original date object:', entry.date, 'Date parts:', { year, month, day });
+      console.log('Saving entry for date:', dateString, 'Original date object:', entry.date);
 
       const { data, error } = await supabase
         .from('tip_entries')
@@ -130,9 +128,7 @@ export const useTipEntries = () => {
       const updateData: any = {};
       
       if (updates.date) {
-        updateData.date = updates.date.getFullYear() + '-' + 
-                         String(updates.date.getMonth() + 1).padStart(2, '0') + '-' + 
-                         String(updates.date.getDate()).padStart(2, '0');
+        updateData.date = format(updates.date, 'yyyy-MM-dd');
         console.log('Updating entry for date:', updateData.date, 'Original date object:', updates.date);
       }
       if (updates.totalSales !== undefined) updateData.sales = updates.totalSales;
