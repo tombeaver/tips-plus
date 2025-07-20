@@ -80,6 +80,15 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
     e.preventDefault();
     
     console.log('Form submitting with selectedDate:', selectedDate);
+    console.log('selectedDate details:', {
+      toString: selectedDate.toString(),
+      toISOString: selectedDate.toISOString(),
+      toLocaleDateString: selectedDate.toLocaleDateString(),
+      getTimezoneOffset: selectedDate.getTimezoneOffset(),
+      getFullYear: selectedDate.getFullYear(),
+      getMonth: selectedDate.getMonth(),
+      getDate: selectedDate.getDate()
+    });
     
     const entry = {
       date: selectedDate,

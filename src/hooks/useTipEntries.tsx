@@ -76,6 +76,12 @@ export const useTipEntries = () => {
       const dateString = format(entry.date, 'yyyy-MM-dd');
       
       console.log('Saving entry for date:', dateString, 'Original date object:', entry.date);
+      console.log('Entry.date details:', {
+        toString: entry.date.toString(),
+        toISOString: entry.date.toISOString(),
+        toLocaleDateString: entry.date.toLocaleDateString(),
+        getTimezoneOffset: entry.date.getTimezoneOffset()
+      });
 
       const { data, error } = await supabase
         .from('tip_entries')
