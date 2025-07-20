@@ -210,7 +210,14 @@ const Index = () => {
                 <Calendar
                   mode="single"
                   selected={selectedDate}
-                  onSelect={(date) => date && setSelectedDate(date)}
+                  onSelect={(date) => {
+                    if (date) {
+                      // Create a new date with local time to avoid timezone issues
+                      const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                      setSelectedDate(localDate);
+                      console.log('Selected date from calendar:', date, 'Converted to local:', localDate);
+                    }
+                  }}
                   className="rounded-md border pointer-events-auto"
                   modifiers={{
                      hasEntry: (date) => hasEntryForDate(date) && !isToday(date),
