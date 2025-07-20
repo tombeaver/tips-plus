@@ -81,8 +81,17 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
     
     console.log('Form submitting with selectedDate:', selectedDate);
     
+    // Convert selected date to UTC to avoid timezone issues
+    const utcDate = new Date(Date.UTC(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate()
+    ));
+    
+    console.log('Converting to UTC date:', utcDate);
+    
     const entry = {
-      date: selectedDate,
+      date: utcDate,
       totalSales: parseFloat(totalSales) || 0,
       creditTips: parseFloat(creditTips) || 0,
       cashTips: parseFloat(cashTips) || 0,
