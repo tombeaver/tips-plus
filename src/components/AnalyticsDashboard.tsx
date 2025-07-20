@@ -19,6 +19,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       return {
         totalTips: 0,
         totalSales: 0,
+        totalEarnings: 0,
         averageTipPercentage: 0,
         averagePerGuest: 0,
         totalGuests: 0,
@@ -29,10 +30,14 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
     const totalTips = realEntries.reduce((sum, entry) => sum + entry.creditTips + entry.cashTips, 0);
     const totalSales = realEntries.reduce((sum, entry) => sum + entry.totalSales, 0);
     const totalGuests = realEntries.reduce((sum, entry) => sum + entry.guestCount, 0);
+    const totalHours = realEntries.reduce((sum, entry) => sum + entry.hoursWorked, 0);
+    const totalWages = realEntries.reduce((sum, entry) => sum + (entry.hoursWorked * entry.hourlyRate), 0);
+    const totalEarnings = totalTips + totalWages;
     
     return {
       totalTips,
       totalSales,
+      totalEarnings,
       averageTipPercentage: totalSales > 0 ? (totalTips / totalSales) * 100 : 0,
       averagePerGuest: totalGuests > 0 ? totalTips / totalGuests : 0,
       totalGuests,
@@ -142,6 +147,22 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
 
   return (
     <div className="space-y-4">
+      {/* Total Earnings Highlight */}
+      <Card className="bg-gradient-to-r from-green-500 to-emerald-600">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-white/80 text-lg">Total Earnings</p>
+              <p className="text-4xl font-bold text-white">${stats.totalEarnings.toFixed(2)}</p>
+              <p className="text-white/70 text-sm mt-1">Tips + Wages Combined</p>
+            </div>
+            <div className="text-white/80">
+              <DollarSign className="h-12 w-12" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Key Metrics */}
       <div className="grid grid-cols-2 gap-4">
         <Card>
