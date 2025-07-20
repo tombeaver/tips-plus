@@ -46,31 +46,46 @@ export type Database = {
       }
       tip_entries: {
         Row: {
+          cash_tips: number
           created_at: string
           date: string
+          guest_count: number
+          hourly_rate: number
+          hours_worked: number
           id: string
           sales: number
           section: number
+          shift: string
           tips: number
           updated_at: string
           user_id: string | null
         }
         Insert: {
+          cash_tips?: number
           created_at?: string
           date: string
+          guest_count?: number
+          hourly_rate?: number
+          hours_worked?: number
           id?: string
           sales?: number
           section?: number
+          shift?: string
           tips?: number
           updated_at?: string
           user_id?: string | null
         }
         Update: {
+          cash_tips?: number
           created_at?: string
           date?: string
+          guest_count?: number
+          hourly_rate?: number
+          hours_worked?: number
           id?: string
           sales?: number
           section?: number
+          shift?: string
           tips?: number
           updated_at?: string
           user_id?: string | null

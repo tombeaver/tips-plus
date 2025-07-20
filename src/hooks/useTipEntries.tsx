@@ -44,12 +44,12 @@ export const useTipEntries = () => {
         date: new Date(entry.date + 'T12:00:00'), // Add noon time to avoid timezone issues
         totalSales: Number(entry.sales) || 0,
         creditTips: Number(entry.tips) || 0,
-        cashTips: 0, // We'll update schema later to include this
-        guestCount: 0, // We'll update schema later to include this
+        cashTips: Number(entry.cash_tips) || 0,
+        guestCount: Number(entry.guest_count) || 0,
         section: `Section ${entry.section}`,
-        shift: 'PM' as const, // We'll update schema later to include this
-        hoursWorked: 8, // We'll update schema later to include this
-        hourlyRate: 15, // We'll update schema later to include this
+        shift: entry.shift as 'AM' | 'PM' || 'PM',
+        hoursWorked: Number(entry.hours_worked) || 8,
+        hourlyRate: Number(entry.hourly_rate) || 15,
       }));
 
       setTipEntries(formattedEntries);
@@ -90,7 +90,12 @@ export const useTipEntries = () => {
           date: dateString,
           sales: entry.totalSales,
           tips: entry.creditTips,
+          cash_tips: entry.cashTips,
+          guest_count: entry.guestCount,
           section: parseInt(entry.section.replace('Section ', '')) || 1,
+          shift: entry.shift,
+          hours_worked: entry.hoursWorked,
+          hourly_rate: entry.hourlyRate,
         }])
         .select()
         .single();
@@ -102,12 +107,12 @@ export const useTipEntries = () => {
         date: new Date(data.date + 'T12:00:00'), // Add noon time to avoid timezone issues
         totalSales: Number(data.sales),
         creditTips: Number(data.tips),
-        cashTips: entry.cashTips,
-        guestCount: entry.guestCount,
+        cashTips: Number(data.cash_tips),
+        guestCount: Number(data.guest_count),
         section: `Section ${data.section}`,
-        shift: entry.shift,
-        hoursWorked: entry.hoursWorked,
-        hourlyRate: entry.hourlyRate,
+        shift: data.shift as 'AM' | 'PM',
+        hoursWorked: Number(data.hours_worked),
+        hourlyRate: Number(data.hourly_rate),
       };
 
       setTipEntries(prev => [newEntry, ...prev]);
@@ -139,7 +144,12 @@ export const useTipEntries = () => {
       }
       if (updates.totalSales !== undefined) updateData.sales = updates.totalSales;
       if (updates.creditTips !== undefined) updateData.tips = updates.creditTips;
+      if (updates.cashTips !== undefined) updateData.cash_tips = updates.cashTips;
+      if (updates.guestCount !== undefined) updateData.guest_count = updates.guestCount;
       if (updates.section) updateData.section = parseInt(updates.section.replace('Section ', '')) || 1;
+      if (updates.shift !== undefined) updateData.shift = updates.shift;
+      if (updates.hoursWorked !== undefined) updateData.hours_worked = updates.hoursWorked;
+      if (updates.hourlyRate !== undefined) updateData.hourly_rate = updates.hourlyRate;
 
       const { error } = await supabase
         .from('tip_entries')
