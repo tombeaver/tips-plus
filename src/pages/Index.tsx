@@ -42,6 +42,7 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState("calendar");
   const [sections, setSections] = useState<{ [key: string]: string }>(createDefaultSections());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
   const [entryToDelete, setEntryToDelete] = useState<string>('');
 
   useEffect(() => {
@@ -162,7 +163,7 @@ const Index = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={handleSignOut}
+              onClick={() => setShowSignOutConfirm(true)}
               className="text-gray-600 hover:text-gray-900"
             >
               <LogOut className="h-4 w-4" />
@@ -420,6 +421,18 @@ const Index = () => {
             "Are you sure you want to delete this tip entry? This action cannot be undone."
           }
           confirmText="Delete Entry"
+        />
+
+        <ConfirmationModal
+          isOpen={showSignOutConfirm}
+          onClose={() => setShowSignOutConfirm(false)}
+          onConfirm={() => {
+            setShowSignOutConfirm(false);
+            handleSignOut();
+          }}
+          title="Sign Out"
+          description="Are you sure you want to sign out? You'll need to log in again to access your tip data."
+          confirmText="Sign Out"
         />
       </div>
     </div>
