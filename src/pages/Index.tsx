@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -12,6 +11,7 @@ import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { TipsRecommendations } from '@/components/TipsRecommendations';
 import { DayOutlook } from '@/components/DayOutlook';
 import { WeatherIcon } from '@/components/WeatherIcon';
+import { EarningsCalendar } from '@/components/EarningsCalendar';
 import { CalendarDays, TrendingUp, Target, Plus, Star, LogOut } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
 import { useTipEntries, type TipEntry } from '@/hooks/useTipEntries';
@@ -207,8 +207,7 @@ const Index = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Calendar
-                  mode="single"
+                <EarningsCalendar
                   selected={selectedDate}
                   onSelect={(date) => {
                     if (date) {
@@ -218,36 +217,18 @@ const Index = () => {
                       console.log('Selected date from calendar:', date, 'Converted to local:', localDate);
                     }
                   }}
-                  className="rounded-md border pointer-events-auto"
-                  modifiers={{
-                     hasEntry: (date) => hasEntryForDate(date) && !isToday(date),
-                     todayWithEntry: (date) => isToday(date) && hasEntryForDate(date),
-                     today: (date) => isToday(date) && !hasEntryForDate(date)
-                  }}
-                  modifiersStyles={{
-                    hasEntry: { 
-                      backgroundColor: 'rgb(34 197 94)',
-                      color: 'white',
-                      fontWeight: 'bold'
-                    },
-                     today: {
-                       backgroundColor: 'rgb(59 130 246)',
-                       color: 'white'
-                     },
-                     todayWithEntry: {
-                       backgroundColor: 'rgb(59 130 246)',
-                       color: 'white',
-                       fontWeight: 'bold'
-                     }
-                  }}
+                  tipEntries={tipEntries}
+                  getTotalEarnings={getTotalEarnings}
+                  getEntryForDate={getEntryForDate}
+                  className="rounded-md border pointer-events-auto flex justify-center"
                 />
-                <div className="mt-4 space-y-2 text-sm text-gray-600">
+                <div className="mt-4 space-y-2 text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                    <span>Entries</span>
+                    <span>Days with earnings</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                    <div className="w-3 h-3 bg-primary rounded-full"></div>
                     <span>Today</span>
                   </div>
                 </div>
