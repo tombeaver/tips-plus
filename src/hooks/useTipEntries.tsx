@@ -41,7 +41,7 @@ export const useTipEntries = () => {
 
       const formattedEntries = (data || []).map(entry => ({
         id: entry.id,
-        date: new Date(entry.date),
+        date: new Date(entry.date + 'T12:00:00'), // Add noon time to avoid timezone issues
         totalSales: Number(entry.sales) || 0,
         creditTips: Number(entry.tips) || 0,
         cashTips: 0, // We'll update schema later to include this
@@ -99,7 +99,7 @@ export const useTipEntries = () => {
 
       const newEntry: TipEntry = {
         id: data.id,
-        date: new Date(data.date),
+        date: new Date(data.date + 'T12:00:00'), // Add noon time to avoid timezone issues
         totalSales: Number(data.sales),
         creditTips: Number(data.tips),
         cashTips: entry.cashTips,
