@@ -71,12 +71,13 @@ export const useTipEntries = () => {
         throw new Error('User not authenticated');
       }
 
-      // Format date as YYYY-MM-DD to ensure it saves correctly
-      const dateString = entry.date.getFullYear() + '-' + 
-                        String(entry.date.getMonth() + 1).padStart(2, '0') + '-' + 
-                        String(entry.date.getDate()).padStart(2, '0');
+      // Format date as YYYY-MM-DD ensuring no timezone conversion
+      const year = entry.date.getFullYear();
+      const month = (entry.date.getMonth() + 1).toString().padStart(2, '0');
+      const day = entry.date.getDate().toString().padStart(2, '0');
+      const dateString = `${year}-${month}-${day}`;
       
-      console.log('Saving entry for date:', dateString, 'Original date object:', entry.date);
+      console.log('Saving entry for date:', dateString, 'Original date object:', entry.date, 'Date parts:', { year, month, day });
 
       const { data, error } = await supabase
         .from('tip_entries')
