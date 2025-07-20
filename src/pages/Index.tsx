@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,10 +12,11 @@ import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { TipsRecommendations } from '@/components/TipsRecommendations';
 import { DayOutlook } from '@/components/DayOutlook';
 import { WeatherIcon } from '@/components/WeatherIcon';
-import { CalendarDays, TrendingUp, Target, Plus, Star } from 'lucide-react';
+import { CalendarDays, TrendingUp, Target, Plus, Star, LogOut } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
 import { useTipEntries, type TipEntry } from '@/hooks/useTipEntries';
 import { useGoals, type Goal } from '@/hooks/useGoals';
+import { User, Session } from '@supabase/supabase-js';
 
 // Data is now handled by Supabase hooks
 
@@ -28,6 +31,11 @@ const createDefaultSections = () => {
 
 const Index = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  
   const { tipEntries, loading: tipEntriesLoading, addTipEntry, updateTipEntry, deleteTipEntry } = useTipEntries();
   const { goals, loading: goalsLoading, addGoal } = useGoals();
   const [showEntryForm, setShowEntryForm] = useState(false);
@@ -35,6 +43,40 @@ const Index = () => {
   const [sections, setSections] = useState<{ [key: string]: string }>(createDefaultSections());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [entryToDelete, setEntryToDelete] = useState<string>('');
+
+  useEffect(() => {
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+        
+        // Redirect unauthenticated users to auth page
+        if (!session?.user) {
+          navigate('/auth');
+        }
+      }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+      
+      if (!session?.user) {
+        navigate('/auth');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate('/auth');
+  };
 
   const handleAddTipEntry = async (entry: Omit<TipEntry, 'id'>) => {
     try {
@@ -92,6 +134,21 @@ const Index = () => {
 
   const selectedEntry = getEntryForDate(selectedDate);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; // Will redirect to auth
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="max-w-md mx-auto space-y-4">
@@ -99,6 +156,18 @@ const Index = () => {
         <div className="text-center py-4 relative">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Tip Tracker</h1>
           <p className="text-gray-600">Track your earnings & reach your goals</p>
+          
+          {/* User info and sign out */}
+          <div className="absolute top-4 left-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSignOut}
+              className="text-gray-600 hover:text-gray-900"
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
           
           {/* Weather Icon in top right */}
           <div className="absolute top-4 right-4">
