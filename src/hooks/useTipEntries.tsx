@@ -24,9 +24,16 @@ export const useTipEntries = () => {
 
   const fetchTipEntries = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('tip_entries')
         .select('*')
+        .eq('user_id', user.id)
         .order('date', { ascending: false });
 
       if (error) throw error;
@@ -59,9 +66,15 @@ export const useTipEntries = () => {
 
   const addTipEntry = async (entry: Omit<TipEntry, 'id'>) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
       const { data, error } = await supabase
         .from('tip_entries')
         .insert([{
+          user_id: user.id,
           date: entry.date.toISOString().split('T')[0],
           sales: entry.totalSales,
           tips: entry.creditTips,

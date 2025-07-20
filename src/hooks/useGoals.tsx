@@ -16,9 +16,16 @@ export const useGoals = () => {
 
   const fetchGoals = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('goals')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -45,7 +52,13 @@ export const useGoals = () => {
 
   const addGoal = async (goal: Omit<Goal, 'id'>) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
       const goalData: any = {
+        user_id: user.id,
         daily_goal: 0,
         weekly_goal: 0,
         monthly_goal: 0,
