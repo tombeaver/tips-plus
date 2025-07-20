@@ -43,23 +43,23 @@ export function EarningsCalendar({
       className={cn("p-4", className)}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-        month: "space-y-4",
-        caption: "flex justify-center pt-1 relative items-center mb-4",
-        caption_label: "text-lg font-semibold",
+        month: "space-y-3",
+        caption: "flex justify-center pt-1 relative items-center mb-3",
+        caption_label: "text-base font-semibold",
         nav: "space-x-1 flex items-center",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
-          "h-8 w-8 bg-transparent p-0 opacity-70 hover:opacity-100"
+          "h-7 w-7 bg-transparent p-0 opacity-70 hover:opacity-100"
         ),
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
-        table: "w-full border-collapse space-y-1",
-        head_row: "flex mb-2",
-        head_cell: "text-muted-foreground rounded-md w-16 h-8 font-medium text-sm flex items-center justify-center",
+        table: "w-full border-collapse",
+        head_row: "flex mb-1",
+        head_cell: "text-muted-foreground rounded-md w-12 h-6 font-medium text-xs flex items-center justify-center",
         row: "flex w-full mb-1",
         cell: "relative flex-1",
         day: cn(
-          "h-16 w-16 p-1 font-medium text-xs flex flex-col items-center justify-center rounded-lg border-2 border-transparent transition-all duration-200 hover:border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          "h-12 w-12 p-1 font-medium text-xs flex flex-col items-center justify-center rounded-md border border-transparent transition-all duration-200 hover:border-primary/30 focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-1"
         ),
         day_range_end: "day-range-end",
         day_selected: "bg-primary text-primary-foreground border-primary hover:bg-primary hover:text-primary-foreground",
@@ -83,20 +83,20 @@ export function EarningsCalendar({
           return (
             <button
               className={cn(
-                "h-16 w-16 p-1 font-medium text-xs flex flex-col items-center justify-center rounded-lg border-2 border-transparent transition-all duration-200 hover:border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+                "h-12 w-12 p-1 font-medium text-xs flex flex-col items-center justify-center rounded-md border border-transparent transition-all duration-200 hover:border-primary/30 focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-1",
                 !isCurrentMonth && "text-muted-foreground/50 opacity-50",
                 todayDate && !hasEntry && "border-primary bg-primary/10 text-primary font-bold",
                 todayDate && hasEntry && "border-primary bg-primary text-primary-foreground font-bold",
                 !todayDate && hasEntry && "bg-green-100 text-green-800 border-green-200 hover:bg-green-200",
-                selected && date.toDateString() === selected.toDateString() && "ring-2 ring-primary ring-offset-2"
+                selected && date.toDateString() === selected.toDateString() && "ring-1 ring-primary ring-offset-1"
               )}
               onClick={() => onSelect?.(date)}
               disabled={!isCurrentMonth}
             >
-              <span className={cn("text-sm font-bold", hasEntry && "text-xs")}>{dayNumber}</span>
+              <span className={cn("text-xs font-bold", hasEntry && "text-[10px]")}>{dayNumber}</span>
               {hasEntry && earnings > 0 && (
                 <span className={cn(
-                  "text-xs font-semibold mt-0.5 leading-none",
+                  "text-[10px] font-semibold mt-0.5 leading-none",
                   todayDate ? "text-primary-foreground" : "text-green-700"
                 )}>
                   ${earnings.toFixed(0)}
