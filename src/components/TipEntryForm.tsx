@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Trash2, Save, X, Edit2, Plus } from 'lucide-react';
-import { TipEntry } from '@/pages/Index';
+import { TipEntry } from '@/hooks/useTipEntries';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 
 interface TipEntryFormProps {

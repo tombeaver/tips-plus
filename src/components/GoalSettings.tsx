@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { Plus, Target, TrendingUp, Calendar } from 'lucide-react';
-import { Goal, TipEntry } from '@/pages/Index';
+import { Goal } from '@/hooks/useGoals';
+import { TipEntry } from '@/hooks/useTipEntries';
 import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, isWithinInterval, addDays } from 'date-fns';
 
 interface GoalSettingsProps {

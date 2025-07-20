@@ -5,19 +5,7 @@ import { TrendingUp, Calendar, MapPin, Star, CloudRain } from 'lucide-react';
 import { format, getDay, isAfter, startOfWeek } from 'date-fns';
 import { getWeatherHistory, getWeatherRecommendations } from '@/components/WeatherTracker';
 
-interface TipEntry {
-  id: string;
-  date: Date;
-  totalSales: number;
-  creditTips: number;
-  cashTips: number;
-  guestCount: number;
-  section: string;
-  isPlaceholder?: boolean;
-  shift: 'AM' | 'PM';
-  hoursWorked: number;
-  hourlyRate: number;
-}
+import { TipEntry } from '@/hooks/useTipEntries';
 
 interface TipsRecommendationsProps {
   tipEntries: TipEntry[];

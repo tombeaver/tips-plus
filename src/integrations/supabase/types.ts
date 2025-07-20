@@ -14,7 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      goals: {
+        Row: {
+          created_at: string
+          daily_goal: number
+          id: string
+          monthly_goal: number
+          updated_at: string
+          user_id: string | null
+          weekly_goal: number
+        }
+        Insert: {
+          created_at?: string
+          daily_goal?: number
+          id?: string
+          monthly_goal?: number
+          updated_at?: string
+          user_id?: string | null
+          weekly_goal?: number
+        }
+        Update: {
+          created_at?: string
+          daily_goal?: number
+          id?: string
+          monthly_goal?: number
+          updated_at?: string
+          user_id?: string | null
+          weekly_goal?: number
+        }
+        Relationships: []
+      }
+      tip_entries: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          sales: number
+          section: number
+          tips: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          sales?: number
+          section?: number
+          tips?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          sales?: number
+          section?: number
+          tips?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, TrendingUp, Brain, Clock } from 'lucide-react';
-import { TipEntry } from '@/pages/Index';
+import { TipEntry } from '@/hooks/useTipEntries';
 import { format, addDays, getDay, startOfWeek, endOfWeek, differenceInWeeks, isSameDay } from 'date-fns';
 
 interface PredictivePlanningProps {

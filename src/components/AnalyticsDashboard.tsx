@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrendingUp, DollarSign, Users, MapPin, Calendar } from 'lucide-react';
-import { TipEntry } from '@/pages/Index';
+import { TipEntry } from '@/hooks/useTipEntries';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isWithinInterval, getDay } from 'date-fns';
 
 interface AnalyticsDashboardProps {

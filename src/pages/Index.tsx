@@ -6,79 +6,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TipEntryForm } from '@/components/TipEntryForm';
 import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
 import { GoalSettings } from '@/components/GoalSettings';
-
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { TipsRecommendations } from '@/components/TipsRecommendations';
 import { DayOutlook } from '@/components/DayOutlook';
 import { WeatherIcon } from '@/components/WeatherIcon';
 import { CalendarDays, TrendingUp, Target, Plus, Star } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
+import { useTipEntries, type TipEntry } from '@/hooks/useTipEntries';
+import { useGoals, type Goal } from '@/hooks/useGoals';
 
-export interface TipEntry {
-  id: string;
-  date: Date;
-  totalSales: number;
-  creditTips: number;
-  cashTips: number;
-  guestCount: number;
-  section: string;
-  isPlaceholder?: boolean;
-  shift: 'AM' | 'PM';
-  hoursWorked: number;
-  hourlyRate: number;
-  weather?: any;
-}
-
-export interface Goal {
-  id: string;
-  type: 'daily' | 'weekly' | 'monthly' | 'yearly';
-  amount: number;
-  period: string;
-}
-
-// ==================== TEST DATA GENERATOR - REMOVE IN PRODUCTION ====================
-const generateTestData = (): TipEntry[] => {
-  const testEntries: TipEntry[] = [];
-  const today = new Date();
-  const sections = ['Section 1', 'Section 2', 'Section 3', 'Section 4', 'Section 5'];
-  const shifts: ('AM' | 'PM')[] = ['AM', 'PM'];
-  
-  // Generate 15 days of random data (past 10 days + next 5 days)
-  for (let i = -10; i <= 4; i++) {
-    const entryDate = new Date(today);
-    entryDate.setDate(today.getDate() + i);
-    
-    // Skip some days randomly to simulate realistic work schedule
-    if (Math.random() < 0.3) continue;
-    
-    const totalSales = Math.floor(Math.random() * 2000) + 500; // $500-$2500
-    const creditTipPercent = 0.15 + (Math.random() * 0.1); // 15-25%
-    const creditTips = Math.floor(totalSales * creditTipPercent);
-    const cashTips = Math.floor(Math.random() * 150) + 20; // $20-$170
-    const guestCount = Math.floor(Math.random() * 30) + 10; // 10-40 guests
-    const section = sections[Math.floor(Math.random() * sections.length)];
-    const shift = shifts[Math.floor(Math.random() * shifts.length)];
-    const hoursWorked = Math.floor(Math.random() * 4) + 4; // 4-8 hours
-    const hourlyRate = Math.floor(Math.random() * 5) + 12; // $12-$17/hour
-    
-    testEntries.push({
-      id: `test-${i}-${Date.now()}`,
-      date: entryDate,
-      totalSales,
-      creditTips,
-      cashTips,
-      guestCount,
-      section,
-      shift,
-      hoursWorked,
-      hourlyRate,
-      isPlaceholder: false
-    });
-  }
-  
-  return testEntries;
-};
-// ==================== END TEST DATA GENERATOR ====================
+// Data is now handled by Supabase hooks
 
 // Create default numbered sections (1-20)
 const createDefaultSections = () => {
@@ -91,41 +28,40 @@ const createDefaultSections = () => {
 
 const Index = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  // Initialize with test data - REMOVE generateTestData() call in production
-  const [tipEntries, setTipEntries] = useState<TipEntry[]>(generateTestData());
-  const [goals, setGoals] = useState<Goal[]>([]);
+  const { tipEntries, loading: tipEntriesLoading, addTipEntry, updateTipEntry, deleteTipEntry } = useTipEntries();
+  const { goals, loading: goalsLoading, addGoal } = useGoals();
   const [showEntryForm, setShowEntryForm] = useState(false);
   const [activeTab, setActiveTab] = useState("calendar");
   const [sections, setSections] = useState<{ [key: string]: string }>(createDefaultSections());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [entryToDelete, setEntryToDelete] = useState<string>('');
 
-  const addTipEntry = (entry: Omit<TipEntry, 'id'>) => {
-    const newEntry: TipEntry = {
-      ...entry,
-      id: Date.now().toString()
-    };
-    setTipEntries(prev => [...prev, newEntry]);
-    setShowEntryForm(false);
+  const handleAddTipEntry = async (entry: Omit<TipEntry, 'id'>) => {
+    try {
+      await addTipEntry(entry);
+      setShowEntryForm(false);
+    } catch (error) {
+      // Error is handled in the hook
+    }
   };
 
-  const updateTipEntry = (id: string, updates: Partial<TipEntry>) => {
-    setTipEntries(prev => prev.map(entry => 
-      entry.id === id ? { ...entry, ...updates } : entry
-    ));
+  const handleUpdateTipEntry = async (id: string, updates: Partial<TipEntry>) => {
+    try {
+      await updateTipEntry(id, updates);
+      setShowEntryForm(false);
+    } catch (error) {
+      // Error is handled in the hook
+    }
   };
 
-  const deleteTipEntry = (id: string) => {
-    setTipEntries(prev => prev.filter(entry => entry.id !== id));
-  };
-
-
-  const addGoal = (goal: Omit<Goal, 'id'>) => {
-    const newGoal: Goal = {
-      ...goal,
-      id: Date.now().toString()
-    };
-    setGoals(prev => [...prev, newGoal]);
+  const handleDeleteTipEntry = async (id: string) => {
+    try {
+      await deleteTipEntry(id);
+      setShowDeleteConfirm(false);
+      setEntryToDelete('');
+    } catch (error) {
+      // Error is handled in the hook
+    }
   };
 
   const getEntryForDate = (date: Date) => {
@@ -385,13 +321,13 @@ const Index = () => {
             previousEntry={getMostRecentEntry()}
             sections={sections}
             onSave={selectedEntry ? 
-              (entry) => updateTipEntry(selectedEntry.id, entry) : 
-              addTipEntry
+              (entry) => handleUpdateTipEntry(selectedEntry.id, entry) : 
+              handleAddTipEntry
             }
             onCancel={() => setShowEntryForm(false)}
             onDelete={selectedEntry ? 
               () => {
-                deleteTipEntry(selectedEntry.id);
+                handleDeleteTipEntry(selectedEntry.id);
                 setShowEntryForm(false);
               } : 
               undefined
@@ -407,8 +343,7 @@ const Index = () => {
             setEntryToDelete('');
           }}
           onConfirm={() => {
-            deleteTipEntry(entryToDelete);
-            setEntryToDelete('');
+            handleDeleteTipEntry(entryToDelete);
           }}
           title="Delete Tip Entry"
           description={selectedEntry ? 
