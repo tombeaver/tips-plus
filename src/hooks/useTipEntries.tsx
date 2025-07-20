@@ -71,13 +71,18 @@ export const useTipEntries = () => {
         throw new Error('User not authenticated');
       }
 
+      // Format date as YYYY-MM-DD to ensure it saves correctly
+      const dateString = entry.date.getFullYear() + '-' + 
+                        String(entry.date.getMonth() + 1).padStart(2, '0') + '-' + 
+                        String(entry.date.getDate()).padStart(2, '0');
+      
+      console.log('Saving entry for date:', dateString, 'Original date object:', entry.date);
+
       const { data, error } = await supabase
         .from('tip_entries')
         .insert([{
           user_id: user.id,
-          date: entry.date.getFullYear() + '-' + 
-                String(entry.date.getMonth() + 1).padStart(2, '0') + '-' + 
-                String(entry.date.getDate()).padStart(2, '0'),
+          date: dateString,
           sales: entry.totalSales,
           tips: entry.creditTips,
           section: parseInt(entry.section.replace('Section ', '')) || 1,
@@ -123,9 +128,12 @@ export const useTipEntries = () => {
     try {
       const updateData: any = {};
       
-      if (updates.date) updateData.date = updates.date.getFullYear() + '-' + 
-                                        String(updates.date.getMonth() + 1).padStart(2, '0') + '-' + 
-                                        String(updates.date.getDate()).padStart(2, '0');
+      if (updates.date) {
+        updateData.date = updates.date.getFullYear() + '-' + 
+                         String(updates.date.getMonth() + 1).padStart(2, '0') + '-' + 
+                         String(updates.date.getDate()).padStart(2, '0');
+        console.log('Updating entry for date:', updateData.date, 'Original date object:', updates.date);
+      }
       if (updates.totalSales !== undefined) updateData.sales = updates.totalSales;
       if (updates.creditTips !== undefined) updateData.tips = updates.creditTips;
       if (updates.section) updateData.section = parseInt(updates.section.replace('Section ', '')) || 1;
