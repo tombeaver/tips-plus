@@ -79,11 +79,10 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Create a new date object with local time to avoid timezone issues
-    const localDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
+    console.log('Form submitting with selectedDate:', selectedDate);
     
     const entry = {
-      date: localDate,
+      date: selectedDate,
       totalSales: parseFloat(totalSales) || 0,
       creditTips: parseFloat(creditTips) || 0,
       cashTips: parseFloat(cashTips) || 0,
