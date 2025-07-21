@@ -312,7 +312,6 @@ All colors MUST be HSL.
     @apply text-xs text-muted-foreground font-medium uppercase tracking-widest;
   }
 
-@layer components {
   /* Enhanced card styles with depth */
   .card-enhanced {
     @apply bg-card/80 backdrop-blur-sm border shadow-depth-md;
