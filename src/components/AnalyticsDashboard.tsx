@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrendingUp, DollarSign, Users, MapPin, Calendar } from 'lucide-react';
+import { TrendingUp, DollarSign, Users, Percent, Calendar, HandCoins, Clock } from 'lucide-react';
 import { TipEntry } from '@/hooks/useTipEntries';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isWithinInterval, getDay } from 'date-fns';
 
@@ -172,7 +172,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                 <p className="text-sm text-gray-600">Total Tips</p>
                 <p className="text-2xl font-bold text-green-600">${stats.totalTips.toFixed(2)}</p>
               </div>
-              <DollarSign className="h-8 w-8 text-green-600" />
+              <HandCoins className="h-8 w-8 text-green-600" />
             </div>
           </CardContent>
         </Card>
@@ -184,7 +184,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                 <p className="text-sm text-gray-600">Avg Tip %</p>
                 <p className="text-2xl font-bold">{stats.averageTipPercentage.toFixed(1)}%</p>
               </div>
-              <TrendingUp className="h-8 w-8 text-blue-600" />
+              <Percent className="h-8 w-8 text-blue-600" />
             </div>
           </CardContent>
         </Card>
@@ -208,7 +208,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                 <p className="text-sm text-gray-600">Shifts</p>
                 <p className="text-2xl font-bold">{stats.shiftsWorked}</p>
               </div>
-              <MapPin className="h-8 w-8 text-orange-600" />
+              <Clock className="h-8 w-8 text-orange-600" />
             </div>
           </CardContent>
         </Card>
