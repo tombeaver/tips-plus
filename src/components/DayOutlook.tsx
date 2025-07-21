@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Compass } from 'lucide-react';
 import { getDay } from 'date-fns';
 
@@ -117,66 +116,58 @@ export const DayOutlook: React.FC<DayOutlookProps> = ({ tipEntries, selectedDate
 
   if (!outlook || !outlook.targetDayStats) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Compass className="h-5 w-5" />
-            Day Outlook
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
-            Keep logging your tips to see personalized outlook for this day!
-          </p>
-        </CardContent>
-      </Card>
+      <div>
+        <div className="flex items-center gap-2 mb-6">
+          <Compass className="h-5 w-5" />
+          <h3 className="text-2xl font-semibold leading-none tracking-tight">Day Outlook</h3>
+        </div>
+        <p className="text-muted-foreground">
+          Keep logging your tips to see personalized outlook for this day!
+        </p>
+      </div>
     );
   }
 
   const { bestDay, bestSection, targetDayStats, alternativeSections, isSelectedDay } = outlook;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Compass className="h-5 w-5" />
-          Day Outlook
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-start gap-3 p-3 bg-primary/5 border border-primary/20 rounded-lg">
-          <div className="p-2 bg-primary/10 rounded-full">
-            <Compass className="h-4 w-4 text-primary" />
-          </div>
-          <div className="flex-1">
-            <h4 className="font-medium text-sm">
-              {isSelectedDay ? `${targetDayStats.dayName} Outlook` : "Today's Outlook"}
-            </h4>
-            <p className="text-sm text-muted-foreground">
-              {targetDayStats.day === bestDay.day ? (
-                <>
-                  {isSelectedDay ? 'This' : 'Today'} is your best day! 
-                  Consider working {bestSection.section} for optimal earnings.
-                </>
-              ) : targetDayStats.avgTips >= bestDay.avgTips * 0.8 ? (
-                <>
-                  On {targetDayStats.dayName}s you typically earn ${targetDayStats.avgTips.toFixed(0)} in tips. 
-                  Try {bestSection.section} for best results.
-                </>
-              ) : (
-                <>
-                  {targetDayStats.dayName}s are slower (avg ${targetDayStats.avgTips.toFixed(0)} tips). 
-                  {alternativeSections.length > 0 ? (
-                    <>Consider trying {alternativeSections[0].section} - you haven't worked it on {targetDayStats.dayName}s yet!</>
-                  ) : (
-                    <>Consider requesting {bestSection.section} for better results.</>
-                  )}
-                </>
-              )}
-            </p>
-          </div>
+    <div>
+      <div className="flex items-center gap-2 mb-6">
+        <Compass className="h-5 w-5" />
+        <h3 className="text-2xl font-semibold leading-none tracking-tight">Day Outlook</h3>
+      </div>
+      <div className="flex items-start gap-3 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+        <div className="p-2 bg-primary/10 rounded-full">
+          <Compass className="h-4 w-4 text-primary" />
         </div>
-      </CardContent>
-    </Card>
+        <div className="flex-1">
+          <h4 className="font-medium text-sm">
+            {isSelectedDay ? `${targetDayStats.dayName} Outlook` : "Today's Outlook"}
+          </h4>
+          <p className="text-sm text-muted-foreground">
+            {targetDayStats.day === bestDay.day ? (
+              <>
+                {isSelectedDay ? 'This' : 'Today'} is your best day! 
+                Consider working {bestSection.section} for optimal earnings.
+              </>
+            ) : targetDayStats.avgTips >= bestDay.avgTips * 0.8 ? (
+              <>
+                On {targetDayStats.dayName}s you typically earn ${targetDayStats.avgTips.toFixed(0)} in tips. 
+                Try {bestSection.section} for best results.
+              </>
+            ) : (
+              <>
+                {targetDayStats.dayName}s are slower (avg ${targetDayStats.avgTips.toFixed(0)} tips). 
+                {alternativeSections.length > 0 ? (
+                  <>Consider trying {alternativeSections[0].section} - you haven't worked it on {targetDayStats.dayName}s yet!</>
+                ) : (
+                  <>Consider requesting {bestSection.section} for better results.</>
+                )}
+              </>
+            )}
+          </p>
+        </div>
+      </div>
+    </div>
   );
 };
