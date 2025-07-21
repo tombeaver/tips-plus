@@ -13,6 +13,7 @@ import { DayOutlook } from '@/components/DayOutlook';
 import { WeatherIcon } from '@/components/WeatherIcon';
 import { EarningsCalendar } from '@/components/EarningsCalendar';
 import { PrivacyPolicy } from '@/components/PrivacyPolicy';
+import { MorphTabs } from '@/components/MorphTabs';
 import { CalendarDays, TrendingUp, Target, Plus, Star, LogOut } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
 import { useTipEntries, type TipEntry } from '@/hooks/useTipEntries';
@@ -179,25 +180,27 @@ const Index = () => {
         </div>
 
         {/* Main Navigation */}
+        <MorphTabs
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          tabs={[
+            { id: "calendar", label: "Calendar", icon: <CalendarDays className="h-4 w-4" /> },
+            { id: "tips", label: "Tips", icon: <Star className="h-4 w-4" /> },
+            { id: "analytics", label: "Analytics", icon: <TrendingUp className="h-4 w-4" /> },
+            { id: "goals", label: "Goals", icon: <Target className="h-4 w-4" /> }
+          ]}
+          className="mb-6"
+        />
+        
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-card/50 backdrop-blur-sm border shadow-sm">
-            <TabsTrigger value="calendar" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
-              <CalendarDays className="h-4 w-4" />
-              <span className="hidden sm:inline">Calendar</span>
-            </TabsTrigger>
-            <TabsTrigger value="tips" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
-              <Star className="h-4 w-4" />
-              <span className="hidden sm:inline">Tips</span>
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
-              <TrendingUp className="h-4 w-4" />
-              <span className="hidden sm:inline">Analytics</span>
-            </TabsTrigger>
-            <TabsTrigger value="goals" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
-              <Target className="h-4 w-4" />
-              <span className="hidden sm:inline">Goals</span>
-            </TabsTrigger>
-          </TabsList>
+          <div className="hidden">
+            <TabsList>
+              <TabsTrigger value="calendar">Calendar</TabsTrigger>
+              <TabsTrigger value="tips">Tips</TabsTrigger>
+              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+              <TabsTrigger value="goals">Goals</TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Calendar Tab */}
           <TabsContent value="calendar" className="space-group">
