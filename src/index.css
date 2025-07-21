@@ -92,13 +92,13 @@ All colors MUST be HSL.
         hsl(270 20% 95%) 100%);
     
     --gradient-prism-ethereal: conic-gradient(from 45deg at 50% 20%, 
-      hsl(350 70% 88% / 0.4) 0deg, 
-      hsl(38 84% 64% / 0.3) 60deg, 
-      hsl(142 84% 54% / 0.3) 120deg, 
-      hsl(180 84% 64% / 0.3) 180deg, 
-      hsl(220 84% 64% / 0.3) 240deg, 
-      hsl(270 84% 64% / 0.4) 300deg, 
-      hsl(350 70% 88% / 0.4) 360deg),
+      hsl(350 50% 75% / 0.3) 0deg, 
+      hsl(38 60% 50% / 0.25) 60deg, 
+      hsl(142 60% 45% / 0.25) 120deg, 
+      hsl(180 60% 50% / 0.25) 180deg, 
+      hsl(220 60% 50% / 0.25) 240deg, 
+      hsl(270 60% 50% / 0.3) 300deg, 
+      hsl(350 50% 75% / 0.3) 360deg),
       linear-gradient(180deg, hsl(0 0% 100%), hsl(240 10% 98%));
 
     /* Prism spectrum for interactive elements */
@@ -205,13 +205,13 @@ All colors MUST be HSL.
         hsl(250 20% 8%) 100%);
     
     --gradient-prism-ethereal: conic-gradient(from 45deg at 50% 20%, 
-      hsl(350 100% 85% / 0.3) 0deg, 
-      hsl(38 100% 85% / 0.2) 60deg, 
-      hsl(142 100% 75% / 0.2) 120deg, 
-      hsl(180 100% 85% / 0.2) 180deg, 
-      hsl(220 100% 85% / 0.2) 240deg, 
-      hsl(270 100% 85% / 0.3) 300deg, 
-      hsl(350 100% 85% / 0.3) 360deg),
+      hsl(350 40% 60% / 0.25) 0deg, 
+      hsl(38 50% 40% / 0.2) 60deg, 
+      hsl(142 50% 35% / 0.2) 120deg, 
+      hsl(180 50% 40% / 0.2) 180deg, 
+      hsl(220 50% 40% / 0.2) 240deg, 
+      hsl(270 50% 40% / 0.25) 300deg, 
+      hsl(350 40% 60% / 0.25) 360deg),
       linear-gradient(180deg, hsl(240 10% 3.9%), hsl(240 15% 6%));
 
     /* Dark prism spectrum */
