@@ -440,18 +440,16 @@ const Index = () => {
           onClose={() => setShowPrivacyPolicy(false)} 
         />
         
-        {/* Fixed Bottom Bar */}
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-t shadow-lg">
-          <div className="max-w-md mx-auto p-4">
-            <Button 
-              className="w-full interactive-glow" 
-              size="lg"
-              onClick={() => setShowEntryForm(true)}
-            >
-              <Plus className="h-5 w-5 mr-2" />
-              Add Tip Entry
-            </Button>
-          </div>
+        {/* Sticky Bottom Button */}
+        <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-background/95 backdrop-blur-sm border-t">
+          <Button 
+            className="w-full interactive-glow" 
+            size="lg"
+            onClick={() => setShowEntryForm(true)}
+          >
+            <Plus className="h-5 w-5 mr-2" />
+            Add Tip Entry
+          </Button>
         </div>
       </div>
     </div>
