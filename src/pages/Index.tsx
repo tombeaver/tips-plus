@@ -449,7 +449,7 @@ const Index = () => {
               onClick={() => setShowEntryForm(true)}
             >
               <Plus className="h-5 w-5 mr-2" />
-              Add Tip Entry
+              Add Tip Entry for {format(selectedDate, 'MMM d')}
             </Button>
           </div>
         </div>
