@@ -44,6 +44,7 @@ const Index = () => {
   const [sections, setSections] = useState<{ [key: string]: string }>(createDefaultSections());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [entryToDelete, setEntryToDelete] = useState<string>('');
 
   useEffect(() => {
@@ -424,8 +425,21 @@ const Index = () => {
           confirmText="Sign Out"
         />
 
-        {/* Privacy Policy */}
-        <PrivacyPolicy />
+        {/* Privacy Policy Link */}
+        <div className="text-center py-4">
+          <button
+            onClick={() => setShowPrivacyPolicy(true)}
+            className="text-sm text-muted-foreground hover:text-foreground underline"
+          >
+            Privacy Policy
+          </button>
+        </div>
+
+        {/* Privacy Policy Modal */}
+        <PrivacyPolicy 
+          isOpen={showPrivacyPolicy} 
+          onClose={() => setShowPrivacyPolicy(false)} 
+        />
       </div>
     </div>
   );
