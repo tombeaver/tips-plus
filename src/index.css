@@ -8,89 +8,157 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
+    /* Base colors - neutral with subtle warm undertones */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 240 10% 3.9%;
 
+    /* Card system with subtle depth */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 240 10% 3.9%;
 
+    /* Popover with enhanced contrast */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 240 10% 3.9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Prism primary - deep indigo with purple undertones */
+    --primary: 250 84% 54%;
+    --primary-foreground: 0 0% 98%;
+    --primary-glow: 250 100% 80%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary - soft lavender for elegant contrast */
+    --secondary: 270 20% 96%;
+    --secondary-foreground: 250 84% 54%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Muted tones with subtle color temperature */
+    --muted: 240 10% 96%;
+    --muted-foreground: 240 5% 64.9%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent - coral pink for warmth in the prism */
+    --accent: 350 70% 88%;
+    --accent-foreground: 350 84% 24%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Destructive with more sophisticated red */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Success - emerald green for completion states */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 98%;
 
-    --radius: 0.5rem;
+    /* Warning - amber for attention */
+    --warning: 38 92% 50%;
+    --warning-foreground: 38 100% 4%;
 
-    --sidebar-background: 0 0% 98%;
+    /* Borders and inputs with subtle color hints */
+    --border: 240 10% 91%;
+    --input: 240 10% 91%;
+    --ring: 250 84% 54%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    /* Enhanced depth variables */
+    --shadow-light: 240 10% 85%;
+    --shadow-medium: 240 15% 75%;
+    --shadow-heavy: 240 20% 65%;
 
-    --sidebar-primary: 240 5.9% 10%;
+    /* Gradient system for prism effects */
+    --gradient-primary: linear-gradient(135deg, hsl(250 84% 54%), hsl(280 84% 64%));
+    --gradient-secondary: linear-gradient(135deg, hsl(200 100% 70%), hsl(250 84% 54%));
+    --gradient-accent: linear-gradient(135deg, hsl(350 70% 88%), hsl(20 80% 85%));
+    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%), hsl(240 10% 98%));
 
+    /* Prism spectrum for interactive elements */
+    --prism-violet: 270 84% 64%;
+    --prism-blue: 220 84% 64%;
+    --prism-cyan: 180 84% 64%;
+    --prism-emerald: 142 84% 54%;
+    --prism-amber: 38 84% 64%;
+    --prism-rose: 350 84% 64%;
+
+    --radius: 0.75rem;
+
+    /* Sidebar with enhanced depth */
+    --sidebar-background: 240 10% 98%;
+    --sidebar-foreground: 240 10% 15%;
+    --sidebar-primary: 250 84% 54%;
     --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 270 20% 95%;
+    --sidebar-accent-foreground: 250 84% 54%;
+    --sidebar-border: 240 10% 88%;
+    --sidebar-ring: 250 84% 54%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Dark mode with enhanced contrast and depth */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    /* Enhanced primary for dark mode visibility */
+    --primary: 250 100% 80%;
+    --primary-foreground: 240 10% 3.9%;
+    --primary-glow: 250 100% 90%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    /* Dark secondary with maintained elegance */
+    --secondary: 240 5% 15%;
+    --secondary-foreground: 250 100% 80%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    /* Dark muted tones */
+    --muted: 240 5% 15%;
+    --muted-foreground: 240 5% 65%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    /* Dark accent with warmth */
+    --accent: 350 50% 25%;
+    --accent-foreground: 350 100% 90%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    /* Enhanced destructive for dark mode */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Dark success */
+    --success: 142 76% 46%;
+    --success-foreground: 0 0% 98%;
+
+    /* Dark warning */
+    --warning: 38 92% 60%;
+    --warning-foreground: 38 100% 4%;
+
+    /* Dark borders and inputs */
+    --border: 240 5% 15%;
+    --input: 240 5% 15%;
+    --ring: 250 100% 80%;
+
+    /* Enhanced dark shadows */
+    --shadow-light: 240 20% 8%;
+    --shadow-medium: 240 25% 5%;
+    --shadow-heavy: 240 30% 2%;
+
+    /* Dark gradient system */
+    --gradient-primary: linear-gradient(135deg, hsl(250 100% 80%), hsl(280 100% 85%));
+    --gradient-secondary: linear-gradient(135deg, hsl(200 100% 75%), hsl(250 100% 80%));
+    --gradient-accent: linear-gradient(135deg, hsl(350 50% 25%), hsl(20 50% 30%));
+    --gradient-subtle: linear-gradient(180deg, hsl(240 10% 3.9%), hsl(240 15% 6%));
+
+    /* Dark prism spectrum */
+    --prism-violet: 270 100% 85%;
+    --prism-blue: 220 100% 85%;
+    --prism-cyan: 180 100% 85%;
+    --prism-emerald: 142 100% 75%;
+    --prism-amber: 38 100% 85%;
+    --prism-rose: 350 100% 85%;
+
+    /* Dark sidebar */
+    --sidebar-background: 240 10% 6%;
+    --sidebar-foreground: 240 5% 90%;
+    --sidebar-primary: 250 100% 80%;
+    --sidebar-primary-foreground: 240 10% 3.9%;
+    --sidebar-accent: 240 5% 12%;
+    --sidebar-accent-foreground: 250 100% 80%;
+    --sidebar-border: 240 5% 12%;
+    --sidebar-ring: 250 100% 80%;
   }
 }
 
@@ -100,6 +168,38 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-gradient-subtle text-foreground;
+    background-attachment: fixed;
+  }
+}
+
+@layer components {
+  /* Enhanced card styles with depth */
+  .card-enhanced {
+    @apply bg-card/80 backdrop-blur-sm border shadow-depth-md;
+  }
+  
+  .card-glow {
+    @apply shadow-glow border-primary/20;
+  }
+
+  /* Button enhancements */
+  .btn-prism {
+    @apply bg-gradient-primary text-primary-foreground shadow-depth-sm hover:shadow-glow transition-all duration-300;
+  }
+
+  /* Interactive elements */
+  .interactive-rise {
+    @apply transition-all duration-200 hover:shadow-depth-lg hover:-translate-y-0.5;
+  }
+
+  /* Progress indicators with prism effect */
+  .progress-prism {
+    background: linear-gradient(90deg, 
+      hsl(var(--prism-violet)), 
+      hsl(var(--prism-blue)), 
+      hsl(var(--prism-cyan)), 
+      hsl(var(--prism-emerald))
+    );
   }
 }

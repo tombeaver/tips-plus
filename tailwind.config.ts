@@ -26,7 +26,8 @@ export default {
 				foreground: 'hsl(var(--foreground))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					foreground: 'hsl(var(--primary-foreground))',
+					glow: 'hsl(var(--primary-glow))'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
@@ -35,6 +36,14 @@ export default {
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
 					foreground: 'hsl(var(--destructive-foreground))'
+				},
+				success: {
+					DEFAULT: 'hsl(var(--success))',
+					foreground: 'hsl(var(--success-foreground))'
+				},
+				warning: {
+					DEFAULT: 'hsl(var(--warning))',
+					foreground: 'hsl(var(--warning-foreground))'
 				},
 				muted: {
 					DEFAULT: 'hsl(var(--muted))',
@@ -61,6 +70,21 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Prism spectrum colors
+				prism: {
+					violet: 'hsl(var(--prism-violet))',
+					blue: 'hsl(var(--prism-blue))',
+					cyan: 'hsl(var(--prism-cyan))',
+					emerald: 'hsl(var(--prism-emerald))',
+					amber: 'hsl(var(--prism-amber))',
+					rose: 'hsl(var(--prism-rose))'
+				},
+				// Shadow colors for depth
+				shadow: {
+					light: 'hsl(var(--shadow-light))',
+					medium: 'hsl(var(--shadow-medium))',
+					heavy: 'hsl(var(--shadow-heavy))'
 				}
 			},
 			borderRadius: {
@@ -84,11 +108,46 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'fade-in': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateY(10px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateY(0)'
+					}
+				},
+				'scale-in': {
+					'0%': {
+						transform: 'scale(0.95)',
+						opacity: '0'
+					},
+					'100%': {
+						transform: 'scale(1)',
+						opacity: '1'
+					}
 				}
+			},
+			backgroundImage: {
+				'gradient-primary': 'var(--gradient-primary)',
+				'gradient-secondary': 'var(--gradient-secondary)',
+				'gradient-accent': 'var(--gradient-accent)',
+				'gradient-subtle': 'var(--gradient-subtle)'
+			},
+			boxShadow: {
+				'depth-sm': '0 2px 8px -2px hsl(var(--shadow-light))',
+				'depth-md': '0 4px 16px -4px hsl(var(--shadow-medium))',
+				'depth-lg': '0 8px 32px -8px hsl(var(--shadow-heavy))',
+				'glow': '0 0 20px hsl(var(--primary-glow) / 0.3)',
+				'glow-lg': '0 0 40px hsl(var(--primary-glow) / 0.4)'
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fade-in 0.3s ease-out',
+				'scale-in': 'scale-in 0.2s ease-out'
 			}
 		}
 	},
