@@ -57,6 +57,14 @@ export const useGoals = () => {
             period: 'monthly',
           });
         }
+        if (goal.yearly_goal > 0) {
+          formattedGoals.push({
+            id: goal.id,
+            type: 'yearly',
+            amount: Number(goal.yearly_goal),
+            period: 'yearly',
+          });
+        }
       });
 
       setGoals(formattedGoals);
@@ -91,6 +99,7 @@ export const useGoals = () => {
         daily_goal: 0,
         weekly_goal: 0,
         monthly_goal: 0,
+        yearly_goal: 0,
       };
 
       // Map the goal type to the appropriate field
@@ -105,7 +114,7 @@ export const useGoals = () => {
           goalData.monthly_goal = goal.amount;
           break;
         case 'yearly':
-          goalData.monthly_goal = goal.amount; // Store yearly as monthly for now
+          goalData.yearly_goal = goal.amount;
           break;
       }
 
@@ -154,6 +163,7 @@ export const useGoals = () => {
         daily_goal: 0,
         weekly_goal: 0,
         monthly_goal: 0,
+        yearly_goal: 0,
       };
 
       // Map the goal type to the appropriate field
@@ -168,7 +178,7 @@ export const useGoals = () => {
           goalData.monthly_goal = updatedGoal.amount;
           break;
         case 'yearly':
-          goalData.monthly_goal = updatedGoal.amount; // Store yearly as monthly for now
+          goalData.yearly_goal = updatedGoal.amount;
           break;
       }
 

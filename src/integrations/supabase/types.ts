@@ -23,6 +23,7 @@ export type Database = {
           updated_at: string
           user_id: string | null
           weekly_goal: number
+          yearly_goal: number
         }
         Insert: {
           created_at?: string
@@ -32,6 +33,7 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           weekly_goal?: number
+          yearly_goal?: number
         }
         Update: {
           created_at?: string
@@ -41,6 +43,7 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           weekly_goal?: number
+          yearly_goal?: number
         }
         Relationships: []
       }
