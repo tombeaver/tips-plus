@@ -12,7 +12,7 @@ export interface TipEntry {
   guestCount: number;
   section: string;
   isPlaceholder?: boolean;
-  shift: 'AM' | 'PM';
+  shift: 'AM' | 'PM' | 'Double';
   hoursWorked: number;
   hourlyRate: number;
   weather?: any;
@@ -47,7 +47,7 @@ export const useTipEntries = () => {
         cashTips: Number(entry.cash_tips) || 0,
         guestCount: Number(entry.guest_count) || 0,
         section: `Section ${entry.section}`,
-        shift: entry.shift as 'AM' | 'PM' || 'PM',
+        shift: entry.shift as 'AM' | 'PM' | 'Double' || 'PM',
         hoursWorked: Number(entry.hours_worked) || 8,
         hourlyRate: Number(entry.hourly_rate) || 15,
       }));
@@ -110,7 +110,7 @@ export const useTipEntries = () => {
         cashTips: Number(data.cash_tips),
         guestCount: Number(data.guest_count),
         section: `Section ${data.section}`,
-        shift: data.shift as 'AM' | 'PM',
+        shift: data.shift as 'AM' | 'PM' | 'Double',
         hoursWorked: Number(data.hours_worked),
         hourlyRate: Number(data.hourly_rate),
       };

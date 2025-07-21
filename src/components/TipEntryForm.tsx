@@ -39,7 +39,7 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
   const [guestCount, setGuestCount] = useState(existingEntry?.guestCount.toString() || '');
   const [section, setSection] = useState(existingEntry?.section || '');
   
-  const [shift, setShift] = useState<'AM' | 'PM'>(existingEntry?.shift || 'PM');
+  const [shift, setShift] = useState<'AM' | 'PM' | 'Double'>(existingEntry?.shift || 'PM');
   const [hoursWorked, setHoursWorked] = useState(existingEntry?.hoursWorked.toString() || '');
   const [hourlyRate, setHourlyRate] = useState(
     existingEntry?.hourlyRate.toString() || previousEntry?.hourlyRate.toString() || ''
@@ -288,15 +288,19 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
 
             <div className="space-y-2">
               <Label>Shift</Label>
-              <RadioGroup value={shift} onValueChange={(value) => setShift(value as 'AM' | 'PM')}>
-                <div className="flex items-center space-x-4">
+              <RadioGroup value={shift} onValueChange={(value) => setShift(value as 'AM' | 'PM' | 'Double')}>
+                <div className="grid grid-cols-3 gap-4">
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="AM" id="am" />
-                    <Label htmlFor="am">AM</Label>
+                    <Label htmlFor="am" className="cursor-pointer">AM</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="PM" id="pm" />
-                    <Label htmlFor="pm">PM</Label>
+                    <Label htmlFor="pm" className="cursor-pointer">PM</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Double" id="double" />
+                    <Label htmlFor="double" className="cursor-pointer">Double</Label>
                   </div>
                 </div>
               </RadioGroup>

@@ -12,7 +12,7 @@ interface TipEntry {
   guestCount: number;
   section: string;
   isPlaceholder?: boolean;
-  shift: 'AM' | 'PM';
+  shift: 'AM' | 'PM' | 'Double';
   hoursWorked: number;
   hourlyRate: number;
 }
