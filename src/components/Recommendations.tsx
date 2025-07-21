@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, Calendar, MapPin, Lightbulb, CloudRain } from 'lucide-react';
+import { DayOutlook } from '@/components/DayOutlook';
 import { format, getDay, isAfter, startOfWeek } from 'date-fns';
 import { getWeatherHistory, getWeatherRecommendations } from '@/components/WeatherTracker';
 
@@ -141,13 +142,16 @@ export const Recommendations: React.FC<RecommendationsProps> = ({ tipEntries, se
   const { bestDay, bestSection, targetDayStats, targetDayIndex, targetDaySections, alternativeSections, isSelectedDay, todaysWeather, weatherRecommendations } = recommendations;
 
   return (
-    <Card className="mb-6">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Lightbulb className="h-5 w-5" />
-          Recommendations
-        </CardTitle>
-      </CardHeader>
+    <div className="space-y-4">
+      <DayOutlook tipEntries={tipEntries} selectedDate={selectedDate} />
+      
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Lightbulb className="h-5 w-5" />
+            Recommendations
+          </CardTitle>
+        </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Best Day Recommendation */}
@@ -221,5 +225,6 @@ export const Recommendations: React.FC<RecommendationsProps> = ({ tipEntries, se
         )}
       </CardContent>
     </Card>
+    </div>
   );
 };

@@ -9,7 +9,7 @@ import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
 import { GoalSettings } from '@/components/GoalSettings';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { Recommendations } from '@/components/Recommendations';
-import { DayOutlook } from '@/components/DayOutlook';
+
 import { WeatherIcon } from '@/components/WeatherIcon';
 import { EarningsCalendar } from '@/components/EarningsCalendar';
 import { PrivacyPolicy } from '@/components/PrivacyPolicy';
@@ -237,8 +237,6 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            {/* Day Outlook */}
-            <DayOutlook tipEntries={tipEntries} selectedDate={selectedDate} />
 
             {/* Selected Date Info */}
             <Card className="card-interactive">
