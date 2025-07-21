@@ -288,8 +288,10 @@ const Index = () => {
                         <p className="body-lg font-medium">{selectedEntry.hoursWorked}h</p>
                       </div>
                       <div>
-                        <p className="label-md text-muted-foreground">Rate</p>
-                        <p className="body-lg font-medium">${selectedEntry.hourlyRate}/hr</p>
+                        <p className="label-md text-muted-foreground">Actual Rate</p>
+                        <p className="body-lg font-medium">
+                          ${selectedEntry.hoursWorked > 0 ? (getTotalEarnings(selectedEntry) / selectedEntry.hoursWorked).toFixed(2) : '0.00'}/hr
+                        </p>
                       </div>
                     </div>
 
