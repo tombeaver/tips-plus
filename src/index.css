@@ -240,10 +240,77 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-gradient-prism-ethereal text-foreground;
+    @apply bg-gradient-prism-ethereal text-foreground font-sans;
     background-attachment: fixed;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
   }
 }
+
+@layer components {
+  /* Typography System */
+  .heading-xl {
+    @apply text-4xl font-bold tracking-tight;
+  }
+  
+  .heading-lg {
+    @apply text-3xl font-bold tracking-tight;
+  }
+  
+  .heading-md {
+    @apply text-2xl font-semibold tracking-tight;
+  }
+  
+  .heading-sm {
+    @apply text-xl font-semibold tracking-tight;
+  }
+  
+  .heading-xs {
+    @apply text-lg font-semibold tracking-tight;
+  }
+  
+  .body-lg {
+    @apply text-base font-normal leading-relaxed;
+  }
+  
+  .body-md {
+    @apply text-sm font-normal leading-relaxed;
+  }
+  
+  .body-sm {
+    @apply text-xs font-normal leading-relaxed;
+  }
+  
+  .label-lg {
+    @apply text-sm font-medium tracking-wide;
+  }
+  
+  .label-md {
+    @apply text-xs font-medium tracking-wide;
+  }
+  
+  .label-sm {
+    @apply text-xs font-medium tracking-wider uppercase;
+  }
+  
+  .display-lg {
+    @apply text-2xl font-bold text-foreground;
+  }
+  
+  .display-md {
+    @apply text-xl font-semibold text-foreground;
+  }
+  
+  .display-sm {
+    @apply text-lg font-medium text-foreground;
+  }
+  
+  .caption {
+    @apply text-xs text-muted-foreground font-normal;
+  }
+  
+  .overline {
+    @apply text-xs text-muted-foreground font-medium uppercase tracking-widest;
+  }
 
 @layer components {
   /* Enhanced card styles with depth */
@@ -273,5 +340,22 @@ All colors MUST be HSL.
       hsl(var(--prism-cyan)), 
       hsl(var(--prism-emerald))
     );
+  }
+  
+  /* Spacing System */
+  .space-section {
+    @apply space-y-6;
+  }
+  
+  .space-group {
+    @apply space-y-4;
+  }
+  
+  .space-item {
+    @apply space-y-2;
+  }
+  
+  .space-tight {
+    @apply space-y-1;
   }
 }

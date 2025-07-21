@@ -154,11 +154,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen p-4">
-      <div className="max-w-md mx-auto space-y-4">
+      <div className="max-w-md mx-auto space-section">
         {/* Header */}
-        <div className="text-center py-4 relative">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Tip Tracker</h1>
-          <p className="text-gray-600">Track your earnings & reach your goals</p>
+        <div className="text-center py-6 relative">
+          <h1 className="heading-lg text-foreground mb-2">Tip Tracker</h1>
+          <p className="body-md text-muted-foreground">Track your earnings & reach your goals</p>
           
           {/* User info and sign out */}
           <div className="absolute top-4 left-4">
@@ -166,7 +166,7 @@ const Index = () => {
               variant="ghost"
               size="sm"
               onClick={() => setShowSignOutConfirm(true)}
-              className="text-gray-600 hover:text-gray-900"
+              className="text-muted-foreground hover:text-foreground"
             >
               <LogOut className="h-4 w-4" />
             </Button>
@@ -203,8 +203,8 @@ const Index = () => {
           <TabsContent value="calendar" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Select Date</CardTitle>
-                <CardDescription>
+                <CardTitle className="heading-xs">Select Date</CardTitle>
+                <CardDescription className="body-md">
                   Tap a date to view or add your tips
                 </CardDescription>
               </CardHeader>
@@ -224,12 +224,12 @@ const Index = () => {
                   getEntryForDate={getEntryForDate}
                   className="rounded-md border pointer-events-auto flex justify-center"
                 />
-                <div className="mt-4 space-y-2 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
+                <div className="mt-4 space-tight">
+                  <div className="caption flex items-center gap-2">
                     <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                     <span>Days with earnings</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="caption flex items-center gap-2">
                     <div className="w-3 h-3 bg-primary rounded-full"></div>
                     <span>Today</span>
                   </div>
@@ -243,36 +243,36 @@ const Index = () => {
             {/* Selected Date Info */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">
+                <CardTitle className="heading-xs">
                   {format(selectedDate, 'EEEE, MMMM d, yyyy')}
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="body-md">
                   {selectedEntry ? 'Your shift details' : 'No entry for this date'}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {selectedEntry ? (
-                  <div className="space-y-3">
+                  <div className="space-group">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm text-gray-600">Total Sales</p>
-                        <p className="text-lg font-semibold">${selectedEntry.totalSales}</p>
+                        <p className="label-md text-muted-foreground">Total Sales</p>
+                        <p className="display-md">${selectedEntry.totalSales}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Total Tips</p>
-                        <p className="text-lg font-semibold text-green-600">
+                        <p className="label-md text-muted-foreground">Total Tips</p>
+                        <p className="display-md text-success">
                           ${getTotalTips(selectedEntry)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Tip %</p>
-                        <p className="text-lg font-semibold">
+                        <p className="label-md text-muted-foreground">Tip %</p>
+                        <p className="display-md">
                           {getTipPercentage(selectedEntry).toFixed(1)}%
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Per Guest</p>
-                        <p className="text-lg font-semibold">
+                        <p className="label-md text-muted-foreground">Per Guest</p>
+                        <p className="display-md">
                           ${selectedEntry.guestCount > 0 ? (getTotalTips(selectedEntry) / selectedEntry.guestCount).toFixed(2) : '0.00'}
                         </p>
                       </div>
@@ -280,42 +280,42 @@ const Index = () => {
                     
                     <div className="grid grid-cols-3 gap-4 pt-2 border-t">
                       <div>
-                        <p className="text-sm text-gray-600">Shift</p>
-                        <p className="font-medium">{selectedEntry.shift}</p>
+                        <p className="label-md text-muted-foreground">Shift</p>
+                        <p className="body-lg font-medium">{selectedEntry.shift}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Hours</p>
-                        <p className="font-medium">{selectedEntry.hoursWorked}h</p>
+                        <p className="label-md text-muted-foreground">Hours</p>
+                        <p className="body-lg font-medium">{selectedEntry.hoursWorked}h</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Rate</p>
-                        <p className="font-medium">${selectedEntry.hourlyRate}/hr</p>
+                        <p className="label-md text-muted-foreground">Rate</p>
+                        <p className="body-lg font-medium">${selectedEntry.hourlyRate}/hr</p>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-3 gap-4 pt-2">
                       <div>
-                        <p className="text-sm text-gray-600">Credit Tips</p>
-                        <p className="font-medium">${selectedEntry.creditTips}</p>
+                        <p className="label-md text-muted-foreground">Credit Tips</p>
+                        <p className="body-lg font-medium">${selectedEntry.creditTips}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Cash Tips</p>
-                        <p className="font-medium">${selectedEntry.cashTips}</p>
+                        <p className="label-md text-muted-foreground">Cash Tips</p>
+                        <p className="body-lg font-medium">${selectedEntry.cashTips}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Guests</p>
-                        <p className="font-medium">{selectedEntry.guestCount}</p>
+                        <p className="label-md text-muted-foreground">Guests</p>
+                        <p className="body-lg font-medium">{selectedEntry.guestCount}</p>
                       </div>
                     </div>
                     
                     <div className="flex justify-between items-center pt-2 border-t">
                       <div>
-                        <p className="text-sm text-gray-600">Section</p>
-                        <p className="font-medium">{selectedEntry.section}</p>
+                        <p className="label-md text-muted-foreground">Section</p>
+                        <p className="body-lg font-medium">{selectedEntry.section}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm text-gray-600">Total Earnings</p>
-                        <p className="text-lg font-semibold text-green-600">
+                        <p className="label-md text-muted-foreground">Total Earnings</p>
+                        <p className="display-md text-success">
                           ${getTotalEarnings(selectedEntry).toFixed(2)}
                         </p>
                       </div>
