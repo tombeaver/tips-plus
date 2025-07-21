@@ -153,7 +153,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen p-4 pb-24">{/* Add bottom padding for fixed bar */}
+    <div className="min-h-screen p-4">
       <div className="max-w-md mx-auto space-section">
         {/* Header */}
         <div className="text-center py-6 relative">
@@ -225,10 +225,22 @@ const Index = () => {
                   className="rounded-md border pointer-events-auto flex justify-center"
                 />
                 
-                {/* Day Outlook */}
-                <div className="mt-4">
-                  <DayOutlook tipEntries={tipEntries} selectedDate={selectedDate} />
-                </div>
+                {/* Day Outlook - only show if no entry exists */}
+                {!selectedEntry && (
+                  <div className="mt-4 space-y-4">
+                    <DayOutlook tipEntries={tipEntries} selectedDate={selectedDate} />
+                    
+                    {/* Add Tip Entry Button */}
+                    <Button 
+                      className="w-full interactive-glow" 
+                      size="lg"
+                      onClick={() => setShowEntryForm(true)}
+                    >
+                      <Plus className="h-5 w-5 mr-2" />
+                      Add Tip Entry
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -339,31 +351,6 @@ const Index = () => {
               </Card>
             )}
 
-            {/* Fixed Bottom Bar - only show if no entry exists for selected date */}
-            {!selectedEntry && (
-              <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-t shadow-lg">
-                <div className="max-w-md mx-auto">
-                  {/* Header showing selected date */}
-                  <div className="px-4 py-2 border-b border-border/50">
-                    <p className="text-center font-medium text-foreground">
-                      {format(selectedDate, 'EEEE, MMMM d, yyyy')}
-                    </p>
-                  </div>
-                  
-                  {/* Button */}
-                  <div className="p-4">
-                    <Button 
-                      className="w-full interactive-glow" 
-                      size="lg"
-                      onClick={() => setShowEntryForm(true)}
-                    >
-                      <Plus className="h-5 w-5 mr-2" />
-                      Add Tip Entry
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
           </TabsContent>
 
           {/* Tips Tab */}
