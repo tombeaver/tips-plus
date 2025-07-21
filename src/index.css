@@ -322,7 +322,7 @@ All colors MUST be HSL.
   }
   
   .card-interactive {
-    @apply transition-all duration-200 hover:shadow-depth-md hover:-translate-y-0.5 cursor-pointer;
+    @apply cursor-pointer;
   }
 
   /* Button enhancements */
