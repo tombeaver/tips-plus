@@ -157,8 +157,8 @@ const Index = () => {
       <div className="max-w-md mx-auto space-section">
         {/* Header */}
         <div className="text-center py-6 relative">
-          <h1 className="heading-lg text-foreground mb-2">Tip Tracker</h1>
-          <p className="body-md text-muted-foreground">Track your earnings & reach your goals</p>
+          <h1 className="heading-lg text-foreground mb-2">Tips+</h1>
+          <p className="body-md text-muted-foreground">Track. Analyze. Level Up Your Income.</p>
           
           {/* User info and sign out */}
           <div className="absolute top-4 left-4">
