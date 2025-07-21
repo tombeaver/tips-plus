@@ -232,18 +232,18 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            {/* Selected Date Info */}
-            <Card className="card-interactive">
-              <CardHeader>
-                <CardTitle className="heading-xs">
-                  {format(selectedDate, 'EEEE, MMMM d, yyyy')}
-                </CardTitle>
-                <CardDescription className="body-md">
-                  {selectedEntry ? 'Your shift details' : 'No entry for this date'}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {selectedEntry ? (
+            {/* Selected Date Info - only show if entry exists */}
+            {selectedEntry && (
+              <Card className="card-interactive">
+                <CardHeader>
+                  <CardTitle className="heading-xs">
+                    {format(selectedDate, 'EEEE, MMMM d, yyyy')}
+                  </CardTitle>
+                  <CardDescription className="body-md">
+                    Your shift details
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
                   <div className="space-group">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
@@ -335,18 +335,9 @@ const Index = () => {
                       </Button>
                     </div>
                   </div>
-                ) : (
-                  <Button 
-                    className="w-full interactive-glow" 
-                    size="lg"
-                    onClick={() => setShowEntryForm(true)}
-                  >
-                    <Plus className="h-5 w-5 mr-2" />
-                    Add Tip Entry
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Fixed Bottom Bar - only show if no entry exists for selected date */}
             {!selectedEntry && (
