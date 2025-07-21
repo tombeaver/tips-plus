@@ -255,7 +255,6 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
               <TabsContent value="sections" className="mt-0">
                 {sectionStats.length > 1 && (
                   <div className="flex flex-col">
-                    <h4 className="font-medium text-center mb-4">Tips Distribution by Section</h4>
                     <div className="h-64">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
@@ -284,7 +283,6 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
               <TabsContent value="days" className="mt-0">
                 {dayStats.length > 1 && (
                   <div className="flex flex-col">
-                    <h4 className="font-medium text-center mb-4">Tips Distribution by Day</h4>
                     <div className="h-64">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
