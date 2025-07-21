@@ -240,7 +240,7 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-gradient-prism-aurora text-foreground;
+    @apply bg-gradient-prism-ethereal text-foreground;
     background-attachment: fixed;
   }
 }
