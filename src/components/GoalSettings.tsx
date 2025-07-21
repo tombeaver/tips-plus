@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
-import { Plus, Target, TrendingUp, Calendar } from 'lucide-react';
+import { Plus, Target, TrendingUp, Calendar, Edit, Trash2 } from 'lucide-react';
 import { Goal } from '@/hooks/useGoals';
 import { TipEntry } from '@/hooks/useTipEntries';
 import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, isWithinInterval, addDays } from 'date-fns';
@@ -14,13 +14,24 @@ import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYea
 interface GoalSettingsProps {
   goals: Goal[];
   onAddGoal: (goal: Omit<Goal, 'id'>) => void;
+  onUpdateGoal: (goalId: string, goal: Omit<Goal, 'id'>) => void;
+  onDeleteGoal: (goalId: string) => void;
   tipEntries: TipEntry[];
 }
 
-export const GoalSettings: React.FC<GoalSettingsProps> = ({ goals, onAddGoal, tipEntries }) => {
-  const [showAddForm, setShowAddForm] = useState(false);
+export const GoalSettings: React.FC<GoalSettingsProps> = ({ goals, onAddGoal, onUpdateGoal, onDeleteGoal, tipEntries }) => {
+  const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [newGoalType, setNewGoalType] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('daily');
   const [newGoalAmount, setNewGoalAmount] = useState('');
+
+  // Get one goal for each time period
+  const goalsByType = useMemo(() => {
+    const types: ('daily' | 'weekly' | 'monthly' | 'yearly')[] = ['daily', 'weekly', 'monthly', 'yearly'];
+    return types.map(type => ({
+      type,
+      goal: goals.find(g => g.type === type)
+    }));
+  }, [goals]);
 
   const realEntries = tipEntries.filter(entry => !entry.isPlaceholder);
 
@@ -74,21 +85,38 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({ goals, onAddGoal, ti
     });
   }, [goals, realEntries]);
 
-  const handleAddGoal = (e: React.FormEvent) => {
+  const handleSubmitGoal = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!newGoalAmount) return;
     
     const currentPeriod = new Date().toISOString().slice(0, 7); // YYYY-MM format
-    
-    onAddGoal({
+    const goalData = {
       type: newGoalType,
       amount: parseFloat(newGoalAmount),
       period: currentPeriod
-    });
+    };
+    
+    if (editingGoal) {
+      onUpdateGoal(editingGoal.id, goalData);
+    } else {
+      onAddGoal(goalData);
+    }
     
     setNewGoalAmount('');
-    setShowAddForm(false);
+    setEditingGoal(null);
+  };
+
+  const startEditing = (goal: Goal) => {
+    setEditingGoal(goal);
+    setNewGoalType(goal.type);
+    setNewGoalAmount(goal.amount.toString());
+  };
+
+  const cancelEditing = () => {
+    setEditingGoal(null);
+    setNewGoalAmount('');
+    setNewGoalType('daily');
   };
 
   const projectedEarnings = useMemo(() => {
@@ -121,23 +149,18 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({ goals, onAddGoal, ti
 
   return (
     <div className="space-y-4">
-      {/* Add Goal Button */}
+      {/* Goals Management */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Target className="h-5 w-5" />
             Your Goals
           </CardTitle>
-          <CardDescription>Set and track your earning goals</CardDescription>
+          <CardDescription>Set and track your earning goals for each time period</CardDescription>
         </CardHeader>
         <CardContent>
-          {!showAddForm ? (
-            <Button onClick={() => setShowAddForm(true)} className="w-full">
-              <Plus className="h-4 w-4 mr-2" />
-              Add New Goal
-            </Button>
-          ) : (
-            <form onSubmit={handleAddGoal} className="space-y-4">
+          {editingGoal && (
+            <form onSubmit={handleSubmitGoal} className="space-y-4 mb-6 p-4 border rounded-lg bg-muted/50">
               <div className="space-y-2">
                 <Label>Goal Type</Label>
                 <Select value={newGoalType} onValueChange={(value: any) => setNewGoalType(value)}>
@@ -166,43 +189,87 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({ goals, onAddGoal, ti
               </div>
               
               <div className="flex gap-2">
-                <Button type="submit" className="flex-1">Add Goal</Button>
-                <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
+                <Button type="submit" className="flex-1">
+                  {editingGoal ? 'Update Goal' : 'Add Goal'}
+                </Button>
+                <Button type="button" variant="outline" onClick={cancelEditing}>
                   Cancel
                 </Button>
               </div>
             </form>
           )}
-        </CardContent>
-      </Card>
 
-      {/* Current Goals */}
-      {goalProgress.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Goal Progress</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {goalProgress.map((goal) => (
-              <div key={goal.id} className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="font-medium capitalize">{goal.type} Goal</span>
-                  <span className="text-sm text-gray-600">
-                    ${goal.achieved.toFixed(2)} / ${goal.amount.toFixed(2)}
-                  </span>
-                </div>
-                <Progress value={goal.percentage} className="h-2" />
-                <div className="text-sm text-gray-600">
-                  {goal.percentage.toFixed(1)}% complete
-                  {goal.percentage >= 100 && (
-                    <span className="text-green-600 font-medium ml-2">🎉 Goal achieved!</span>
+          <div className="space-y-3">
+            {goalsByType.map(({ type, goal }) => {
+              const progress = goalProgress.find(p => p.type === type);
+              
+              return (
+                <div key={type} className="p-4 border rounded-lg">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <h4 className="font-medium capitalize">{type} Goal</h4>
+                      {goal ? (
+                        <p className="text-sm text-muted-foreground">
+                          Target: ${goal.amount.toFixed(2)}
+                        </p>
+                      ) : (
+                        <p className="text-sm text-muted-foreground">No goal set</p>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      {goal ? (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => startEditing(goal)}
+                          >
+                            <Edit className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => onDeleteGoal(goal.id)}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </>
+                      ) : (
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setNewGoalType(type);
+                            setEditingGoal({ id: '', type, amount: 0, period: '' } as Goal);
+                          }}
+                        >
+                          <Plus className="h-3 w-3 mr-1" />
+                          Set Goal
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {progress && (
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Progress</span>
+                        <span>${progress.achieved.toFixed(2)} / ${progress.amount.toFixed(2)}</span>
+                      </div>
+                      <Progress value={progress.percentage} className="h-2" />
+                      <div className="text-sm text-muted-foreground">
+                        {progress.percentage.toFixed(1)}% complete
+                        {progress.percentage >= 100 && (
+                          <span className="text-green-600 font-medium ml-2">🎉 Goal achieved!</span>
+                        )}
+                      </div>
+                    </div>
                   )}
                 </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Projections */}
       <Card>

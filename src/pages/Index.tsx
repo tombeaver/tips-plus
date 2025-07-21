@@ -38,7 +38,7 @@ const Index = () => {
   const navigate = useNavigate();
   
   const { tipEntries, loading: tipEntriesLoading, addTipEntry, updateTipEntry, deleteTipEntry } = useTipEntries();
-  const { goals, loading: goalsLoading, addGoal } = useGoals();
+  const { goals, loading: goalsLoading, addGoal, updateGoal, deleteGoal } = useGoals();
   const [showEntryForm, setShowEntryForm] = useState(false);
   const [activeTab, setActiveTab] = useState("calendar");
   const [sections, setSections] = useState<{ [key: string]: string }>(createDefaultSections());
@@ -367,7 +367,9 @@ const Index = () => {
           <TabsContent value="goals">
             <GoalSettings 
               goals={goals} 
-              onAddGoal={addGoal} 
+              onAddGoal={addGoal}
+              onUpdateGoal={updateGoal}
+              onDeleteGoal={deleteGoal}
               tipEntries={tipEntries}
             />
           </TabsContent>
