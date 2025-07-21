@@ -314,21 +314,37 @@ All colors MUST be HSL.
 
   /* Enhanced card styles with depth */
   .card-enhanced {
-    @apply bg-card/80 backdrop-blur-sm border shadow-depth-md;
+    @apply bg-card/80 backdrop-blur-sm border shadow-depth-md transition-all duration-300 hover:shadow-depth-lg hover:-translate-y-1 hover:border-primary/20;
   }
   
   .card-glow {
-    @apply shadow-glow border-primary/20;
+    @apply shadow-glow border-primary/20 transition-all duration-300 hover:shadow-glow-lg;
+  }
+  
+  .card-interactive {
+    @apply transition-all duration-200 hover:shadow-depth-md hover:-translate-y-0.5 cursor-pointer;
   }
 
   /* Button enhancements */
   .btn-prism {
-    @apply bg-gradient-primary text-primary-foreground shadow-depth-sm hover:shadow-glow transition-all duration-300;
+    @apply bg-gradient-primary text-primary-foreground shadow-depth-sm hover:shadow-glow transition-all duration-300 hover:scale-105;
+  }
+  
+  .btn-glass {
+    @apply bg-white/10 backdrop-blur-sm border border-white/20 text-foreground hover:bg-white/20 transition-all duration-300;
   }
 
   /* Interactive elements */
   .interactive-rise {
     @apply transition-all duration-200 hover:shadow-depth-lg hover:-translate-y-0.5;
+  }
+  
+  .interactive-glow {
+    @apply transition-all duration-300 hover:shadow-glow hover:scale-105;
+  }
+  
+  .interactive-fade {
+    @apply transition-all duration-200 hover:opacity-80;
   }
 
   /* Progress indicators with prism effect */
@@ -339,6 +355,18 @@ All colors MUST be HSL.
       hsl(var(--prism-cyan)), 
       hsl(var(--prism-emerald))
     );
+    @apply transition-all duration-300 animate-pulse;
+  }
+  
+  /* Pulse animations */
+  .pulse-slow {
+    @apply animate-pulse;
+    animation-duration: 3s;
+  }
+  
+  .pulse-soft {
+    @apply animate-pulse opacity-75;
+    animation-duration: 2s;
   }
   
   /* Spacing System */

@@ -180,28 +180,28 @@ const Index = () => {
 
         {/* Main Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="calendar" className="flex items-center gap-1">
+          <TabsList className="grid w-full grid-cols-4 bg-card/50 backdrop-blur-sm border shadow-sm">
+            <TabsTrigger value="calendar" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
               <CalendarDays className="h-4 w-4" />
               <span className="hidden sm:inline">Calendar</span>
             </TabsTrigger>
-            <TabsTrigger value="tips" className="flex items-center gap-1">
+            <TabsTrigger value="tips" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
               <Star className="h-4 w-4" />
               <span className="hidden sm:inline">Tips</span>
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-1">
+            <TabsTrigger value="analytics" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
               <TrendingUp className="h-4 w-4" />
               <span className="hidden sm:inline">Analytics</span>
             </TabsTrigger>
-            <TabsTrigger value="goals" className="flex items-center gap-1">
+            <TabsTrigger value="goals" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
               <Target className="h-4 w-4" />
               <span className="hidden sm:inline">Goals</span>
             </TabsTrigger>
           </TabsList>
 
           {/* Calendar Tab */}
-          <TabsContent value="calendar" className="space-y-4">
-            <Card>
+          <TabsContent value="calendar" className="space-group">
+            <Card className="card-interactive">
               <CardHeader>
                 <CardTitle className="heading-xs">Select Date</CardTitle>
                 <CardDescription className="body-md">
@@ -241,7 +241,7 @@ const Index = () => {
             <DayOutlook tipEntries={tipEntries} selectedDate={selectedDate} />
 
             {/* Selected Date Info */}
-            <Card>
+            <Card className="card-interactive">
               <CardHeader>
                 <CardTitle className="heading-xs">
                   {format(selectedDate, 'EEEE, MMMM d, yyyy')}
@@ -324,12 +324,14 @@ const Index = () => {
                     <div className="grid grid-cols-2 gap-2">
                       <Button 
                         variant="outline" 
+                        className="interactive-rise"
                         onClick={() => setShowEntryForm(true)}
                       >
                         Edit Entry
                       </Button>
                       <Button 
                         variant="destructive"
+                        className="interactive-rise"
                         onClick={() => {
                           setEntryToDelete(selectedEntry.id);
                           setShowDeleteConfirm(true);
@@ -341,10 +343,11 @@ const Index = () => {
                   </div>
                 ) : (
                   <Button 
-                    className="w-full" 
+                    className="w-full interactive-glow" 
+                    size="lg"
                     onClick={() => setShowEntryForm(true)}
                   >
-                    <Plus className="h-4 w-4 mr-2" />
+                    <Plus className="h-5 w-5 mr-2" />
                     Add Tip Entry
                   </Button>
                 )}
