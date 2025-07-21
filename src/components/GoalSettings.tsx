@@ -152,7 +152,7 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({ goals, onAddGoal, on
       {/* Goals Management */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2">
             <Target className="h-5 w-5" />
             Your Goals
           </CardTitle>
