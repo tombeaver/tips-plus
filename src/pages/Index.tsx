@@ -13,7 +13,7 @@ import { DayOutlook } from '@/components/DayOutlook';
 import { WeatherIcon } from '@/components/WeatherIcon';
 import { EarningsCalendar } from '@/components/EarningsCalendar';
 import { PrivacyPolicy } from '@/components/PrivacyPolicy';
-import { CalendarDays, TrendingUp, Target, Plus, Star, LogOut } from 'lucide-react';
+import { CalendarDays, TrendingUp, Target, Plus, Lightbulb, LogOut } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
 import { useTipEntries, type TipEntry } from '@/hooks/useTipEntries';
 import { useGoals, type Goal } from '@/hooks/useGoals';
@@ -186,7 +186,7 @@ const Index = () => {
               <span className="hidden sm:inline">Calendar</span>
             </TabsTrigger>
             <TabsTrigger value="tips" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
-              <Star className="h-4 w-4" />
+              <Lightbulb className="h-4 w-4" />
               <span className="hidden sm:inline">Tips</span>
             </TabsTrigger>
             <TabsTrigger value="analytics" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
