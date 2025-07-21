@@ -35,6 +35,7 @@ const Index = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showFab, setShowFab] = useState(false);
   const navigate = useNavigate();
   
   const { tipEntries, loading: tipEntriesLoading, addTipEntry, updateTipEntry, deleteTipEntry } = useTipEntries();
@@ -75,6 +76,38 @@ const Index = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  useEffect(() => {
+    // Smart FAB visibility logic
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+
+    const updateFabVisibility = () => {
+      const scrollY = window.scrollY;
+      const scrollThreshold = 200; // Show FAB after scrolling 200px
+      
+      if (scrollY > scrollThreshold && scrollY > lastScrollY) {
+        // Scrolling down and past threshold - show FAB
+        setShowFab(true);
+      } else if (scrollY < 100 || scrollY < lastScrollY) {
+        // Near top or scrolling up - hide FAB
+        setShowFab(false);
+      }
+      
+      lastScrollY = scrollY;
+      ticking = false;
+    };
+
+    const onScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(updateFabVisibility);
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -153,7 +186,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen p-4 pb-24">{/* Add bottom padding for fixed bar */}
+    <div className="min-h-screen p-4">{/* Remove bottom padding since FAB is conditional */}
       <div className="max-w-md mx-auto space-section">
         {/* Header */}
         <div className="text-center py-6 relative">
@@ -440,17 +473,16 @@ const Index = () => {
           onClose={() => setShowPrivacyPolicy(false)} 
         />
         
-        {/* Sticky Bottom Button */}
-        <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-background/95 backdrop-blur-sm border-t">
-          <Button 
-            className="w-full interactive-glow" 
-            size="lg"
-            onClick={() => setShowEntryForm(true)}
-          >
-            <Plus className="h-5 w-5 mr-2" />
-            Add Tip Entry
-          </Button>
-        </div>
+        {/* Smart Floating Action Button */}
+        <button
+          onClick={() => setShowEntryForm(true)}
+          className={`fixed bottom-6 right-6 z-50 w-14 h-14 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center justify-center ${
+            showFab ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+          }`}
+          aria-label="Add tip entry"
+        >
+          <Plus className="h-6 w-6" />
+        </button>
       </div>
     </div>
   );
