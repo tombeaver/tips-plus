@@ -250,40 +250,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
               <TabsTrigger value="days">By Day</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="sections" className="mt-4">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Section Stats List */}
-                <div className="space-y-4">
-                  {sectionStats.map((section, index) => (
-                    <div key={section.section} className="p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-medium">Section {section.section}</h4>
-                        <span className="text-lg font-bold text-green-600">
-                          ${section.totalTips.toFixed(2)}
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-2 text-sm text-gray-600">
-                        <div>
-                          <span className="block">Avg Tip %</span>
-                          <span className="font-medium">{section.averageTipPercentage.toFixed(1)}%</span>
-                        </div>
-                        <div>
-                          <span className="block">Per Guest</span>
-                          <span className="font-medium">${section.averagePerGuest.toFixed(2)}</span>
-                        </div>
-                        <div>
-                          <span className="block">Shifts</span>
-                          <span className="font-medium">{section.shifts}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                
-                {/* Section Distribution Pie Chart */}
+            {/* Tips Distribution Chart */}
+            <div className="mt-6 mb-6">
+              <TabsContent value="sections" className="mt-0">
                 {sectionStats.length > 1 && (
                   <div className="flex flex-col">
-                    <h4 className="font-medium text-center mb-4">Tips Distribution</h4>
+                    <h4 className="font-medium text-center mb-4">Tips Distribution by Section</h4>
                     <div className="h-64">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
@@ -307,50 +279,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                     </div>
                   </div>
                 )}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="days" className="mt-4">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Day Stats List */}
-                <div className="space-y-4">
-                  {dayStats.map((day, index) => (
-                    <div key={day.day} className="p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-medium flex items-center gap-2">
-                          <Calendar className="h-4 w-4" />
-                          {day.day}
-                        </h4>
-                        <span className="text-lg font-bold text-green-600">
-                          ${day.averageTipsPerShift.toFixed(2)}/shift
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-4 gap-2 text-sm text-gray-600">
-                        <div>
-                          <span className="block">Total Tips</span>
-                          <span className="font-medium">${day.totalTips.toFixed(2)}</span>
-                        </div>
-                        <div>
-                          <span className="block">Avg Tip %</span>
-                          <span className="font-medium">{day.averageTipPercentage.toFixed(1)}%</span>
-                        </div>
-                        <div>
-                          <span className="block">Per Guest</span>
-                          <span className="font-medium">${day.averagePerGuest.toFixed(2)}</span>
-                        </div>
-                        <div>
-                          <span className="block">Shifts</span>
-                          <span className="font-medium">{day.shifts}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                
-                {/* Day Distribution Pie Chart */}
+              </TabsContent>
+              
+              <TabsContent value="days" className="mt-0">
                 {dayStats.length > 1 && (
                   <div className="flex flex-col">
-                    <h4 className="font-medium text-center mb-4">Tips by Day Distribution</h4>
+                    <h4 className="font-medium text-center mb-4">Tips Distribution by Day</h4>
                     <div className="h-64">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
@@ -374,6 +308,71 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                     </div>
                   </div>
                 )}
+              </TabsContent>
+            </div>
+            
+            <TabsContent value="sections" className="mt-4">
+              <div className="space-y-4">
+                {sectionStats.map((section, index) => (
+                  <div key={section.section} className="p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium">Section {section.section}</h4>
+                      <span className="text-lg font-bold text-green-600">
+                        ${section.totalTips.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-sm text-gray-600">
+                      <div>
+                        <span className="block">Avg Tip %</span>
+                        <span className="font-medium">{section.averageTipPercentage.toFixed(1)}%</span>
+                      </div>
+                      <div>
+                        <span className="block">Per Guest</span>
+                        <span className="font-medium">${section.averagePerGuest.toFixed(2)}</span>
+                      </div>
+                      <div>
+                        <span className="block">Shifts</span>
+                        <span className="font-medium">{section.shifts}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="days" className="mt-4">
+              <div className="space-y-4">
+                {dayStats.map((day, index) => (
+                  <div key={day.day} className="p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium flex items-center gap-2">
+                        <Calendar className="h-4 w-4" />
+                        {day.day}
+                      </h4>
+                      <span className="text-lg font-bold text-green-600">
+                        ${day.averageTipsPerShift.toFixed(2)}/shift
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-4 gap-2 text-sm text-gray-600">
+                      <div>
+                        <span className="block">Total Tips</span>
+                        <span className="font-medium">${day.totalTips.toFixed(2)}</span>
+                      </div>
+                      <div>
+                        <span className="block">Avg Tip %</span>
+                        <span className="font-medium">{day.averageTipPercentage.toFixed(1)}%</span>
+                      </div>
+                      <div>
+                        <span className="block">Per Guest</span>
+                        <span className="font-medium">${day.averagePerGuest.toFixed(2)}</span>
+                      </div>
+                      <div>
+                        <span className="block">Shifts</span>
+                        <span className="font-medium">{day.shifts}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </TabsContent>
           </Tabs>
