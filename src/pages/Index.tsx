@@ -445,9 +445,6 @@ const Index = () => {
           <div className="max-w-md mx-auto">
             {/* Header showing selected date */}
             <div className="px-4 py-2 border-b border-border/50">
-              <p className="text-center text-sm text-muted-foreground">
-                Adding tip entry for
-              </p>
               <p className="text-center font-medium text-foreground">
                 {format(selectedDate, 'EEEE, MMMM d, yyyy')}
               </p>
