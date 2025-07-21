@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp } from 'lucide-react';
+import { Compass } from 'lucide-react';
 import { getDay } from 'date-fns';
 
 interface TipEntry {
@@ -120,7 +120,7 @@ export const DayOutlook: React.FC<DayOutlookProps> = ({ tipEntries, selectedDate
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5" />
+            <Compass className="h-5 w-5" />
             Day Outlook
           </CardTitle>
         </CardHeader>
@@ -139,14 +139,14 @@ export const DayOutlook: React.FC<DayOutlookProps> = ({ tipEntries, selectedDate
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <TrendingUp className="h-5 w-5" />
+          <Compass className="h-5 w-5" />
           Day Outlook
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex items-start gap-3 p-3 bg-primary/5 border border-primary/20 rounded-lg">
           <div className="p-2 bg-primary/10 rounded-full">
-            <TrendingUp className="h-4 w-4 text-primary" />
+            <Compass className="h-4 w-4 text-primary" />
           </div>
           <div className="flex-1">
             <h4 className="font-medium text-sm">

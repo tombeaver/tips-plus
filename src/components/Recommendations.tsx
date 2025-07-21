@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, Calendar, MapPin, Star, CloudRain } from 'lucide-react';
+import { TrendingUp, Calendar, MapPin, Lightbulb, CloudRain } from 'lucide-react';
 import { format, getDay, isAfter, startOfWeek } from 'date-fns';
 import { getWeatherHistory, getWeatherRecommendations } from '@/components/WeatherTracker';
 
@@ -125,7 +125,7 @@ export const Recommendations: React.FC<RecommendationsProps> = ({ tipEntries, se
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Star className="h-5 w-5" />
+            <Lightbulb className="h-5 w-5" />
             Recommendations
           </CardTitle>
         </CardHeader>
@@ -144,7 +144,7 @@ export const Recommendations: React.FC<RecommendationsProps> = ({ tipEntries, se
     <Card className="mb-6">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Star className="h-5 w-5" />
+          <Lightbulb className="h-5 w-5" />
           Recommendations
         </CardTitle>
       </CardHeader>
