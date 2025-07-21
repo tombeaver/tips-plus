@@ -113,7 +113,7 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
   const totalEarnings = totalTips + ((parseFloat(hoursWorked) || 0) * (parseFloat(hourlyRate) || 0));
 
   return (
-    <div className="fixed inset-0 h-[100vh] w-[100vw] bg-black/50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 h-screen w-screen bg-black/50 flex items-center justify-center p-4 z-50" style={{ top: 0, left: 0, right: 0, bottom: 0, margin: 0, padding: '1rem' }}>
       <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
         <CardHeader>
           <div className="flex items-center justify-between">
