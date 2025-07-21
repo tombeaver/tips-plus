@@ -116,7 +116,7 @@ export const DayOutlook: React.FC<DayOutlookProps> = ({ tipEntries, selectedDate
 
   if (!outlook || !outlook.targetDayStats) {
     return (
-      <div>
+      <div className="p-6">
         <div className="flex items-center gap-2 mb-6">
           <Compass className="h-5 w-5" />
           <h3 className="text-2xl font-semibold leading-none tracking-tight">Day Outlook</h3>
@@ -131,7 +131,7 @@ export const DayOutlook: React.FC<DayOutlookProps> = ({ tipEntries, selectedDate
   const { bestDay, bestSection, targetDayStats, alternativeSections, isSelectedDay } = outlook;
 
   return (
-    <div>
+    <div className="p-6">
       <div className="flex items-center gap-2 mb-6">
         <Compass className="h-5 w-5" />
         <h3 className="text-2xl font-semibold leading-none tracking-tight">Day Outlook</h3>
