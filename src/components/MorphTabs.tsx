@@ -50,13 +50,13 @@ export const MorphTabs: React.FC<MorphTabsProps> = ({
     <div 
       ref={containerRef}
       className={cn(
-        "relative grid grid-cols-4 bg-card/50 backdrop-blur-sm border shadow-sm rounded-lg p-1",
+        "relative grid grid-cols-4 bg-muted p-1 rounded-lg",
         className
       )}
     >
       {/* Morphing indicator */}
       <div
-        className="absolute top-1 bottom-1 bg-primary rounded-md transition-all duration-300 ease-out shadow-sm"
+        className="absolute top-1 bottom-1 bg-background text-foreground shadow-sm rounded-md transition-all duration-300 ease-out"
         style={{
           left: indicatorStyle.left,
           width: indicatorStyle.width,
@@ -77,8 +77,8 @@ export const MorphTabs: React.FC<MorphTabsProps> = ({
             className={cn(
               "relative z-10 flex items-center justify-center gap-1 px-3 py-2 text-sm font-medium rounded-md transition-all duration-200",
               isActive 
-                ? "text-primary-foreground" 
-                : "text-muted-foreground hover:text-foreground hover:bg-primary/10"
+                ? "text-foreground" 
+                : "text-muted-foreground hover:text-foreground"
             )}
           >
             <Icon className="h-4 w-4" />
