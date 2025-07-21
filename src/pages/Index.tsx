@@ -12,6 +12,7 @@ import { TipsRecommendations } from '@/components/TipsRecommendations';
 import { DayOutlook } from '@/components/DayOutlook';
 import { WeatherIcon } from '@/components/WeatherIcon';
 import { EarningsCalendar } from '@/components/EarningsCalendar';
+import { PrivacyPolicy } from '@/components/PrivacyPolicy';
 import { CalendarDays, TrendingUp, Target, Plus, Star, LogOut } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
 import { useTipEntries, type TipEntry } from '@/hooks/useTipEntries';
@@ -422,6 +423,9 @@ const Index = () => {
           description="Are you sure you want to sign out? You'll need to log in again to access your tip data."
           confirmText="Sign Out"
         />
+
+        {/* Privacy Policy */}
+        <PrivacyPolicy />
       </div>
     </div>
   );
