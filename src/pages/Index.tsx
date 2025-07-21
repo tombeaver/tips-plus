@@ -13,7 +13,6 @@ import { DayOutlook } from '@/components/DayOutlook';
 import { WeatherIcon } from '@/components/WeatherIcon';
 import { EarningsCalendar } from '@/components/EarningsCalendar';
 import { PrivacyPolicy } from '@/components/PrivacyPolicy';
-import { MorphTabs } from '@/components/MorphTabs';
 import { CalendarDays, TrendingUp, Target, Plus, Star, LogOut } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
 import { useTipEntries, type TipEntry } from '@/hooks/useTipEntries';
@@ -180,183 +179,195 @@ const Index = () => {
         </div>
 
         {/* Main Navigation */}
-        <MorphTabs 
-          activeTab={activeTab} 
-          onTabChange={setActiveTab}
-          className="w-full"
-        />
-        
-        <div className="space-group">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-4 bg-card/50 backdrop-blur-sm border shadow-sm">
+            <TabsTrigger value="calendar" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
+              <CalendarDays className="h-4 w-4" />
+              <span className="hidden sm:inline">Calendar</span>
+            </TabsTrigger>
+            <TabsTrigger value="tips" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
+              <Star className="h-4 w-4" />
+              <span className="hidden sm:inline">Tips</span>
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
+              <TrendingUp className="h-4 w-4" />
+              <span className="hidden sm:inline">Analytics</span>
+            </TabsTrigger>
+            <TabsTrigger value="goals" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
+              <Target className="h-4 w-4" />
+              <span className="hidden sm:inline">Goals</span>
+            </TabsTrigger>
+          </TabsList>
+
           {/* Calendar Tab */}
-          {activeTab === 'calendar' && (
-            <>
-              <Card className="card-interactive">
-                <CardHeader>
-                  <CardTitle className="heading-xs">Select Date</CardTitle>
-                  <CardDescription className="body-md">
-                    Tap a date to view or add your tips
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <EarningsCalendar
-                    selected={selectedDate}
-                    onSelect={(date) => {
-                      if (date) {
-                        // Create a new date with local time to avoid timezone issues
-                        const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-                        setSelectedDate(localDate);
-                        console.log('Selected date from calendar:', date, 'Converted to local:', localDate);
-                      }
-                    }}
-                    tipEntries={tipEntries}
-                    getTotalEarnings={getTotalEarnings}
-                    getEntryForDate={getEntryForDate}
-                    className="rounded-md border pointer-events-auto flex justify-center"
-                  />
-                  <div className="mt-4 space-tight">
-                    <div className="caption flex items-center gap-2">
-                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                      <span>Days with earnings</span>
+          <TabsContent value="calendar" className="space-group">
+            <Card className="card-interactive">
+              <CardHeader>
+                <CardTitle className="heading-xs">Select Date</CardTitle>
+                <CardDescription className="body-md">
+                  Tap a date to view or add your tips
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <EarningsCalendar
+                  selected={selectedDate}
+                  onSelect={(date) => {
+                    if (date) {
+                      // Create a new date with local time to avoid timezone issues
+                      const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                      setSelectedDate(localDate);
+                      console.log('Selected date from calendar:', date, 'Converted to local:', localDate);
+                    }
+                  }}
+                  tipEntries={tipEntries}
+                  getTotalEarnings={getTotalEarnings}
+                  getEntryForDate={getEntryForDate}
+                  className="rounded-md border pointer-events-auto flex justify-center"
+                />
+                <div className="mt-4 space-tight">
+                  <div className="caption flex items-center gap-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span>Days with earnings</span>
+                  </div>
+                  <div className="caption flex items-center gap-2">
+                    <div className="w-3 h-3 bg-primary rounded-full"></div>
+                    <span>Today</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Day Outlook */}
+            <DayOutlook tipEntries={tipEntries} selectedDate={selectedDate} />
+
+            {/* Selected Date Info */}
+            <Card className="card-interactive">
+              <CardHeader>
+                <CardTitle className="heading-xs">
+                  {format(selectedDate, 'EEEE, MMMM d, yyyy')}
+                </CardTitle>
+                <CardDescription className="body-md">
+                  {selectedEntry ? 'Your shift details' : 'No entry for this date'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {selectedEntry ? (
+                  <div className="space-group">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="label-md text-muted-foreground">Total Sales</p>
+                        <p className="display-md">${selectedEntry.totalSales}</p>
+                      </div>
+                      <div>
+                        <p className="label-md text-muted-foreground">Total Tips</p>
+                        <p className="display-md text-success">
+                          ${getTotalTips(selectedEntry)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="label-md text-muted-foreground">Tip %</p>
+                        <p className="display-md">
+                          {getTipPercentage(selectedEntry).toFixed(1)}%
+                        </p>
+                      </div>
+                      <div>
+                        <p className="label-md text-muted-foreground">Per Guest</p>
+                        <p className="display-md">
+                          ${selectedEntry.guestCount > 0 ? (getTotalTips(selectedEntry) / selectedEntry.guestCount).toFixed(2) : '0.00'}
+                        </p>
+                      </div>
                     </div>
-                    <div className="caption flex items-center gap-2">
-                      <div className="w-3 h-3 bg-primary rounded-full"></div>
-                      <span>Today</span>
+                    
+                    <div className="grid grid-cols-3 gap-4 pt-2 border-t">
+                      <div>
+                        <p className="label-md text-muted-foreground">Shift</p>
+                        <p className="body-lg font-medium">{selectedEntry.shift}</p>
+                      </div>
+                      <div>
+                        <p className="label-md text-muted-foreground">Hours</p>
+                        <p className="body-lg font-medium">{selectedEntry.hoursWorked}h</p>
+                      </div>
+                      <div>
+                        <p className="label-md text-muted-foreground">Rate</p>
+                        <p className="body-lg font-medium">${selectedEntry.hourlyRate}/hr</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-4 pt-2">
+                      <div>
+                        <p className="label-md text-muted-foreground">Credit Tips</p>
+                        <p className="body-lg font-medium">${selectedEntry.creditTips}</p>
+                      </div>
+                      <div>
+                        <p className="label-md text-muted-foreground">Cash Tips</p>
+                        <p className="body-lg font-medium">${selectedEntry.cashTips}</p>
+                      </div>
+                      <div>
+                        <p className="label-md text-muted-foreground">Guests</p>
+                        <p className="body-lg font-medium">{selectedEntry.guestCount}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-between items-center pt-2 border-t">
+                      <div>
+                        <p className="label-md text-muted-foreground">Section</p>
+                        <p className="body-lg font-medium">{selectedEntry.section}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="label-md text-muted-foreground">Total Earnings</p>
+                        <p className="display-md text-success">
+                          ${getTotalEarnings(selectedEntry).toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button 
+                        variant="outline" 
+                        className="interactive-rise"
+                        onClick={() => setShowEntryForm(true)}
+                      >
+                        Edit Entry
+                      </Button>
+                      <Button 
+                        variant="destructive"
+                        className="interactive-rise"
+                        onClick={() => {
+                          setEntryToDelete(selectedEntry.id);
+                          setShowDeleteConfirm(true);
+                        }}
+                      >
+                        Delete
+                      </Button>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-
-              {/* Day Outlook */}
-              <DayOutlook tipEntries={tipEntries} selectedDate={selectedDate} />
-
-              {/* Selected Date Info */}
-              <Card className="card-interactive">
-                <CardHeader>
-                  <CardTitle className="heading-xs">
-                    {format(selectedDate, 'EEEE, MMMM d, yyyy')}
-                  </CardTitle>
-                  <CardDescription className="body-md">
-                    {selectedEntry ? 'Your shift details' : 'No entry for this date'}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {selectedEntry ? (
-                    <div className="space-group">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="label-md text-muted-foreground">Total Sales</p>
-                          <p className="display-md">${selectedEntry.totalSales}</p>
-                        </div>
-                        <div>
-                          <p className="label-md text-muted-foreground">Total Tips</p>
-                          <p className="display-md text-success">
-                            ${getTotalTips(selectedEntry)}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="label-md text-muted-foreground">Tip %</p>
-                          <p className="display-md">
-                            {getTipPercentage(selectedEntry).toFixed(1)}%
-                          </p>
-                        </div>
-                        <div>
-                          <p className="label-md text-muted-foreground">Per Guest</p>
-                          <p className="display-md">
-                            ${selectedEntry.guestCount > 0 ? (getTotalTips(selectedEntry) / selectedEntry.guestCount).toFixed(2) : '0.00'}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-3 gap-4 pt-2 border-t">
-                        <div>
-                          <p className="label-md text-muted-foreground">Shift</p>
-                          <p className="body-lg font-medium">{selectedEntry.shift}</p>
-                        </div>
-                        <div>
-                          <p className="label-md text-muted-foreground">Hours</p>
-                          <p className="body-lg font-medium">{selectedEntry.hoursWorked}h</p>
-                        </div>
-                        <div>
-                          <p className="label-md text-muted-foreground">Rate</p>
-                          <p className="body-lg font-medium">${selectedEntry.hourlyRate}/hr</p>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-4 pt-2">
-                        <div>
-                          <p className="label-md text-muted-foreground">Credit Tips</p>
-                          <p className="body-lg font-medium">${selectedEntry.creditTips}</p>
-                        </div>
-                        <div>
-                          <p className="label-md text-muted-foreground">Cash Tips</p>
-                          <p className="body-lg font-medium">${selectedEntry.cashTips}</p>
-                        </div>
-                        <div>
-                          <p className="label-md text-muted-foreground">Guests</p>
-                          <p className="body-lg font-medium">{selectedEntry.guestCount}</p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex justify-between items-center pt-2 border-t">
-                        <div>
-                          <p className="label-md text-muted-foreground">Section</p>
-                          <p className="body-lg font-medium">{selectedEntry.section}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="label-md text-muted-foreground">Total Earnings</p>
-                          <p className="display-md text-success">
-                            ${getTotalEarnings(selectedEntry).toFixed(2)}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-2">
-                        <Button 
-                          variant="outline" 
-                          className="interactive-rise"
-                          onClick={() => setShowEntryForm(true)}
-                        >
-                          Edit Entry
-                        </Button>
-                        <Button 
-                          variant="destructive"
-                          className="interactive-rise"
-                          onClick={() => {
-                            setEntryToDelete(selectedEntry.id);
-                            setShowDeleteConfirm(true);
-                          }}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <Button 
-                      className="w-full interactive-glow" 
-                      size="lg"
-                      onClick={() => setShowEntryForm(true)}
-                    >
-                      <Plus className="h-5 w-5 mr-2" />
-                      Add Tip Entry
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            </>
-          )}
+                ) : (
+                  <Button 
+                    className="w-full interactive-glow" 
+                    size="lg"
+                    onClick={() => setShowEntryForm(true)}
+                  >
+                    <Plus className="h-5 w-5 mr-2" />
+                    Add Tip Entry
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* Tips Tab */}
-          {activeTab === 'tips' && (
+          <TabsContent value="tips">
             <TipsRecommendations tipEntries={tipEntries} selectedDate={selectedDate} />
-          )}
+          </TabsContent>
 
           {/* Analytics Tab */}
-          {activeTab === 'analytics' && (
+          <TabsContent value="analytics">
             <AnalyticsDashboard tipEntries={tipEntries} />
-          )}
+          </TabsContent>
+
 
           {/* Goals Tab */}
-          {activeTab === 'goals' && (
+          <TabsContent value="goals">
             <GoalSettings 
               goals={goals} 
               onAddGoal={addGoal}
@@ -364,8 +375,8 @@ const Index = () => {
               onDeleteGoal={deleteGoal}
               tipEntries={tipEntries}
             />
-          )}
-        </div>
+          </TabsContent>
+        </Tabs>
 
         {/* Tip Entry Modal/Form */}
         {showEntryForm && (
