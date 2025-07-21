@@ -7,12 +7,12 @@ import { getWeatherHistory, getWeatherRecommendations } from '@/components/Weath
 
 import { TipEntry } from '@/hooks/useTipEntries';
 
-interface TipsRecommendationsProps {
+interface RecommendationsProps {
   tipEntries: TipEntry[];
   selectedDate?: Date;
 }
 
-export const TipsRecommendations: React.FC<TipsRecommendationsProps> = ({ tipEntries, selectedDate }) => {
+export const Recommendations: React.FC<RecommendationsProps> = ({ tipEntries, selectedDate }) => {
   const recommendations = useMemo(() => {
     // Add null safety check
     if (!tipEntries || !Array.isArray(tipEntries)) {
@@ -126,7 +126,7 @@ export const TipsRecommendations: React.FC<TipsRecommendationsProps> = ({ tipEnt
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Star className="h-5 w-5" />
-            Tips & Recommendations
+            Recommendations
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -145,7 +145,7 @@ export const TipsRecommendations: React.FC<TipsRecommendationsProps> = ({ tipEnt
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Star className="h-5 w-5" />
-          Tips & Recommendations
+          Recommendations
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
