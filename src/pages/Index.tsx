@@ -153,7 +153,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen p-4">
+    <div className="min-h-screen p-4 pb-20">{/* Add bottom padding for FAB */}
       <div className="max-w-md mx-auto space-section">
         {/* Header */}
         <div className="text-center py-6 relative">
@@ -439,6 +439,15 @@ const Index = () => {
           isOpen={showPrivacyPolicy} 
           onClose={() => setShowPrivacyPolicy(false)} 
         />
+        
+        {/* Floating Action Button */}
+        <button
+          onClick={() => setShowEntryForm(true)}
+          className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 flex items-center justify-center"
+          aria-label="Add tip entry"
+        >
+          <Plus className="h-6 w-6" />
+        </button>
       </div>
     </div>
   );
