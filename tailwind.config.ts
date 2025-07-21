@@ -134,7 +134,11 @@ export default {
 				'gradient-primary': 'var(--gradient-primary)',
 				'gradient-secondary': 'var(--gradient-secondary)',
 				'gradient-accent': 'var(--gradient-accent)',
-				'gradient-subtle': 'var(--gradient-subtle)'
+				'gradient-subtle': 'var(--gradient-subtle)',
+				'gradient-prism-dawn': 'var(--gradient-prism-dawn)',
+				'gradient-prism-spectrum': 'var(--gradient-prism-spectrum)',
+				'gradient-prism-aurora': 'var(--gradient-prism-aurora)',
+				'gradient-prism-ethereal': 'var(--gradient-prism-ethereal)'
 			},
 			boxShadow: {
 				'depth-sm': '0 2px 8px -2px hsl(var(--shadow-light))',
