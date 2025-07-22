@@ -214,9 +214,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
             <TrendingUp className="h-6 w-6" />
             Analytics
           </CardTitle>
-          <CardDescription>
+          <p className="body-md text-muted-foreground">
             Viewing data for: {getTimeFrameLabel()}
-          </CardDescription>
+          </p>
           <div className="flex items-center gap-2 mt-4">
             <Select value={timeFrame} onValueChange={setTimeFrame}>
               <SelectTrigger className="w-48">

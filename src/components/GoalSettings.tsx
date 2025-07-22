@@ -163,7 +163,7 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({ goals, onAddGoal, on
             <Target className="h-6 w-6" />
             Goals
           </CardTitle>
-          <CardDescription>Set and track your earning goals for each time period</CardDescription>
+          <p className="body-md text-muted-foreground">Set and track your earning goals for each time period</p>
         </CardHeader>
         <CardContent>
           {editingGoal && (
