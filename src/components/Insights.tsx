@@ -188,25 +188,6 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Best Days */}
-          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-            <h4 className="font-medium text-green-800 mb-2">Best Days to Work</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              {dayStats.slice(0, 4).map((day, index) => (
-                <div key={day.day} className="text-center p-2 bg-white rounded">
-                  <div className="text-sm font-medium">{day.dayName}</div>
-                  <div className="text-xs text-green-700">${day.avgEarnings.toFixed(0)}</div>
-                  <div className="text-xs text-muted-foreground">{day.count} shifts</div>
-                </div>
-              ))}
-            </div>
-            {bestDay && (
-              <p className="text-sm text-green-700 mt-3">
-                You average {((bestDay.avgEarnings / dayStats[dayStats.length - 1]?.avgEarnings - 1) * 100 || 0).toFixed(0)}% higher earnings on {bestDay.dayName}s.
-              </p>
-            )}
-          </div>
-
           {/* Next Shift Prediction */}
           {todayStats && (
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
@@ -239,6 +220,25 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
               </div>
             </div>
           )}
+
+          {/* Best Days */}
+          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+            <h4 className="font-medium text-green-800 mb-2">Best Days to Work</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {dayStats.slice(0, 4).map((day, index) => (
+                <div key={day.day} className="text-center p-2 bg-white rounded">
+                  <div className="text-sm font-medium">{day.dayName}</div>
+                  <div className="text-xs text-green-700">${day.avgEarnings.toFixed(0)}</div>
+                  <div className="text-xs text-muted-foreground">{day.count} shifts</div>
+                </div>
+              ))}
+            </div>
+            {bestDay && (
+              <p className="text-sm text-green-700 mt-3">
+                You average {((bestDay.avgEarnings / dayStats[dayStats.length - 1]?.avgEarnings - 1) * 100 || 0).toFixed(0)}% higher earnings on {bestDay.dayName}s.
+              </p>
+            )}
+          </div>
         </CardContent>
       </Card>
 
