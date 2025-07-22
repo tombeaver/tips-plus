@@ -8,12 +8,12 @@ import { getWeatherHistory, getWeatherRecommendations } from '@/components/Weath
 
 import { TipEntry } from '@/hooks/useTipEntries';
 
-interface RecommendationsProps {
+interface InsightsProps {
   tipEntries: TipEntry[];
   selectedDate?: Date;
 }
 
-export const Recommendations: React.FC<RecommendationsProps> = ({ tipEntries, selectedDate }) => {
+export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) => {
   const recommendations = useMemo(() => {
     // Add null safety check
     if (!tipEntries || !Array.isArray(tipEntries)) {
@@ -127,12 +127,12 @@ export const Recommendations: React.FC<RecommendationsProps> = ({ tipEntries, se
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Lightbulb className="h-5 w-5" />
-            Recommendations
+            Insights
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">
-            Keep logging your tips! Recommendations will appear after you have at least 5 entries.
+            Keep logging your tips! Insights will appear after you have at least 5 entries.
           </p>
         </CardContent>
       </Card>
@@ -149,82 +149,82 @@ export const Recommendations: React.FC<RecommendationsProps> = ({ tipEntries, se
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Lightbulb className="h-5 w-5" />
-            Recommendations
+            Insights
           </CardTitle>
         </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Best Day Recommendation */}
-          <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-            <div className="p-2 bg-primary/10 rounded-full">
-              <Calendar className="h-4 w-4 text-primary" />
-            </div>
-            <div className="flex-1">
-              <h4 className="font-medium text-sm">Best Day to Work</h4>
-              <p className="text-sm text-muted-foreground mb-2">
-                {bestDay.dayName}s have been your most profitable
-              </p>
-              <div className="flex gap-2">
-                <Badge variant="secondary" className="text-xs">
-                  Avg: ${bestDay.avgTips.toFixed(0)} tips
-                </Badge>
-                <Badge variant="secondary" className="text-xs">
-                  ${bestDay.avgEarnings.toFixed(0)} earnings
-                </Badge>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Best Day Recommendation */}
+            <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+              <div className="p-2 bg-primary/10 rounded-full">
+                <Calendar className="h-4 w-4 text-primary" />
               </div>
-            </div>
-          </div>
-
-          {/* Best Section Recommendation */}
-          <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-            <div className="p-2 bg-primary/10 rounded-full">
-              <MapPin className="h-4 w-4 text-primary" />
-            </div>
-            <div className="flex-1">
-              <h4 className="font-medium text-sm">Top Performing Section</h4>
-              <p className="text-sm text-muted-foreground mb-2">
-                {bestSection.section} consistently performs well
-              </p>
-              <div className="flex gap-2">
-                <Badge variant="secondary" className="text-xs">
-                  Avg: ${bestSection.avgTips.toFixed(0)} tips
-                </Badge>
-                <Badge variant="secondary" className="text-xs">
-                  {bestSection.workCount} shifts worked
-                </Badge>
-              </div>
-            </div>
-          </div>
-        </div>
-
-
-        {/* Weather-based recommendations */}
-        {weatherRecommendations && weatherRecommendations.length > 0 && (
-          <div className="flex items-start gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="p-2 bg-blue-100 rounded-full">
-              <CloudRain className="h-4 w-4 text-blue-600" />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <h4 className="font-medium text-sm">Weather-Based Tips</h4>
-                {todaysWeather && (
+              <div className="flex-1">
+                <h4 className="font-medium text-sm">Best Day to Work</h4>
+                <p className="text-sm text-muted-foreground mb-2">
+                  {bestDay.dayName}s have been your most profitable
+                </p>
+                <div className="flex gap-2">
                   <Badge variant="secondary" className="text-xs">
-                    {todaysWeather.temperature}°F - {todaysWeather.description}
+                    Avg: ${bestDay.avgTips.toFixed(0)} tips
                   </Badge>
-                )}
+                  <Badge variant="secondary" className="text-xs">
+                    ${bestDay.avgEarnings.toFixed(0)} earnings
+                  </Badge>
+                </div>
               </div>
-              <div className="space-y-1">
-                {weatherRecommendations.slice(0, 3).map((recommendation, index) => (
-                  <p key={index} className="text-sm text-gray-700">
-                    {recommendation}
-                  </p>
-                ))}
+            </div>
+
+            {/* Best Section Recommendation */}
+            <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+              <div className="p-2 bg-primary/10 rounded-full">
+                <MapPin className="h-4 w-4 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h4 className="font-medium text-sm">Top Performing Section</h4>
+                <p className="text-sm text-muted-foreground mb-2">
+                  {bestSection.section} consistently performs well
+                </p>
+                <div className="flex gap-2">
+                  <Badge variant="secondary" className="text-xs">
+                    Avg: ${bestSection.avgTips.toFixed(0)} tips
+                  </Badge>
+                  <Badge variant="secondary" className="text-xs">
+                    {bestSection.workCount} shifts worked
+                  </Badge>
+                </div>
               </div>
             </div>
           </div>
-        )}
-      </CardContent>
-    </Card>
+
+
+          {/* Weather-based recommendations */}
+          {weatherRecommendations && weatherRecommendations.length > 0 && (
+            <div className="flex items-start gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="p-2 bg-blue-100 rounded-full">
+                <CloudRain className="h-4 w-4 text-blue-600" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <h4 className="font-medium text-sm">Weather-Based Tips</h4>
+                  {todaysWeather && (
+                    <Badge variant="secondary" className="text-xs">
+                      {todaysWeather.temperature}°F - {todaysWeather.description}
+                    </Badge>
+                  )}
+                </div>
+                <div className="space-y-1">
+                  {weatherRecommendations.slice(0, 3).map((recommendation, index) => (
+                    <p key={index} className="text-sm text-gray-700">
+                      {recommendation}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

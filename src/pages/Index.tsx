@@ -8,7 +8,7 @@ import { TipEntryForm } from '@/components/TipEntryForm';
 import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
 import { GoalSettings } from '@/components/GoalSettings';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
-import { Recommendations } from '@/components/Recommendations';
+import { Insights } from '@/components/Insights';
 
 import { WeatherIcon } from '@/components/WeatherIcon';
 import { EarningsCalendar } from '@/components/EarningsCalendar';
@@ -357,7 +357,7 @@ const Index = () => {
 
           {/* Tips Tab */}
           <TabsContent value="tips">
-            <Recommendations tipEntries={tipEntries} selectedDate={selectedDate} />
+            <Insights tipEntries={tipEntries} selectedDate={selectedDate} />
           </TabsContent>
 
           {/* Analytics Tab */}
