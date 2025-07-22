@@ -202,6 +202,12 @@ const Index = () => {
           {/* Calendar Tab */}
           <TabsContent value="calendar" className="space-group">
             <Card className="card-interactive">
+              <CardHeader>
+                <CardTitle className="heading-xs">Select Date</CardTitle>
+                <CardDescription className="body-md">
+                  Tap a date to view or add your tips
+                </CardDescription>
+              </CardHeader>
               <CardContent>
                 <EarningsCalendar
                   selected={selectedDate}
