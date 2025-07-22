@@ -123,22 +123,29 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({ goals, onAddGoal, on
     const now = new Date();
     const allEntries = [...realEntries, ...tipEntries.filter(entry => entry.isPlaceholder)];
     
+    // Calculate total earnings (tips + wages)
+    const calculateTotalEarnings = (entry: TipEntry) => {
+      const tips = entry.creditTips + entry.cashTips;
+      const wages = entry.hoursWorked * entry.hourlyRate;
+      return tips + wages;
+    };
+    
     // Calculate average daily earnings from real entries
     const averageDaily = realEntries.length > 0 ? 
-      realEntries.reduce((sum, entry) => sum + entry.creditTips + entry.cashTips, 0) / realEntries.length : 
+      realEntries.reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0) / realEntries.length : 
       0;
     
     // Project weekly earnings including placeholders
     const weekStart = startOfWeek(now);
     const weekEnd = endOfWeek(now);
     const weekEntries = allEntries.filter(entry => isWithinInterval(entry.date, { start: weekStart, end: weekEnd }));
-    const weekTotal = weekEntries.reduce((sum, entry) => sum + entry.creditTips + entry.cashTips, 0);
+    const weekTotal = weekEntries.reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
     
     // Project monthly earnings
     const monthStart = startOfMonth(now);
     const monthEnd = endOfMonth(now);
     const monthEntries = allEntries.filter(entry => isWithinInterval(entry.date, { start: monthStart, end: monthEnd }));
-    const monthTotal = monthEntries.reduce((sum, entry) => sum + entry.creditTips + entry.cashTips, 0);
+    const monthTotal = monthEntries.reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
     
     return {
       averageDaily,
