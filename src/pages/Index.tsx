@@ -10,10 +10,10 @@ import { GoalSettings } from '@/components/GoalSettings';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { Insights } from '@/components/Insights';
 
-import { WeatherIcon } from '@/components/WeatherIcon';
+import { FeedbackModal } from '@/components/FeedbackModal';
 import { EarningsCalendar } from '@/components/EarningsCalendar';
 import { PrivacyPolicy } from '@/components/PrivacyPolicy';
-import { CalendarDays, TrendingUp, Target, Plus, Lightbulb, LogOut } from 'lucide-react';
+import { CalendarDays, TrendingUp, Target, Plus, Lightbulb, LogOut, MessageCircle } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
 import { useTipEntries, type TipEntry } from '@/hooks/useTipEntries';
 import { useGoals, type Goal } from '@/hooks/useGoals';
@@ -45,6 +45,7 @@ const Index = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [entryToDelete, setEntryToDelete] = useState<string>('');
 
   useEffect(() => {
@@ -172,9 +173,16 @@ const Index = () => {
             </Button>
           </div>
           
-          {/* Weather Icon in top right */}
+          {/* Feedback Icon in top right */}
           <div className="absolute top-4 right-4">
-            <WeatherIcon selectedDate={selectedDate} />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowFeedbackModal(true)}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <MessageCircle className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 
@@ -428,6 +436,12 @@ const Index = () => {
         <PrivacyPolicy 
           isOpen={showPrivacyPolicy} 
           onClose={() => setShowPrivacyPolicy(false)} 
+        />
+
+        {/* Feedback Modal */}
+        <FeedbackModal 
+          isOpen={showFeedbackModal} 
+          onClose={() => setShowFeedbackModal(false)} 
         />
       </div>
     </div>
