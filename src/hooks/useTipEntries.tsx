@@ -15,6 +15,7 @@ export interface TipEntry {
   shift: 'AM' | 'PM' | 'Double';
   hoursWorked: number;
   hourlyRate: number;
+  moodRating?: number;
   weather?: any;
 }
 
@@ -50,6 +51,7 @@ export const useTipEntries = () => {
         shift: entry.shift as 'AM' | 'PM' | 'Double' || 'PM',
         hoursWorked: Number(entry.hours_worked) || 8,
         hourlyRate: Number(entry.hourly_rate) || 15,
+        moodRating: entry.mood_rating ? Number(entry.mood_rating) : undefined,
       }));
 
       setTipEntries(formattedEntries);
@@ -96,6 +98,7 @@ export const useTipEntries = () => {
           shift: entry.shift,
           hours_worked: entry.hoursWorked,
           hourly_rate: entry.hourlyRate,
+          mood_rating: entry.moodRating,
         }])
         .select()
         .single();
@@ -113,6 +116,7 @@ export const useTipEntries = () => {
         shift: data.shift as 'AM' | 'PM' | 'Double',
         hoursWorked: Number(data.hours_worked),
         hourlyRate: Number(data.hourly_rate),
+        moodRating: data.mood_rating ? Number(data.mood_rating) : undefined,
       };
 
       setTipEntries(prev => [newEntry, ...prev]);
@@ -150,6 +154,7 @@ export const useTipEntries = () => {
       if (updates.shift !== undefined) updateData.shift = updates.shift;
       if (updates.hoursWorked !== undefined) updateData.hours_worked = updates.hoursWorked;
       if (updates.hourlyRate !== undefined) updateData.hourly_rate = updates.hourlyRate;
+      if (updates.moodRating !== undefined) updateData.mood_rating = updates.moodRating;
 
       const { error } = await supabase
         .from('tip_entries')

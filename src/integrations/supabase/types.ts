@@ -56,6 +56,7 @@ export type Database = {
           hourly_rate: number
           hours_worked: number
           id: string
+          mood_rating: number | null
           sales: number
           section: number
           shift: string
@@ -71,6 +72,7 @@ export type Database = {
           hourly_rate?: number
           hours_worked?: number
           id?: string
+          mood_rating?: number | null
           sales?: number
           section?: number
           shift?: string
@@ -86,6 +88,7 @@ export type Database = {
           hourly_rate?: number
           hours_worked?: number
           id?: string
+          mood_rating?: number | null
           sales?: number
           section?: number
           shift?: string

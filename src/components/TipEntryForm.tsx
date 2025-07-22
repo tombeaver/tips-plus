@@ -44,6 +44,7 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
   const [hourlyRate, setHourlyRate] = useState(
     existingEntry?.hourlyRate.toString() || previousEntry?.hourlyRate.toString() || ''
   );
+  const [moodRating, setMoodRating] = useState<number | undefined>(existingEntry?.moodRating);
   const [showSectionEditor, setShowSectionEditor] = useState(false);
   const [editingSectionId, setEditingSectionId] = useState<string>('');
   const [editingSectionName, setEditingSectionName] = useState('');
@@ -100,7 +101,8 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
       
       shift,
       hoursWorked: parseFloat(hoursWorked) || 0,
-      hourlyRate: parseFloat(hourlyRate) || 0
+      hourlyRate: parseFloat(hourlyRate) || 0,
+      moodRating
     };
 
     onSave(entry);
@@ -331,6 +333,40 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
                   required
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Shift Mood / Difficulty</Label>
+              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                {[1, 2, 3, 4, 5].map((rating) => {
+                  const emojis = ['😫', '😔', '😐', '😊', '🤩'];
+                  const labels = ['Very Hard', 'Hard', 'Okay', 'Good', 'Amazing'];
+                  const isSelected = moodRating === rating;
+                  
+                  return (
+                    <button
+                      key={rating}
+                      type="button"
+                      onClick={() => setMoodRating(rating)}
+                      className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-all ${
+                        isSelected 
+                          ? 'bg-white shadow-md scale-110' 
+                          : 'hover:bg-white/50'
+                      }`}
+                    >
+                      <span className="text-2xl">{emojis[rating - 1]}</span>
+                      <span className={`text-xs ${isSelected ? 'font-medium text-primary' : 'text-gray-600'}`}>
+                        {labels[rating - 1]}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              {moodRating && (
+                <p className="text-sm text-gray-600 text-center">
+                  You rated this shift: {['Very Hard', 'Hard', 'Okay', 'Good', 'Amazing'][moodRating - 1]}
+                </p>
+              )}
             </div>
 
 
