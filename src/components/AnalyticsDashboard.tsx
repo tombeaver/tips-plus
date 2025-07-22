@@ -264,37 +264,28 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         <>
           {/* Analytics Cards */}
           <div className="space-y-4">
-            {/* Row 1: Total Earnings (wide) | Avg Tip % */}
-            <div className="grid grid-cols-3 gap-4">
-              <Card className="col-span-2 bg-gradient-to-r from-green-500 to-emerald-600">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-white/80 text-lg">Total Earnings</p>
-                      <p className="text-4xl font-bold text-white">${stats.totalEarnings.toFixed(2)}</p>
-                      <p className="text-white/70 text-sm mt-1">
+            {/* Row 1: Total Earnings (full width) */}
+            <Card className="bg-gradient-to-r from-green-500 to-emerald-600">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-white/80 text-lg">Total Earnings</p>
+                    <p className="text-4xl font-bold text-white">${stats.totalEarnings.toFixed(2)}</p>
+                    <div className="flex items-center gap-4 mt-2">
+                      <p className="text-white/70 text-sm">
                         Tips + Wages for {getTimeFrameLabel()}
                       </p>
-                    </div>
-                    <div className="text-white/80">
-                      <DollarSign className="h-12 w-12" />
+                      <p className="text-white/80 text-sm font-medium">
+                        {stats.averageTipPercentage.toFixed(1)}% avg tip
+                      </p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">Avg Tip %</p>
-                      <p className="text-2xl font-bold">{stats.averageTipPercentage.toFixed(1)}%</p>
-                    </div>
-                    <Percent className="h-8 w-8 text-blue-600" />
+                  <div className="text-white/80">
+                    <DollarSign className="h-12 w-12" />
                   </div>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Row 2: Total Tips | Tips per Hour */}
             <div className="grid grid-cols-2 gap-4">
