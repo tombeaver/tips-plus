@@ -92,7 +92,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         averageTipPercentage: 0,
         averagePerGuest: 0,
         totalGuests: 0,
-        shiftsWorked: 0
+        shiftsWorked: 0,
+        tipsPerHour: 0,
+        totalHours: 0
       };
     }
 
@@ -110,7 +112,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       averageTipPercentage: totalSales > 0 ? (totalTips / totalSales) * 100 : 0,
       averagePerGuest: totalGuests > 0 ? totalTips / totalGuests : 0,
       totalGuests,
-      shiftsWorked: filteredEntries.length
+      shiftsWorked: filteredEntries.length,
+      tipsPerHour: totalHours > 0 ? totalTips / totalHours : 0,
+      totalHours
     };
   }, [filteredEntries]);
 
@@ -257,73 +261,93 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         </div>
       ) : (
         <>
-          {/* Total Earnings Highlight */}
-          <Card className="bg-gradient-to-r from-green-500 to-emerald-600">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-white/80 text-lg">Total Earnings</p>
-                  <p className="text-4xl font-bold text-white">${stats.totalEarnings.toFixed(2)}</p>
-                  <p className="text-white/70 text-sm mt-1">
-                    Tips + Wages for {getTimeFrameLabel()}
-                  </p>
-                </div>
-                <div className="text-white/80">
-                  <DollarSign className="h-12 w-12" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Analytics Cards */}
+          <div className="space-y-4">
+            {/* Row 1: Total Earnings (wide) | Avg Tip % */}
+            <div className="grid grid-cols-3 gap-4">
+              <Card className="col-span-2 bg-gradient-to-r from-green-500 to-emerald-600">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-white/80 text-lg">Total Earnings</p>
+                      <p className="text-4xl font-bold text-white">${stats.totalEarnings.toFixed(2)}</p>
+                      <p className="text-white/70 text-sm mt-1">
+                        Tips + Wages for {getTimeFrameLabel()}
+                      </p>
+                    </div>
+                    <div className="text-white/80">
+                      <DollarSign className="h-12 w-12" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">Avg Tip %</p>
+                      <p className="text-2xl font-bold">{stats.averageTipPercentage.toFixed(1)}%</p>
+                    </div>
+                    <Percent className="h-8 w-8 text-blue-600" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
-          {/* Key Metrics */}
-          <div className="grid grid-cols-2 gap-4">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Total Tips</p>
-                    <p className="text-2xl font-bold text-green-600">${stats.totalTips.toFixed(2)}</p>
+            {/* Row 2: Total Tips | Tips per Hour */}
+            <div className="grid grid-cols-2 gap-4">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">Total Tips</p>
+                      <p className="text-2xl font-bold text-green-600">${stats.totalTips.toFixed(2)}</p>
+                    </div>
+                    <HandCoins className="h-8 w-8 text-green-600" />
                   </div>
-                  <HandCoins className="h-8 w-8 text-green-600" />
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Avg Tip %</p>
-                    <p className="text-2xl font-bold">{stats.averageTipPercentage.toFixed(1)}%</p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">Tips per Hour</p>
+                      <p className="text-2xl font-bold text-purple-600">${stats.tipsPerHour.toFixed(2)}</p>
+                    </div>
+                    <Clock className="h-8 w-8 text-purple-600" />
                   </div>
-                  <Percent className="h-8 w-8 text-blue-600" />
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Per Guest</p>
-                    <p className="text-2xl font-bold">${stats.averagePerGuest.toFixed(2)}</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Row 3: Per Guest | Shifts */}
+            <div className="grid grid-cols-2 gap-4">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">Per Guest</p>
+                      <p className="text-2xl font-bold">${stats.averagePerGuest.toFixed(2)}</p>
+                    </div>
+                    <Users className="h-8 w-8 text-orange-600" />
                   </div>
-                  <Users className="h-8 w-8 text-purple-600" />
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Shifts</p>
-                    <p className="text-2xl font-bold">{stats.shiftsWorked}</p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">Shifts</p>
+                      <p className="text-2xl font-bold">{stats.shiftsWorked}</p>
+                    </div>
+                    <Calendar className="h-8 w-8 text-blue-600" />
                   </div>
-                  <Clock className="h-8 w-8 text-orange-600" />
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </div>
 
           {/* Weekly Trend */}
