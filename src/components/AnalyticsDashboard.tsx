@@ -1,21 +1,90 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrendingUp, DollarSign, Users, Percent, Calendar, HandCoins, Clock } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { TrendingUp, DollarSign, Users, Percent, Calendar, HandCoins, Clock, CalendarRange } from 'lucide-react';
 import { TipEntry } from '@/hooks/useTipEntries';
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isWithinInterval, getDay } from 'date-fns';
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, subDays, isWithinInterval, getDay, getYear } from 'date-fns';
 
 interface AnalyticsDashboardProps {
   tipEntries: TipEntry[];
 }
 
 export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntries }) => {
+  const [timeFrame, setTimeFrame] = useState('currentYear');
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
+  
   const realEntries = tipEntries.filter(entry => !entry.isPlaceholder);
+  
+  // Get available years from data
+  const availableYears = useMemo(() => {
+    const years = new Set(realEntries.map(entry => getYear(entry.date)));
+    return Array.from(years).sort((a, b) => b - a);
+  }, [realEntries]);
+
+  // Filter entries based on selected time frame
+  const filteredEntries = useMemo(() => {
+    const now = new Date();
+    
+    switch (timeFrame) {
+      case 'last30Days':
+        const thirtyDaysAgo = subDays(now, 30);
+        return realEntries.filter(entry => 
+          isWithinInterval(entry.date, { start: thirtyDaysAgo, end: now })
+        );
+      
+      case 'currentMonth':
+        const monthStart = startOfMonth(now);
+        const monthEnd = endOfMonth(now);
+        return realEntries.filter(entry => 
+          isWithinInterval(entry.date, { start: monthStart, end: monthEnd })
+        );
+      
+      case 'lastMonth':
+        const lastMonth = subMonths(now, 1);
+        const lastMonthStart = startOfMonth(lastMonth);
+        const lastMonthEnd = endOfMonth(lastMonth);
+        return realEntries.filter(entry => 
+          isWithinInterval(entry.date, { start: lastMonthStart, end: lastMonthEnd })
+        );
+      
+      case 'currentYear':
+        const yearStart = startOfYear(now);
+        const yearEnd = endOfYear(now);
+        return realEntries.filter(entry => 
+          isWithinInterval(entry.date, { start: yearStart, end: yearEnd })
+        );
+      
+      case 'specificYear':
+        const specificYearStart = startOfYear(new Date(parseInt(selectedYear), 0, 1));
+        const specificYearEnd = endOfYear(new Date(parseInt(selectedYear), 11, 31));
+        return realEntries.filter(entry => 
+          isWithinInterval(entry.date, { start: specificYearStart, end: specificYearEnd })
+        );
+      
+      case 'allTime':
+      default:
+        return realEntries;
+    }
+  }, [realEntries, timeFrame, selectedYear]);
+
+  const getTimeFrameLabel = () => {
+    switch (timeFrame) {
+      case 'last30Days': return 'Last 30 Days';
+      case 'currentMonth': return format(new Date(), 'MMMM yyyy');
+      case 'lastMonth': return format(subMonths(new Date(), 1), 'MMMM yyyy');
+      case 'currentYear': return new Date().getFullYear().toString();
+      case 'specificYear': return selectedYear;
+      case 'allTime': return 'All Time';
+      default: return 'Current Year';
+    }
+  };
 
   const stats = useMemo(() => {
-    if (realEntries.length === 0) {
+    if (filteredEntries.length === 0) {
       return {
         totalTips: 0,
         totalSales: 0,
@@ -27,11 +96,11 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       };
     }
 
-    const totalTips = realEntries.reduce((sum, entry) => sum + entry.creditTips + entry.cashTips, 0);
-    const totalSales = realEntries.reduce((sum, entry) => sum + entry.totalSales, 0);
-    const totalGuests = realEntries.reduce((sum, entry) => sum + entry.guestCount, 0);
-    const totalHours = realEntries.reduce((sum, entry) => sum + entry.hoursWorked, 0);
-    const totalWages = realEntries.reduce((sum, entry) => sum + (entry.hoursWorked * entry.hourlyRate), 0);
+    const totalTips = filteredEntries.reduce((sum, entry) => sum + entry.creditTips + entry.cashTips, 0);
+    const totalSales = filteredEntries.reduce((sum, entry) => sum + entry.totalSales, 0);
+    const totalGuests = filteredEntries.reduce((sum, entry) => sum + entry.guestCount, 0);
+    const totalHours = filteredEntries.reduce((sum, entry) => sum + entry.hoursWorked, 0);
+    const totalWages = filteredEntries.reduce((sum, entry) => sum + (entry.hoursWorked * entry.hourlyRate), 0);
     const totalEarnings = totalTips + totalWages;
     
     return {
@@ -41,14 +110,14 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       averageTipPercentage: totalSales > 0 ? (totalTips / totalSales) * 100 : 0,
       averagePerGuest: totalGuests > 0 ? totalTips / totalGuests : 0,
       totalGuests,
-      shiftsWorked: realEntries.length
+      shiftsWorked: filteredEntries.length
     };
-  }, [realEntries]);
+  }, [filteredEntries]);
 
   const sectionStats = useMemo(() => {
     const sectionMap = new Map();
     
-    realEntries.forEach(entry => {
+    filteredEntries.forEach(entry => {
       const existing = sectionMap.get(entry.section) || {
         section: entry.section,
         totalTips: 0,
@@ -72,13 +141,13 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       averagePerGuest: section.totalGuests > 0 ? section.totalTips / section.totalGuests : 0,
       averageTipsPerShift: section.shifts > 0 ? section.totalTips / section.shifts : 0
     })).sort((a, b) => b.totalTips - a.totalTips);
-  }, [realEntries]);
+  }, [filteredEntries]);
 
   const dayStats = useMemo(() => {
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const dayMap = new Map();
 
-    realEntries.forEach(entry => {
+    filteredEntries.forEach(entry => {
       const dayIndex = getDay(entry.date);
       const dayName = dayNames[dayIndex];
       
@@ -106,12 +175,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       averagePerGuest: day.totalGuests > 0 ? day.totalTips / day.totalGuests : 0,
       averageTipsPerShift: day.shifts > 0 ? day.totalTips / day.shifts : 0
     })).sort((a, b) => b.averageTipsPerShift - a.averageTipsPerShift);
-  }, [realEntries]);
+  }, [filteredEntries]);
 
   const weeklyData = useMemo(() => {
     const weeks = new Map();
     
-    realEntries.forEach(entry => {
+    filteredEntries.forEach(entry => {
       const weekStart = startOfWeek(entry.date);
       const weekKey = format(weekStart, 'MMM d');
       
@@ -126,11 +195,11 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
     });
 
     return Array.from(weeks.values()).sort((a, b) => a.weekStart.getTime() - b.weekStart.getTime());
-  }, [realEntries]);
+  }, [filteredEntries]);
 
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'];
 
-  if (realEntries.length === 0) {
+  if (filteredEntries.length === 0) {
     return (
       <Card>
         <CardHeader>
@@ -147,6 +216,55 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
 
   return (
     <div className="space-y-4">
+      {/* Time Frame Selector */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <CalendarRange className="h-5 w-5" />
+                Analytics Dashboard
+              </CardTitle>
+              <CardDescription>
+                Viewing data for: {getTimeFrameLabel()}
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <Select value={timeFrame} onValueChange={setTimeFrame}>
+                <SelectTrigger className="w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="last30Days">Last 30 Days</SelectItem>
+                  <SelectItem value="currentMonth">Current Month</SelectItem>
+                  <SelectItem value="lastMonth">Last Month</SelectItem>
+                  <SelectItem value="currentYear">Current Year</SelectItem>
+                  {availableYears.length > 1 && (
+                    <SelectItem value="specificYear">Specific Year</SelectItem>
+                  )}
+                  <SelectItem value="allTime">All Time</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              {timeFrame === 'specificYear' && (
+                <Select value={selectedYear} onValueChange={setSelectedYear}>
+                  <SelectTrigger className="w-24">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableYears.map(year => (
+                      <SelectItem key={year} value={year.toString()}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+          </div>
+        </CardHeader>
+      </Card>
+
       {/* Total Earnings Highlight */}
       <Card className="bg-gradient-to-r from-green-500 to-emerald-600">
         <CardContent className="p-6">
@@ -154,7 +272,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
             <div>
               <p className="text-white/80 text-lg">Total Earnings</p>
               <p className="text-4xl font-bold text-white">${stats.totalEarnings.toFixed(2)}</p>
-              <p className="text-white/70 text-sm mt-1">Tips + Wages Combined</p>
+              <p className="text-white/70 text-sm mt-1">
+                Tips + Wages for {getTimeFrameLabel()}
+              </p>
             </div>
             <div className="text-white/80">
               <DollarSign className="h-12 w-12" />
