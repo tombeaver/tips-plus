@@ -13,7 +13,7 @@ import { Insights } from '@/components/Insights';
 import { FeedbackModal } from '@/components/FeedbackModal';
 import { EarningsCalendar } from '@/components/EarningsCalendar';
 import { PrivacyPolicy } from '@/components/PrivacyPolicy';
-import { CalendarDays, TrendingUp, Target, Plus, Lightbulb, LogOut, MessageCircle } from 'lucide-react';
+import { CalendarDays, TrendingUp, Target, Plus, Lightbulb, LogOut, MessageCircle, Frown, Meh, Smile, Laugh, Zap } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
 import { useTipEntries, type TipEntry } from '@/hooks/useTipEntries';
 import { useGoals, type Goal } from '@/hooks/useGoals';
@@ -233,12 +233,26 @@ const Index = () => {
             {/* Selected Date Info */}
             <Card className="card-interactive">
               <CardHeader>
-                <CardTitle className="heading-xs">
-                  {format(selectedDate, 'EEEE, MMMM d, yyyy')}
-                </CardTitle>
-                <CardDescription className="body-md">
-                  {selectedEntry ? 'Your shift details' : 'No entry for this date'}
-                </CardDescription>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <CardTitle className="heading-xs">
+                      {format(selectedDate, 'EEEE, MMMM d, yyyy')}
+                    </CardTitle>
+                    <CardDescription className="body-md">
+                      {selectedEntry ? 'Your shift details' : 'No entry for this date'}
+                    </CardDescription>
+                  </div>
+                  {selectedEntry?.moodRating && (
+                    <div className="flex items-center gap-1">
+                      {(() => {
+                        const icons = [Frown, Meh, Smile, Laugh, Zap];
+                        const colors = ['text-red-500', 'text-orange-500', 'text-yellow-500', 'text-green-500', 'text-purple-500'];
+                        const IconComponent = icons[selectedEntry.moodRating - 1];
+                        return <IconComponent className={`h-5 w-5 ${colors[selectedEntry.moodRating - 1]}`} />;
+                      })()}
+                    </div>
+                  )}
+                </div>
               </CardHeader>
               <CardContent>
                 {selectedEntry ? (
