@@ -175,7 +175,7 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
             <Lightbulb className="h-6 w-6" />
             Insights
           </CardTitle>
-          <p className="text-muted-foreground">Comprehensive insights from your {insightsData.totalEntries} logged shifts</p>
+          <p className="body-md text-muted-foreground">Comprehensive insights from your {insightsData.totalEntries} logged shifts</p>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Next Shift Prediction */}
