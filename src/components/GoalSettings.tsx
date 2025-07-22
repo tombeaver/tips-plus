@@ -205,7 +205,11 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({ goals, onAddGoal, on
           )}
 
           <div className="space-y-4">
-            {goalProgress.map((progress) => (
+            {['daily', 'weekly', 'monthly', 'yearly'].map((type) => {
+              const progress = goalProgress.find(p => p.type === type);
+              if (!progress) return null;
+              
+              return (
               <div key={progress.id} className="p-6 border rounded-lg bg-card">
                 <div className="flex justify-between items-start mb-4">
                   <div>
@@ -259,7 +263,8 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({ goals, onAddGoal, on
                   )}
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </CardContent>
       </Card>
