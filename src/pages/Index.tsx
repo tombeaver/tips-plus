@@ -224,16 +224,6 @@ const Index = () => {
                   getEntryForDate={getEntryForDate}
                   className="rounded-md border pointer-events-auto flex justify-center"
                 />
-                <div className="mt-4 space-tight">
-                  <div className="caption flex items-center gap-2">
-                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                    <span>Days with earnings</span>
-                  </div>
-                  <div className="caption flex items-center gap-2">
-                    <div className="w-3 h-3 bg-primary rounded-full"></div>
-                    <span>Today</span>
-                  </div>
-                </div>
               </CardContent>
             </Card>
 
