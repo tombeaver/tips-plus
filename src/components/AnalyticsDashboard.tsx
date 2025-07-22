@@ -208,7 +208,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
   return (
     <div className="space-y-4">
       {/* Header and Filter Card */}
-      <Card data-onboarding="performance-chart">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-6 w-6" />
