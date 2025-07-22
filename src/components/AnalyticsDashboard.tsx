@@ -216,51 +216,49 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
 
   return (
     <div className="space-y-4">
-      {/* Time Frame Selector */}
+      {/* Header and Filter Card */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <CalendarRange className="h-5 w-5" />
-                Analytics Dashboard
-              </CardTitle>
-              <CardDescription>
-                Viewing data for: {getTimeFrameLabel()}
-              </CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-              <Select value={timeFrame} onValueChange={setTimeFrame}>
-                <SelectTrigger className="w-48">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <CalendarRange className="h-5 w-5" />
+              Analytics Dashboard
+            </CardTitle>
+            <CardDescription>
+              Viewing data for: {getTimeFrameLabel()}
+            </CardDescription>
+          </div>
+          <div className="flex items-center gap-2 mt-4">
+            <Select value={timeFrame} onValueChange={setTimeFrame}>
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="last30Days">Last 30 Days</SelectItem>
+                <SelectItem value="currentMonth">Current Month</SelectItem>
+                <SelectItem value="lastMonth">Last Month</SelectItem>
+                <SelectItem value="currentYear">Current Year</SelectItem>
+                {availableYears.length > 1 && (
+                  <SelectItem value="specificYear">Specific Year</SelectItem>
+                )}
+                <SelectItem value="allTime">All Time</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            {timeFrame === 'specificYear' && (
+              <Select value={selectedYear} onValueChange={setSelectedYear}>
+                <SelectTrigger className="w-24">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="last30Days">Last 30 Days</SelectItem>
-                  <SelectItem value="currentMonth">Current Month</SelectItem>
-                  <SelectItem value="lastMonth">Last Month</SelectItem>
-                  <SelectItem value="currentYear">Current Year</SelectItem>
-                  {availableYears.length > 1 && (
-                    <SelectItem value="specificYear">Specific Year</SelectItem>
-                  )}
-                  <SelectItem value="allTime">All Time</SelectItem>
+                  {availableYears.map(year => (
+                    <SelectItem key={year} value={year.toString()}>
+                      {year}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
-              
-              {timeFrame === 'specificYear' && (
-                <Select value={selectedYear} onValueChange={setSelectedYear}>
-                  <SelectTrigger className="w-24">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableYears.map(year => (
-                      <SelectItem key={year} value={year.toString()}>
-                        {year}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </div>
+            )}
           </div>
         </CardHeader>
       </Card>
