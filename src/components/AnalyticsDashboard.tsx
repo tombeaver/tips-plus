@@ -477,11 +477,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                             ${day.averageTipsPerShift.toFixed(2)}/shift
                           </span>
                         </div>
-                        <div className="grid grid-cols-4 gap-2 text-sm text-gray-600">
-                          <div>
-                            <span className="block">Total Tips</span>
-                            <span className="font-medium">${day.totalTips.toFixed(2)}</span>
-                          </div>
+                        <div className="grid grid-cols-3 gap-2 text-sm text-gray-600">
                           <div>
                             <span className="block">Avg Tip %</span>
                             <span className="font-medium">{day.averageTipPercentage.toFixed(1)}%</span>
