@@ -210,15 +210,13 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       {/* Header and Filter Card */}
       <Card>
         <CardHeader>
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              Analytics Dashboard
-            </CardTitle>
-            <CardDescription>
-              Viewing data for: {getTimeFrameLabel()}
-            </CardDescription>
-          </div>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-6 w-6" />
+            Analytics
+          </CardTitle>
+          <CardDescription>
+            Viewing data for: {getTimeFrameLabel()}
+          </CardDescription>
           <div className="flex items-center gap-2 mt-4">
             <Select value={timeFrame} onValueChange={setTimeFrame}>
               <SelectTrigger className="w-48">

@@ -160,8 +160,8 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({ goals, onAddGoal, on
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5" />
-            Your Goals
+            <Target className="h-6 w-6" />
+            Goals
           </CardTitle>
           <CardDescription>Set and track your earning goals for each time period</CardDescription>
         </CardHeader>
