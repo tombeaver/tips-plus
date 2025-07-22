@@ -92,8 +92,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         averageTipPercentage: 0,
         averagePerGuest: 0,
         totalGuests: 0,
-        shiftsWorked: 0,
         tipsPerHour: 0,
+        earningsPerHour: 0,
         totalHours: 0
       };
     }
@@ -114,6 +114,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       totalGuests,
       shiftsWorked: filteredEntries.length,
       tipsPerHour: totalHours > 0 ? totalTips / totalHours : 0,
+      earningsPerHour: totalHours > 0 ? totalEarnings / totalHours : 0,
       totalHours
     };
   }, [filteredEntries]);
@@ -313,8 +314,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600">Tips per Hour</p>
-                      <p className="text-2xl font-bold text-purple-600">${stats.tipsPerHour.toFixed(2)}</p>
+                      <p className="text-sm text-gray-600">Earnings per Hour</p>
+                      <p className="text-2xl font-bold text-purple-600">${stats.earningsPerHour.toFixed(2)}</p>
                     </div>
                     <Clock className="h-8 w-8 text-purple-600" />
                   </div>
