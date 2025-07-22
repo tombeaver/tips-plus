@@ -162,7 +162,7 @@ const Index = () => {
           <p className="body-md text-muted-foreground">Track. Analyze. Level Up Your Income.</p>
           
           {/* User info and sign out */}
-          <div className="absolute top-6 left-4">
+          <div className="absolute top-4 left-4">
             <Button
               variant="ghost"
               size="sm"
@@ -174,7 +174,7 @@ const Index = () => {
           </div>
           
           {/* Feedback Icon in top right */}
-          <div className="absolute top-6 right-4">
+          <div className="absolute top-4 right-4">
             <Button
               variant="ghost"
               size="sm"
