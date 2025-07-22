@@ -376,8 +376,8 @@ const Index = () => {
           <TabsContent value="goals">
             <GoalSettings 
               goals={goals} 
-              onAddGoal={addGoal}
-              onUpdateGoal={updateGoal}
+              onAddGoal={async (goal) => { await addGoal(goal); }}
+              onUpdateGoal={async (goalId, goal) => { await updateGoal(goalId, goal); }}
               onDeleteGoal={deleteGoal}
               tipEntries={tipEntries}
             />
