@@ -202,7 +202,7 @@ const Index = () => {
           {/* Calendar Tab */}
           <TabsContent value="calendar" className="space-group">
             <Card className="card-interactive">
-              <CardContent>
+              <CardContent className="pt-6">
                 <EarningsCalendar
                   selected={selectedDate}
                   onSelect={(date) => {
