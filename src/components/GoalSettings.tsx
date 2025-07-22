@@ -113,6 +113,9 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({ goals, onAddGoal, on
   };
 
   const existingGoalTypes = goals.map(goal => goal.type);
+  const availableGoalTypes = (['daily', 'weekly', 'monthly', 'yearly'] as const)
+    .filter(type => !existingGoalTypes.includes(type));
+  const allGoalTypesSet = availableGoalTypes.length === 0;
 
   const projectedEarnings = useMemo(() => {
     const now = new Date();
@@ -167,7 +170,7 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({ goals, onAddGoal, on
                 editingGoal={editingGoal}
                 onSubmit={handleSubmitGoal}
                 onCancel={cancelForm}
-                existingGoalTypes={existingGoalTypes}
+                availableGoalTypes={editingGoal ? [editingGoal.type] : availableGoalTypes}
               />
             </div>
           )}
@@ -184,12 +187,20 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({ goals, onAddGoal, on
             </div>
           )}
           
-          {!showForm && goals.length > 0 && (
+          {!showForm && goals.length > 0 && !allGoalTypesSet && (
             <div className="mb-4">
               <Button onClick={() => setShowForm(true)} variant="outline">
                 <Plus className="h-4 w-4 mr-2" />
                 Add New Goal
               </Button>
+            </div>
+          )}
+          
+          {!showForm && allGoalTypesSet && (
+            <div className="mb-4 p-3 bg-muted/50 rounded-lg border">
+              <p className="text-sm text-muted-foreground">
+                All goal types are set! Edit or delete existing goals to add new ones.
+              </p>
             </div>
           )}
 

@@ -11,16 +11,18 @@ interface GoalSettingsFormProps {
   editingGoal?: Goal | null;
   onSubmit: (goal: Omit<Goal, 'id'>) => Promise<void>;
   onCancel: () => void;
-  existingGoalTypes: string[];
+  availableGoalTypes: Array<'daily' | 'weekly' | 'monthly' | 'yearly'>;
 }
 
 export const GoalSettingsForm: React.FC<GoalSettingsFormProps> = ({
   editingGoal,
   onSubmit,
   onCancel,
-  existingGoalTypes
+  availableGoalTypes
 }) => {
-  const [goalType, setGoalType] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('daily');
+  const [goalType, setGoalType] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>(
+    editingGoal?.type || availableGoalTypes[0] || 'daily'
+  );
   const [goalAmount, setGoalAmount] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ amount?: string; type?: string }>({});
@@ -30,21 +32,17 @@ export const GoalSettingsForm: React.FC<GoalSettingsFormProps> = ({
       setGoalType(editingGoal.type);
       setGoalAmount(editingGoal.amount.toString());
     } else {
-      setGoalType('daily');
+      setGoalType(availableGoalTypes[0] || 'daily');
       setGoalAmount('');
     }
     setErrors({});
-  }, [editingGoal]);
+  }, [editingGoal, availableGoalTypes]);
 
   const validateForm = () => {
     const newErrors: { amount?: string; type?: string } = {};
     
     if (!goalAmount || parseFloat(goalAmount) <= 0) {
       newErrors.amount = 'Please enter a valid amount greater than 0';
-    }
-    
-    if (!editingGoal && existingGoalTypes.includes(goalType)) {
-      newErrors.type = 'A goal for this period already exists. Please edit the existing goal.';
     }
     
     setErrors(newErrors);
@@ -78,7 +76,7 @@ export const GoalSettingsForm: React.FC<GoalSettingsFormProps> = ({
 
   const handleCancel = () => {
     setGoalAmount('');
-    setGoalType('daily');
+    setGoalType(availableGoalTypes[0] || 'daily');
     setErrors({});
     onCancel();
   };
@@ -103,14 +101,15 @@ export const GoalSettingsForm: React.FC<GoalSettingsFormProps> = ({
               }}
               disabled={!!editingGoal}
             >
-              <SelectTrigger id="goalType">
+              <SelectTrigger id="goalType" className="bg-background">
                 <SelectValue placeholder="Select goal period" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="daily">Daily Goal</SelectItem>
-                <SelectItem value="weekly">Weekly Goal</SelectItem>
-                <SelectItem value="monthly">Monthly Goal</SelectItem>
-                <SelectItem value="yearly">Yearly Goal</SelectItem>
+              <SelectContent className="bg-background border z-50">
+                {availableGoalTypes.map(type => (
+                  <SelectItem key={type} value={type} className="capitalize">
+                    {type} Goal
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             {errors.type && (
