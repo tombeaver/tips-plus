@@ -219,18 +219,26 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
 
   return (
     <div className="space-section">
-      {/* Time Frame Selector */}
+      {/* Header Card */}
       <Card className="card-enhanced">
         <CardHeader>
+          <CardTitle className="heading-xs flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-primary" />
+            Analytics Dashboard
+          </CardTitle>
+          <CardDescription className="body-md">
+            Track your earnings, tips, and performance metrics
+          </CardDescription>
+        </CardHeader>
+      </Card>
+
+      {/* Time Frame Filter */}
+      <Card className="card-enhanced">
+        <CardContent className="p-space-group">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="heading-xs flex items-center gap-2">
-                <CalendarRange className="h-5 w-5 text-primary" />
-                Analytics Dashboard
-              </CardTitle>
-              <CardDescription className="body-md">
-                Viewing data for: <span className="font-medium text-foreground">{getTimeFrameLabel()}</span>
-              </CardDescription>
+              <p className="body-md font-medium text-foreground">Viewing Period</p>
+              <p className="label-md text-muted-foreground">{getTimeFrameLabel()}</p>
             </div>
             <div className="flex items-center gap-2">
               <Select value={timeFrame} onValueChange={setTimeFrame}>
@@ -265,7 +273,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
               )}
             </div>
           </div>
-        </CardHeader>
+        </CardContent>
       </Card>
 
       {/* Total Earnings Highlight */}
