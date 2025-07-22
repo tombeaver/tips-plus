@@ -201,51 +201,40 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
 
   if (filteredEntries.length === 0) {
     return (
-      <Card className="card-enhanced">
+      <Card>
         <CardHeader>
-          <CardTitle className="heading-xs flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-primary" />
-            Analytics Dashboard
-          </CardTitle>
-          <CardDescription className="body-md">Add some tip entries to see your analytics</CardDescription>
+          <CardTitle>Analytics Dashboard</CardTitle>
+          <CardDescription>Add some tip entries to see your analytics</CardDescription>
         </CardHeader>
         <CardContent className="text-center py-8">
-          <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <p className="body-md text-muted-foreground">No data yet for {getTimeFrameLabel()}. Start tracking your tips!</p>
+          <TrendingUp className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-500">No data yet. Start tracking your tips!</p>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <div className="space-section">
-      {/* Header Card */}
-      <Card className="card-enhanced">
+    <div className="space-y-4">
+      {/* Time Frame Selector */}
+      <Card>
         <CardHeader>
-          <CardTitle className="heading-xs flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-primary" />
-            Analytics Dashboard
-          </CardTitle>
-          <CardDescription className="body-md">
-            Track your earnings, tips, and performance metrics
-          </CardDescription>
-        </CardHeader>
-      </Card>
-
-      {/* Time Frame Filter */}
-      <Card className="card-enhanced">
-        <CardContent className="p-space-group">
           <div className="flex items-center justify-between">
             <div>
-              <p className="body-md font-medium text-foreground">Viewing Period</p>
-              <p className="label-md text-muted-foreground">{getTimeFrameLabel()}</p>
+              <CardTitle className="flex items-center gap-2">
+                <CalendarRange className="h-5 w-5" />
+                Analytics Dashboard
+              </CardTitle>
+              <CardDescription>
+                Viewing data for: {getTimeFrameLabel()}
+              </CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <Select value={timeFrame} onValueChange={setTimeFrame}>
-                <SelectTrigger className="w-48 bg-card/50 backdrop-blur-sm">
+                <SelectTrigger className="w-48">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-card/90 backdrop-blur-md border-border/50">
+                <SelectContent>
                   <SelectItem value="last30Days">Last 30 Days</SelectItem>
                   <SelectItem value="currentMonth">Current Month</SelectItem>
                   <SelectItem value="lastMonth">Last Month</SelectItem>
@@ -259,10 +248,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
               
               {timeFrame === 'specificYear' && (
                 <Select value={selectedYear} onValueChange={setSelectedYear}>
-                  <SelectTrigger className="w-24 bg-card/50 backdrop-blur-sm">
+                  <SelectTrigger className="w-24">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-card/90 backdrop-blur-md border-border/50">
+                  <SelectContent>
                     {availableYears.map(year => (
                       <SelectItem key={year} value={year.toString()}>
                         {year}
@@ -273,21 +262,21 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
               )}
             </div>
           </div>
-        </CardContent>
+        </CardHeader>
       </Card>
 
       {/* Total Earnings Highlight */}
-      <Card className="bg-gradient-primary border-0 shadow-glow">
+      <Card className="bg-gradient-to-r from-green-500 to-emerald-600">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="body-lg text-primary-foreground/80">Total Earnings</p>
-              <p className="text-4xl font-bold text-primary-foreground">${stats.totalEarnings.toFixed(2)}</p>
-              <p className="body-sm text-primary-foreground/70 mt-1">
+              <p className="text-white/80 text-lg">Total Earnings</p>
+              <p className="text-4xl font-bold text-white">${stats.totalEarnings.toFixed(2)}</p>
+              <p className="text-white/70 text-sm mt-1">
                 Tips + Wages for {getTimeFrameLabel()}
               </p>
             </div>
-            <div className="text-primary-foreground/80">
+            <div className="text-white/80">
               <DollarSign className="h-12 w-12" />
             </div>
           </div>
@@ -295,92 +284,73 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       </Card>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-2 gap-space-group">
-        <Card className="card-enhanced interactive-rise">
-          <CardContent className="p-space-group">
+      <div className="grid grid-cols-2 gap-4">
+        <Card>
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="label-md text-muted-foreground">Total Tips</p>
-                <p className="display-md text-success">${stats.totalTips.toFixed(2)}</p>
+                <p className="text-sm text-gray-600">Total Tips</p>
+                <p className="text-2xl font-bold text-green-600">${stats.totalTips.toFixed(2)}</p>
               </div>
-              <HandCoins className="h-8 w-8 text-success" />
+              <HandCoins className="h-8 w-8 text-green-600" />
             </div>
           </CardContent>
         </Card>
         
-        <Card className="card-enhanced interactive-rise">
-          <CardContent className="p-space-group">
+        <Card>
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="label-md text-muted-foreground">Avg Tip %</p>
-                <p className="display-md text-primary">{stats.averageTipPercentage.toFixed(1)}%</p>
+                <p className="text-sm text-gray-600">Avg Tip %</p>
+                <p className="text-2xl font-bold">{stats.averageTipPercentage.toFixed(1)}%</p>
               </div>
-              <Percent className="h-8 w-8 text-primary" />
+              <Percent className="h-8 w-8 text-blue-600" />
             </div>
           </CardContent>
         </Card>
         
-        <Card className="card-enhanced interactive-rise">
-          <CardContent className="p-space-group">
+        <Card>
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="label-md text-muted-foreground">Per Guest</p>
-                <p className="display-md">${stats.averagePerGuest.toFixed(2)}</p>
+                <p className="text-sm text-gray-600">Per Guest</p>
+                <p className="text-2xl font-bold">${stats.averagePerGuest.toFixed(2)}</p>
               </div>
-              <Users className="h-8 w-8 text-prism-cyan" />
+              <Users className="h-8 w-8 text-purple-600" />
             </div>
           </CardContent>
         </Card>
         
-        <Card className="card-enhanced interactive-rise">
-          <CardContent className="p-space-group">
+        <Card>
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="label-md text-muted-foreground">Shifts</p>
-                <p className="display-md">{stats.shiftsWorked}</p>
+                <p className="text-sm text-gray-600">Shifts</p>
+                <p className="text-2xl font-bold">{stats.shiftsWorked}</p>
               </div>
-              <Clock className="h-8 w-8 text-warning" />
+              <Clock className="h-8 w-8 text-orange-600" />
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Weekly Trend */}
-      <Card className="card-enhanced">
+      <Card>
         <CardHeader>
-          <CardTitle className="heading-xs">Weekly Tips Trend</CardTitle>
-          <CardDescription className="body-md">Your tip earnings over time</CardDescription>
+          <CardTitle className="text-lg">Weekly Tips Trend</CardTitle>
+          <CardDescription>Your tip earnings over time</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={weeklyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis 
-                  dataKey="week" 
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={12}
-                />
-                <YAxis 
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={12}
-                />
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="week" />
+                <YAxis />
                 <Tooltip 
                   formatter={(value, name) => [`$${value}`, name === 'tips' ? 'Tips' : name]}
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    backdropFilter: 'blur(8px)'
-                  }}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="tips" 
-                  stroke="hsl(var(--success))" 
-                  strokeWidth={3}
-                  dot={{ fill: 'hsl(var(--success))', strokeWidth: 2, r: 4 }}
-                />
+                <Line type="monotone" dataKey="tips" stroke="#10B981" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -388,16 +358,16 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       </Card>
 
       {/* Performance Analysis */}
-      <Card className="card-enhanced">
+      <Card>
         <CardHeader>
-          <CardTitle className="heading-xs">Performance Analysis</CardTitle>
-          <CardDescription className="body-md">Compare your earnings by section and day of week</CardDescription>
+          <CardTitle className="text-lg">Performance Analysis</CardTitle>
+          <CardDescription>Compare your earnings by section and day of week</CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="sections" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-muted/50">
-              <TabsTrigger value="sections" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">By Section</TabsTrigger>
-              <TabsTrigger value="days" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">By Day</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="sections">By Section</TabsTrigger>
+              <TabsTrigger value="days">By Day</TabsTrigger>
             </TabsList>
             
             {/* Tips Distribution Chart */}
@@ -415,30 +385,14 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                             labelLine={false}
                             label={({ section, percent }) => `${section} ${(percent * 100).toFixed(0)}%`}
                             outerRadius={80}
-                            fill="hsl(var(--primary))"
+                            fill="#8884d8"
                             dataKey="totalTips"
                           >
-                            {sectionStats.map((entry, index) => {
-                              const prismColors = [
-                                'hsl(var(--prism-violet))',
-                                'hsl(var(--prism-blue))', 
-                                'hsl(var(--prism-cyan))',
-                                'hsl(var(--prism-emerald))',
-                                'hsl(var(--prism-amber))',
-                                'hsl(var(--prism-rose))'
-                              ];
-                              return <Cell key={`cell-${index}`} fill={prismColors[index % prismColors.length]} />;
-                            })}
+                            {sectionStats.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
                           </Pie>
-                          <Tooltip 
-                            formatter={(value) => [`$${value}`, 'Tips']}
-                            contentStyle={{
-                              backgroundColor: 'hsl(var(--card))',
-                              border: '1px solid hsl(var(--border))',
-                              borderRadius: '8px',
-                              backdropFilter: 'blur(8px)'
-                            }}
-                          />
+                          <Tooltip formatter={(value) => [`$${value}`, 'Tips']} />
                         </PieChart>
                       </ResponsiveContainer>
                     </div>
@@ -459,31 +413,14 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                             labelLine={false}
                             label={({ day, percent }) => `${day.slice(0, 3)} ${(percent * 100).toFixed(0)}%`}
                             outerRadius={80}
-                            fill="hsl(var(--primary))"
+                            fill="#8884d8"
                             dataKey="totalTips"
                           >
-                            {dayStats.map((entry, index) => {
-                              const prismColors = [
-                                'hsl(var(--prism-violet))',
-                                'hsl(var(--prism-blue))', 
-                                'hsl(var(--prism-cyan))',
-                                'hsl(var(--prism-emerald))',
-                                'hsl(var(--prism-amber))',
-                                'hsl(var(--prism-rose))',
-                                'hsl(var(--primary))'
-                              ];
-                              return <Cell key={`cell-${index}`} fill={prismColors[index % prismColors.length]} />;
-                            })}
+                            {dayStats.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
                           </Pie>
-                          <Tooltip 
-                            formatter={(value) => [`$${value}`, 'Tips']}
-                            contentStyle={{
-                              backgroundColor: 'hsl(var(--card))',
-                              border: '1px solid hsl(var(--border))',
-                              borderRadius: '8px',
-                              backdropFilter: 'blur(8px)'
-                            }}
-                          />
+                          <Tooltip formatter={(value) => [`$${value}`, 'Tips']} />
                         </PieChart>
                       </ResponsiveContainer>
                     </div>
@@ -493,70 +430,66 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
             </div>
             
             <TabsContent value="sections" className="mt-4">
-              <div className="space-group">
+              <div className="space-y-4">
                 {sectionStats.map((section, index) => (
-                  <Card key={section.section} className="card-enhanced interactive-rise">
-                    <CardContent className="p-space-group">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="body-lg font-medium">Section {section.section}</h4>
-                        <span className="display-sm text-success">
-                          ${section.totalTips.toFixed(2)}
-                        </span>
+                  <div key={section.section} className="p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium">Section {section.section}</h4>
+                      <span className="text-lg font-bold text-green-600">
+                        ${section.totalTips.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-sm text-gray-600">
+                      <div>
+                        <span className="block">Avg Tip %</span>
+                        <span className="font-medium">{section.averageTipPercentage.toFixed(1)}%</span>
                       </div>
-                      <div className="grid grid-cols-3 gap-space-item">
-                        <div>
-                          <span className="label-md text-muted-foreground block">Avg Tip %</span>
-                          <span className="body-lg font-medium">{section.averageTipPercentage.toFixed(1)}%</span>
-                        </div>
-                        <div>
-                          <span className="label-md text-muted-foreground block">Per Guest</span>
-                          <span className="body-lg font-medium">${section.averagePerGuest.toFixed(2)}</span>
-                        </div>
-                        <div>
-                          <span className="label-md text-muted-foreground block">Shifts</span>
-                          <span className="body-lg font-medium">{section.shifts}</span>
-                        </div>
+                      <div>
+                        <span className="block">Per Guest</span>
+                        <span className="font-medium">${section.averagePerGuest.toFixed(2)}</span>
                       </div>
-                    </CardContent>
-                  </Card>
+                      <div>
+                        <span className="block">Shifts</span>
+                        <span className="font-medium">{section.shifts}</span>
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
             </TabsContent>
             
             <TabsContent value="days" className="mt-4">
-              <div className="space-group">
+              <div className="space-y-4">
                 {dayStats.map((day, index) => (
-                  <Card key={day.day} className="card-enhanced interactive-rise">
-                    <CardContent className="p-space-group">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="body-lg font-medium flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-primary" />
-                          {day.day}
-                        </h4>
-                        <span className="display-sm text-success">
-                          ${day.averageTipsPerShift.toFixed(2)}/shift
-                        </span>
+                  <div key={day.day} className="p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium flex items-center gap-2">
+                        <Calendar className="h-4 w-4" />
+                        {day.day}
+                      </h4>
+                      <span className="text-lg font-bold text-green-600">
+                        ${day.averageTipsPerShift.toFixed(2)}/shift
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-4 gap-2 text-sm text-gray-600">
+                      <div>
+                        <span className="block">Total Tips</span>
+                        <span className="font-medium">${day.totalTips.toFixed(2)}</span>
                       </div>
-                      <div className="grid grid-cols-4 gap-space-item">
-                        <div>
-                          <span className="label-md text-muted-foreground block">Total Tips</span>
-                          <span className="body-lg font-medium">${day.totalTips.toFixed(2)}</span>
-                        </div>
-                        <div>
-                          <span className="label-md text-muted-foreground block">Avg Tip %</span>
-                          <span className="body-lg font-medium">{day.averageTipPercentage.toFixed(1)}%</span>
-                        </div>
-                        <div>
-                          <span className="label-md text-muted-foreground block">Per Guest</span>
-                          <span className="body-lg font-medium">${day.averagePerGuest.toFixed(2)}</span>
-                        </div>
-                        <div>
-                          <span className="label-md text-muted-foreground block">Shifts</span>
-                          <span className="body-lg font-medium">{day.shifts}</span>
-                        </div>
+                      <div>
+                        <span className="block">Avg Tip %</span>
+                        <span className="font-medium">{day.averageTipPercentage.toFixed(1)}%</span>
                       </div>
-                    </CardContent>
-                  </Card>
+                      <div>
+                        <span className="block">Per Guest</span>
+                        <span className="font-medium">${day.averagePerGuest.toFixed(2)}</span>
+                      </div>
+                      <div>
+                        <span className="block">Shifts</span>
+                        <span className="font-medium">{day.shifts}</span>
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
             </TabsContent>
