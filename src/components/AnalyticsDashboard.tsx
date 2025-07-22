@@ -250,13 +250,11 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       </Card>
 
       {filteredEntries.length === 0 ? (
-        <Card>
-          <CardContent className="text-center py-8">
-            <TrendingUp className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">No data available for {getTimeFrameLabel()}</p>
-            <p className="text-sm text-gray-400 mt-2">Try selecting a different time period or add some tip entries</p>
-          </CardContent>
-        </Card>
+        <div className="text-center py-16">
+          <TrendingUp className="h-16 w-16 text-muted-foreground/50 mx-auto mb-6" />
+          <h3 className="text-xl font-medium text-muted-foreground mb-2">No data available for {getTimeFrameLabel()}</h3>
+          <p className="text-muted-foreground/70">Try selecting a different time period or add some tip entries</p>
+        </div>
       ) : (
         <>
           {/* Total Earnings Highlight */}
