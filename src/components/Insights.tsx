@@ -83,32 +83,7 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
       count: stats.count
     })).sort((a, b) => b.avgEarnings - a.avgEarnings);
 
-    // 3. Section/Station Performance
-    const sectionAnalysis = realEntries.reduce((acc, entry) => {
-      const section = entry.section?.toString() || 'Unknown';
-      const earnings = calculateTotalEarnings(entry);
-      const tips = calculateTips(entry);
-      const hourlyRate = earnings / (entry.hoursWorked || 1);
-      
-      if (!acc[section]) {
-        acc[section] = { totalEarnings: 0, totalTips: 0, totalHours: 0, count: 0 };
-      }
-      acc[section].totalEarnings += earnings;
-      acc[section].totalTips += tips;
-      acc[section].totalHours += entry.hoursWorked || 0;
-      acc[section].count += 1;
-      return acc;
-    }, {} as { [key: string]: { totalEarnings: number; totalTips: number; totalHours: number; count: number } });
-
-    const sectionStats = Object.entries(sectionAnalysis).map(([section, stats]) => ({
-      section,
-      avgEarnings: stats.totalEarnings / stats.count,
-      avgTips: stats.totalTips / stats.count,
-      avgHourlyRate: stats.totalEarnings / stats.totalHours,
-      count: stats.count
-    })).sort((a, b) => b.avgHourlyRate - a.avgHourlyRate);
-
-    // 4. Day of Week Analysis
+    // 3. Day of Week Analysis
     const dayAnalysis = realEntries.reduce((acc, entry) => {
       const dayOfWeek = getDay(entry.date);
       const earnings = calculateTotalEarnings(entry);
@@ -154,7 +129,6 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
     return {
       moodStats,
       shiftStats,
-      sectionStats,
       dayStats,
       cashPercentage,
       creditPercentage: 100 - cashPercentage,
@@ -186,12 +160,10 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
     );
   }
 
-  const { moodStats, shiftStats, sectionStats, dayStats, cashPercentage, creditPercentage, todayStats, wagePercentage, tipPercentage, totalEarnings, totalTipsAmount, totalWages } = insightsData;
+  const { moodStats, shiftStats, dayStats, cashPercentage, creditPercentage, todayStats, wagePercentage, tipPercentage, totalEarnings, totalTipsAmount, totalWages } = insightsData;
 
   const bestMood = moodStats[0];
   const bestShift = shiftStats[0];
-  const bestSection = sectionStats[0];
-  const worstSection = sectionStats[sectionStats.length - 1];
   const bestDay = dayStats[0];
 
   return (
@@ -240,70 +212,36 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
         </Card>
       )}
 
-      {/* Shift Performance Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Shift Type Performance */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Performance by Shift Type
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {shiftStats.map(shift => (
-              <div key={shift.shift} className="flex justify-between items-center p-3 bg-muted/30 rounded">
-                <div>
-                  <div className="font-medium">{shift.shift} Shifts</div>
-                  <div className="text-xs text-muted-foreground">{shift.count} worked</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-bold">${shift.avgEarnings.toFixed(0)}</div>
-                  <div className="text-xs text-muted-foreground">${shift.avgHourlyRate.toFixed(0)}/hr</div>
-                </div>
+      {/* Shift Performance */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5" />
+            Performance by Shift Type
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {shiftStats.map(shift => (
+            <div key={shift.shift} className="flex justify-between items-center p-3 bg-muted/30 rounded">
+              <div>
+                <div className="font-medium">{shift.shift} Shifts</div>
+                <div className="text-xs text-muted-foreground">{shift.count} worked</div>
               </div>
-            ))}
-            {bestShift && (
-              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg mt-3">
-                <p className="text-sm font-medium text-blue-800">
-                  {bestShift.shift} shifts are your most profitable at ${bestShift.avgEarnings.toFixed(0)} average earnings
-                </p>
+              <div className="text-right">
+                <div className="font-bold">${shift.avgEarnings.toFixed(0)}</div>
+                <div className="text-xs text-muted-foreground">${shift.avgHourlyRate.toFixed(0)}/hr</div>
               </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Section Performance */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MapPin className="h-5 w-5" />
-              Section Earnings Analysis
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {sectionStats.slice(0, 4).map(section => (
-              <div key={section.section} className="flex justify-between items-center p-3 bg-muted/30 rounded">
-                <div>
-                  <div className="font-medium">Section {section.section}</div>
-                  <div className="text-xs text-muted-foreground">{section.count} shifts</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-bold">${section.avgHourlyRate.toFixed(0)}/hr</div>
-                  <div className="text-xs text-muted-foreground">${section.avgEarnings.toFixed(0)} avg</div>
-                </div>
-              </div>
-            ))}
-            {bestSection && worstSection && (
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg mt-3">
-                <p className="text-sm font-medium text-amber-800">
-                  You average ${bestSection.avgHourlyRate.toFixed(0)}/hour in Section {bestSection.section}, but ${worstSection.avgHourlyRate.toFixed(0)}/hour in Section {worstSection.section}.
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+            </div>
+          ))}
+          {bestShift && (
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg mt-3">
+              <p className="text-sm font-medium text-blue-800">
+                {bestShift.shift} shifts are your most profitable at ${bestShift.avgEarnings.toFixed(0)} average earnings
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Payment & Earnings Breakdown */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -407,11 +345,11 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
           )}
 
           {/* Shift Match Score */}
-          {bestDay && bestSection && bestShift && (
+          {bestDay && bestShift && (
             <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
               <h4 className="font-medium text-purple-800 mb-2">Your Best-Fit Shifts</h4>
               <p className="text-sm text-purple-700">
-                For maximum earnings: {bestDay.dayName} {bestShift.shift} shifts in Section {bestSection.section}
+                For maximum earnings: {bestDay.dayName} {bestShift.shift} shifts
               </p>
               <div className="flex gap-2 mt-2">
                 <Badge variant="secondary" className="text-xs">
@@ -419,9 +357,6 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
                 </Badge>
                 <Badge variant="secondary" className="text-xs">
                   ${bestShift.avgEarnings.toFixed(0)} avg shift
-                </Badge>
-                <Badge variant="secondary" className="text-xs">
-                  ${bestSection.avgHourlyRate.toFixed(0)}/hr section
                 </Badge>
               </div>
             </div>
