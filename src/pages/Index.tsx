@@ -193,13 +193,13 @@ const Index = () => {
               <CalendarDays className="h-4 w-4" />
               <span className="hidden sm:inline">Calendar</span>
             </TabsTrigger>
-            <TabsTrigger value="tips" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
-              <Lightbulb className="h-4 w-4" />
-              <span className="hidden sm:inline">Tips</span>
-            </TabsTrigger>
             <TabsTrigger value="analytics" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
               <TrendingUp className="h-4 w-4" />
               <span className="hidden sm:inline">Analytics</span>
+            </TabsTrigger>
+            <TabsTrigger value="tips" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
+              <Lightbulb className="h-4 w-4" />
+              <span className="hidden sm:inline">Tips</span>
             </TabsTrigger>
             <TabsTrigger value="goals" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
               <Target className="h-4 w-4" />
