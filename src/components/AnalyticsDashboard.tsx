@@ -392,13 +392,13 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                                 label={({ section, percent }) => `${section} ${(percent * 100).toFixed(0)}%`}
                                 outerRadius={80}
                                 fill="#8884d8"
-                                dataKey="totalTips"
+                                dataKey="averageTipsPerShift"
                               >
                                 {sectionStats.map((entry, index) => (
                                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                 ))}
                               </Pie>
-                              <Tooltip formatter={(value) => [`$${value}`, 'Tips']} />
+                              <Tooltip formatter={(value) => [`$${value}`, 'Avg Tips/Shift']} />
                             </PieChart>
                           </ResponsiveContainer>
                         </div>
@@ -420,13 +420,13 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                                 label={({ day, percent }) => `${day.slice(0, 3)} ${(percent * 100).toFixed(0)}%`}
                                 outerRadius={80}
                                 fill="#8884d8"
-                                dataKey="totalTips"
+                                dataKey="averageTipsPerShift"
                               >
                                 {dayStats.map((entry, index) => (
                                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                 ))}
                               </Pie>
-                              <Tooltip formatter={(value) => [`$${value}`, 'Tips']} />
+                              <Tooltip formatter={(value) => [`$${value}`, 'Avg Tips/Shift']} />
                             </PieChart>
                           </ResponsiveContainer>
                         </div>
