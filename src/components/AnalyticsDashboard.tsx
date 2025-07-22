@@ -199,20 +199,6 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
 
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'];
 
-  if (filteredEntries.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Analytics Dashboard</CardTitle>
-          <CardDescription>Add some tip entries to see your analytics</CardDescription>
-        </CardHeader>
-        <CardContent className="text-center py-8">
-          <TrendingUp className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500">No data yet. Start tracking your tips!</p>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <div className="space-y-4">
@@ -263,237 +249,249 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         </CardHeader>
       </Card>
 
-      {/* Total Earnings Highlight */}
-      <Card className="bg-gradient-to-r from-green-500 to-emerald-600">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-white/80 text-lg">Total Earnings</p>
-              <p className="text-4xl font-bold text-white">${stats.totalEarnings.toFixed(2)}</p>
-              <p className="text-white/70 text-sm mt-1">
-                Tips + Wages for {getTimeFrameLabel()}
-              </p>
-            </div>
-            <div className="text-white/80">
-              <DollarSign className="h-12 w-12" />
-            </div>
+      {filteredEntries.length === 0 ? (
+        <Card>
+          <CardContent className="text-center py-8">
+            <TrendingUp className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500">No data available for {getTimeFrameLabel()}</p>
+            <p className="text-sm text-gray-400 mt-2">Try selecting a different time period or add some tip entries</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <>
+          {/* Total Earnings Highlight */}
+          <Card className="bg-gradient-to-r from-green-500 to-emerald-600">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-white/80 text-lg">Total Earnings</p>
+                  <p className="text-4xl font-bold text-white">${stats.totalEarnings.toFixed(2)}</p>
+                  <p className="text-white/70 text-sm mt-1">
+                    Tips + Wages for {getTimeFrameLabel()}
+                  </p>
+                </div>
+                <div className="text-white/80">
+                  <DollarSign className="h-12 w-12" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Key Metrics */}
+          <div className="grid grid-cols-2 gap-4">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600">Total Tips</p>
+                    <p className="text-2xl font-bold text-green-600">${stats.totalTips.toFixed(2)}</p>
+                  </div>
+                  <HandCoins className="h-8 w-8 text-green-600" />
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600">Avg Tip %</p>
+                    <p className="text-2xl font-bold">{stats.averageTipPercentage.toFixed(1)}%</p>
+                  </div>
+                  <Percent className="h-8 w-8 text-blue-600" />
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600">Per Guest</p>
+                    <p className="text-2xl font-bold">${stats.averagePerGuest.toFixed(2)}</p>
+                  </div>
+                  <Users className="h-8 w-8 text-purple-600" />
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600">Shifts</p>
+                    <p className="text-2xl font-bold">{stats.shiftsWorked}</p>
+                  </div>
+                  <Clock className="h-8 w-8 text-orange-600" />
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-2 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Tips</p>
-                <p className="text-2xl font-bold text-green-600">${stats.totalTips.toFixed(2)}</p>
+          {/* Weekly Trend */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Weekly Tips Trend</CardTitle>
+              <CardDescription>Your tip earnings over time</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={weeklyData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="week" />
+                    <YAxis />
+                    <Tooltip 
+                      formatter={(value, name) => [`$${value}`, name === 'tips' ? 'Tips' : name]}
+                    />
+                    <Line type="monotone" dataKey="tips" stroke="#10B981" strokeWidth={2} />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
-              <HandCoins className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Avg Tip %</p>
-                <p className="text-2xl font-bold">{stats.averageTipPercentage.toFixed(1)}%</p>
-              </div>
-              <Percent className="h-8 w-8 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Per Guest</p>
-                <p className="text-2xl font-bold">${stats.averagePerGuest.toFixed(2)}</p>
-              </div>
-              <Users className="h-8 w-8 text-purple-600" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Shifts</p>
-                <p className="text-2xl font-bold">{stats.shiftsWorked}</p>
-              </div>
-              <Clock className="h-8 w-8 text-orange-600" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
 
-      {/* Weekly Trend */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Weekly Tips Trend</CardTitle>
-          <CardDescription>Your tip earnings over time</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={weeklyData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="week" />
-                <YAxis />
-                <Tooltip 
-                  formatter={(value, name) => [`$${value}`, name === 'tips' ? 'Tips' : name]}
-                />
-                <Line type="monotone" dataKey="tips" stroke="#10B981" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Performance Analysis */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Performance Analysis</CardTitle>
-          <CardDescription>Compare your earnings by section and day of week</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="sections" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="sections">By Section</TabsTrigger>
-              <TabsTrigger value="days">By Day</TabsTrigger>
-            </TabsList>
-            
-            {/* Tips Distribution Chart */}
-            <div className="mt-6 mb-6">
-              <TabsContent value="sections" className="mt-0">
-                {sectionStats.length > 1 && (
-                  <div className="flex flex-col">
-                    <div className="h-64">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={sectionStats}
-                            cx="50%"
-                            cy="50%"
-                            labelLine={false}
-                            label={({ section, percent }) => `${section} ${(percent * 100).toFixed(0)}%`}
-                            outerRadius={80}
-                            fill="#8884d8"
-                            dataKey="totalTips"
-                          >
-                            {sectionStats.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                          </Pie>
-                          <Tooltip formatter={(value) => [`$${value}`, 'Tips']} />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
+          {/* Performance Analysis */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Performance Analysis</CardTitle>
+              <CardDescription>Compare your earnings by section and day of week</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="sections" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="sections">By Section</TabsTrigger>
+                  <TabsTrigger value="days">By Day</TabsTrigger>
+                </TabsList>
+                
+                {/* Tips Distribution Chart */}
+                <div className="mt-6 mb-6">
+                  <TabsContent value="sections" className="mt-0">
+                    {sectionStats.length > 1 && (
+                      <div className="flex flex-col">
+                        <div className="h-64">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                              <Pie
+                                data={sectionStats}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={false}
+                                label={({ section, percent }) => `${section} ${(percent * 100).toFixed(0)}%`}
+                                outerRadius={80}
+                                fill="#8884d8"
+                                dataKey="totalTips"
+                              >
+                                {sectionStats.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                              </Pie>
+                              <Tooltip formatter={(value) => [`$${value}`, 'Tips']} />
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+                    )}
+                  </TabsContent>
+                  
+                  <TabsContent value="days" className="mt-0">
+                    {dayStats.length > 1 && (
+                      <div className="flex flex-col">
+                        <div className="h-64">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                              <Pie
+                                data={dayStats}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={false}
+                                label={({ day, percent }) => `${day.slice(0, 3)} ${(percent * 100).toFixed(0)}%`}
+                                outerRadius={80}
+                                fill="#8884d8"
+                                dataKey="totalTips"
+                              >
+                                {dayStats.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                              </Pie>
+                              <Tooltip formatter={(value) => [`$${value}`, 'Tips']} />
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+                    )}
+                  </TabsContent>
+                </div>
+                
+                <TabsContent value="sections" className="mt-4">
+                  <div className="space-y-4">
+                    {sectionStats.map((section, index) => (
+                      <div key={section.section} className="p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-medium">Section {section.section}</h4>
+                          <span className="text-lg font-bold text-green-600">
+                            ${section.totalTips.toFixed(2)}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 text-sm text-gray-600">
+                          <div>
+                            <span className="block">Avg Tip %</span>
+                            <span className="font-medium">{section.averageTipPercentage.toFixed(1)}%</span>
+                          </div>
+                          <div>
+                            <span className="block">Per Guest</span>
+                            <span className="font-medium">${section.averagePerGuest.toFixed(2)}</span>
+                          </div>
+                          <div>
+                            <span className="block">Shifts</span>
+                            <span className="font-medium">{section.shifts}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                )}
-              </TabsContent>
-              
-              <TabsContent value="days" className="mt-0">
-                {dayStats.length > 1 && (
-                  <div className="flex flex-col">
-                    <div className="h-64">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={dayStats}
-                            cx="50%"
-                            cy="50%"
-                            labelLine={false}
-                            label={({ day, percent }) => `${day.slice(0, 3)} ${(percent * 100).toFixed(0)}%`}
-                            outerRadius={80}
-                            fill="#8884d8"
-                            dataKey="totalTips"
-                          >
-                            {dayStats.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                          </Pie>
-                          <Tooltip formatter={(value) => [`$${value}`, 'Tips']} />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
+                </TabsContent>
+                
+                <TabsContent value="days" className="mt-4">
+                  <div className="space-y-4">
+                    {dayStats.map((day, index) => (
+                      <div key={day.day} className="p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-medium flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            {day.day}
+                          </h4>
+                          <span className="text-lg font-bold text-green-600">
+                            ${day.averageTipsPerShift.toFixed(2)}/shift
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-4 gap-2 text-sm text-gray-600">
+                          <div>
+                            <span className="block">Total Tips</span>
+                            <span className="font-medium">${day.totalTips.toFixed(2)}</span>
+                          </div>
+                          <div>
+                            <span className="block">Avg Tip %</span>
+                            <span className="font-medium">{day.averageTipPercentage.toFixed(1)}%</span>
+                          </div>
+                          <div>
+                            <span className="block">Per Guest</span>
+                            <span className="font-medium">${day.averagePerGuest.toFixed(2)}</span>
+                          </div>
+                          <div>
+                            <span className="block">Shifts</span>
+                            <span className="font-medium">{day.shifts}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                )}
-              </TabsContent>
-            </div>
-            
-            <TabsContent value="sections" className="mt-4">
-              <div className="space-y-4">
-                {sectionStats.map((section, index) => (
-                  <div key={section.section} className="p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium">Section {section.section}</h4>
-                      <span className="text-lg font-bold text-green-600">
-                        ${section.totalTips.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2 text-sm text-gray-600">
-                      <div>
-                        <span className="block">Avg Tip %</span>
-                        <span className="font-medium">{section.averageTipPercentage.toFixed(1)}%</span>
-                      </div>
-                      <div>
-                        <span className="block">Per Guest</span>
-                        <span className="font-medium">${section.averagePerGuest.toFixed(2)}</span>
-                      </div>
-                      <div>
-                        <span className="block">Shifts</span>
-                        <span className="font-medium">{section.shifts}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="days" className="mt-4">
-              <div className="space-y-4">
-                {dayStats.map((day, index) => (
-                  <div key={day.day} className="p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium flex items-center gap-2">
-                        <Calendar className="h-4 w-4" />
-                        {day.day}
-                      </h4>
-                      <span className="text-lg font-bold text-green-600">
-                        ${day.averageTipsPerShift.toFixed(2)}/shift
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-4 gap-2 text-sm text-gray-600">
-                      <div>
-                        <span className="block">Total Tips</span>
-                        <span className="font-medium">${day.totalTips.toFixed(2)}</span>
-                      </div>
-                      <div>
-                        <span className="block">Avg Tip %</span>
-                        <span className="font-medium">{day.averageTipPercentage.toFixed(1)}%</span>
-                      </div>
-                      <div>
-                        <span className="block">Per Guest</span>
-                        <span className="font-medium">${day.averagePerGuest.toFixed(2)}</span>
-                      </div>
-                      <div>
-                        <span className="block">Shifts</span>
-                        <span className="font-medium">{day.shifts}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </>
+      )}
 
     </div>
   );
