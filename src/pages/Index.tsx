@@ -9,6 +9,7 @@ import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
 import { GoalSettings } from '@/components/GoalSettings';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { Insights } from '@/components/Insights';
+import { useOnboarding } from '@/hooks/useOnboarding';
 
 import { FeedbackModal } from '@/components/FeedbackModal';
 import { EarningsCalendar } from '@/components/EarningsCalendar';
@@ -39,6 +40,7 @@ const Index = () => {
   
   const { tipEntries, loading: tipEntriesLoading, addTipEntry, updateTipEntry, deleteTipEntry } = useTipEntries();
   const { goals, loading: goalsLoading, addGoal, updateGoal, deleteGoal } = useGoals();
+  const { startOnboarding } = useOnboarding();
   const [showEntryForm, setShowEntryForm] = useState(false);
   const [activeTab, setActiveTab] = useState("calendar");
   const [sections, setSections] = useState<{ [key: string]: string }>(createDefaultSections());
@@ -138,6 +140,94 @@ const Index = () => {
 
   const selectedEntry = getEntryForDate(selectedDate);
 
+  // Onboarding tour steps for each tab
+  const startCalendarTour = () => {
+    const steps = [
+      {
+        id: 'calendar-overview',
+        target: 'calendar-view',
+        title: 'Calendar View',
+        description: 'This calendar shows all your shifts. Days with entries are highlighted in green. Click any date to view or edit that shift.',
+        position: 'bottom' as const
+      },
+      {
+        id: 'date-details',
+        target: 'date-details',
+        title: 'Shift Details',
+        description: 'View detailed information about your selected shift including tips, earnings, and performance metrics.',
+        position: 'top' as const
+      },
+      {
+        id: 'add-entry',
+        target: 'add-entry-btn',
+        title: 'Add New Entry',
+        description: 'Click here to log a new shift. Track your sales, tips, hours worked, and more!',
+        position: 'top' as const
+      }
+    ];
+    startOnboarding(steps);
+  };
+
+  const startAnalyticsTour = () => {
+    const steps = [
+      {
+        id: 'analytics-overview',
+        target: 'analytics-dashboard',
+        title: 'Analytics Dashboard',
+        description: 'Track your earnings trends, best performing days, and identify patterns in your tip income.',
+        position: 'top' as const
+      },
+      {
+        id: 'performance-metrics',
+        target: 'performance-chart',
+        title: 'Performance Charts',
+        description: 'Visualize your tip percentages, hourly earnings, and compare different shifts to optimize your schedule.',
+        position: 'bottom' as const
+      }
+    ];
+    startOnboarding(steps);
+  };
+
+  const startTipsTour = () => {
+    const steps = [
+      {
+        id: 'insights-overview',
+        target: 'insights-section',
+        title: 'Smart Insights',
+        description: 'Get personalized recommendations to improve your earnings based on your shift data.',
+        position: 'top' as const
+      },
+      {
+        id: 'best-practices',
+        target: 'tips-recommendations',
+        title: 'Earning Tips',
+        description: 'Discover actionable strategies to increase your tips and maximize your income potential.',
+        position: 'bottom' as const
+      }
+    ];
+    startOnboarding(steps);
+  };
+
+  const startGoalsTour = () => {
+    const steps = [
+      {
+        id: 'goals-overview',
+        target: 'goals-section',
+        title: 'Goal Setting',
+        description: 'Set daily, weekly, or monthly earning goals to stay motivated and track your progress.',
+        position: 'top' as const
+      },
+      {
+        id: 'goal-tracking',
+        target: 'goal-progress',
+        title: 'Progress Tracking',
+        description: 'Monitor how close you are to achieving your goals and celebrate your successes!',
+        position: 'bottom' as const
+      }
+    ];
+    startOnboarding(steps);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -157,7 +247,7 @@ const Index = () => {
     <div className="min-h-screen p-4">
       <div className="max-w-md mx-auto space-section">
         {/* Header */}
-        <div className="text-center py-6 relative">
+        <div className="text-center py-6 relative" data-onboarding="app-header">
           <h1 className="heading-lg text-foreground mb-2">Tips+</h1>
           <p className="body-md text-muted-foreground">Track. Analyze. Level Up Your Income.</p>
           
@@ -173,8 +263,35 @@ const Index = () => {
             </Button>
           </div>
           
-          {/* Feedback Icon in top right */}
-          <div className="absolute top-6 right-4">
+          {/* Top right actions */}
+          <div className="absolute top-6 right-4 flex gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                const welcomeSteps = [
+                  {
+                    id: 'welcome-restart',
+                    target: 'app-header',
+                    title: 'Welcome to Tips+ Tour!',
+                    description: 'Let me show you around the app to help you get the most out of tracking your tips and earnings.',
+                    position: 'bottom' as const
+                  },
+                  {
+                    id: 'navigation-tabs',
+                    target: 'calendar-tab',
+                    title: 'Navigation Tabs',
+                    description: 'Switch between different views: Calendar for daily entries, Analytics for trends, Tips for insights, and Goals for setting targets.',
+                    position: 'bottom' as const
+                  }
+                ];
+                startOnboarding(welcomeSteps);
+              }}
+              className="text-muted-foreground hover:text-foreground"
+              title="Take a tour"
+            >
+              <Lightbulb className="h-4 w-4" />
+            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -188,20 +305,36 @@ const Index = () => {
 
         {/* Main Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-card/50 backdrop-blur-sm border shadow-sm">
-            <TabsTrigger value="calendar" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
+          <TabsList className="grid w-full grid-cols-4 bg-card/50 backdrop-blur-sm border shadow-sm" data-onboarding="calendar-tab">
+            <TabsTrigger 
+              value="calendar" 
+              className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10"
+              onClick={() => activeTab === "calendar" && startCalendarTour()}
+            >
               <CalendarDays className="h-4 w-4" />
               <span className="hidden sm:inline">Calendar</span>
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
+            <TabsTrigger 
+              value="analytics" 
+              className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10"
+              onClick={() => activeTab === "analytics" && startAnalyticsTour()}
+            >
               <TrendingUp className="h-4 w-4" />
               <span className="hidden sm:inline">Analytics</span>
             </TabsTrigger>
-            <TabsTrigger value="tips" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
+            <TabsTrigger 
+              value="tips" 
+              className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10"
+              onClick={() => activeTab === "tips" && startTipsTour()}
+            >
               <Lightbulb className="h-4 w-4" />
               <span className="hidden sm:inline">Tips</span>
             </TabsTrigger>
-            <TabsTrigger value="goals" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
+            <TabsTrigger 
+              value="goals" 
+              className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10"
+              onClick={() => activeTab === "goals" && startGoalsTour()}
+            >
               <Target className="h-4 w-4" />
               <span className="hidden sm:inline">Goals</span>
             </TabsTrigger>
@@ -209,7 +342,7 @@ const Index = () => {
 
           {/* Calendar Tab */}
           <TabsContent value="calendar" className="space-group">
-            <Card className="card-interactive">
+            <Card className="card-interactive" data-onboarding="calendar-view">
               <CardContent className="pt-6">
                 <EarningsCalendar
                   selected={selectedDate}
@@ -231,7 +364,7 @@ const Index = () => {
 
 
             {/* Selected Date Info */}
-            <Card className="card-interactive">
+            <Card className="card-interactive" data-onboarding="date-details">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div>
@@ -352,6 +485,7 @@ const Index = () => {
                     className="w-full interactive-glow" 
                     size="lg"
                     onClick={() => setShowEntryForm(true)}
+                    data-onboarding="add-entry-btn"
                   >
                     <Plus className="h-5 w-5 mr-2" />
                     Add Tip Entry
@@ -362,18 +496,18 @@ const Index = () => {
           </TabsContent>
 
           {/* Tips Tab */}
-          <TabsContent value="tips">
+          <TabsContent value="tips" data-onboarding="insights-section">
             <Insights tipEntries={tipEntries} selectedDate={selectedDate} />
           </TabsContent>
 
           {/* Analytics Tab */}
-          <TabsContent value="analytics">
+          <TabsContent value="analytics" data-onboarding="analytics-dashboard">
             <AnalyticsDashboard tipEntries={tipEntries} />
           </TabsContent>
 
 
           {/* Goals Tab */}
-          <TabsContent value="goals">
+          <TabsContent value="goals" data-onboarding="goals-section">
             <GoalSettings 
               goals={goals} 
               onAddGoal={addGoal}

@@ -157,7 +157,7 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({ goals, onAddGoal, on
   return (
     <div className="space-y-4">
       {/* Goals Management */}
-      <Card>
+      <Card data-onboarding="goal-progress">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Target className="h-6 w-6" />

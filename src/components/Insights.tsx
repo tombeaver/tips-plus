@@ -169,7 +169,7 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <Card>
+      <Card data-onboarding="tips-recommendations">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Lightbulb className="h-6 w-6" />
