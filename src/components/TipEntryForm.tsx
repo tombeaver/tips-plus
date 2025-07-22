@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Trash2, Save, X, Edit2, Plus } from 'lucide-react';
+import { Trash2, Save, X, Edit2, Plus, Frown, Meh, Smile, Laugh, Zap } from 'lucide-react';
 import { TipEntry } from '@/hooks/useTipEntries';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 
@@ -339,9 +339,11 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
               <Label>Shift Mood / Difficulty</Label>
               <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                 {[1, 2, 3, 4, 5].map((rating) => {
-                  const emojis = ['😫', '😔', '😐', '😊', '🤩'];
+                  const icons = [Frown, Meh, Smile, Laugh, Zap];
                   const labels = ['Very Hard', 'Hard', 'Okay', 'Good', 'Amazing'];
+                  const colors = ['text-red-500', 'text-orange-500', 'text-yellow-500', 'text-green-500', 'text-purple-500'];
                   const isSelected = moodRating === rating;
+                  const IconComponent = icons[rating - 1];
                   
                   return (
                     <button
@@ -354,7 +356,9 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
                           : 'hover:bg-white/50'
                       }`}
                     >
-                      <span className="text-2xl">{emojis[rating - 1]}</span>
+                      <IconComponent 
+                        className={`h-6 w-6 ${isSelected ? colors[rating - 1] : 'text-gray-400'}`}
+                      />
                       <span className={`text-xs ${isSelected ? 'font-medium text-primary' : 'text-gray-600'}`}>
                         {labels[rating - 1]}
                       </span>
