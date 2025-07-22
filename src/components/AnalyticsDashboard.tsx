@@ -207,7 +207,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         <CardHeader>
           <div>
             <CardTitle className="flex items-center gap-2">
-              <CalendarRange className="h-5 w-5" />
+              <TrendingUp className="h-5 w-5" />
               Analytics Dashboard
             </CardTitle>
             <CardDescription>
