@@ -179,6 +179,69 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
         </CardHeader>
       </Card>
 
+      {/* Smart Suggestions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="h-5 w-5" />
+            Smart Suggestions
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Best Days */}
+          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+            <h4 className="font-medium text-green-800 mb-2">Best Days to Work</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {dayStats.slice(0, 4).map((day, index) => (
+                <div key={day.day} className="text-center p-2 bg-white rounded">
+                  <div className="text-sm font-medium">{day.dayName}</div>
+                  <div className="text-xs text-green-700">${day.avgEarnings.toFixed(0)}</div>
+                  <div className="text-xs text-muted-foreground">{day.count} shifts</div>
+                </div>
+              ))}
+            </div>
+            {bestDay && (
+              <p className="text-sm text-green-700 mt-3">
+                You average {((bestDay.avgEarnings / dayStats[dayStats.length - 1]?.avgEarnings - 1) * 100 || 0).toFixed(0)}% higher earnings on {bestDay.dayName}s.
+              </p>
+            )}
+          </div>
+
+          {/* Next Shift Prediction */}
+          {todayStats && (
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <h4 className="font-medium text-blue-800 mb-2">Today's Shift Prediction</h4>
+              <p className="text-sm text-blue-700">
+                Based on your past {todayStats.count} {todayStats.dayName} shifts, you typically earn ${todayStats.avgEarnings.toFixed(0)} in total earnings.
+              </p>
+              {bestShift && (
+                <p className="text-xs text-blue-600 mt-1">
+                  Tip: {bestShift.shift} shifts tend to be your most profitable overall.
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Shift Match Score */}
+          {bestDay && bestShift && (
+            <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+              <h4 className="font-medium text-purple-800 mb-2">Your Best-Fit Shifts</h4>
+              <p className="text-sm text-purple-700">
+                For maximum earnings: {bestDay.dayName} {bestShift.shift} shifts
+              </p>
+              <div className="flex gap-2 mt-2">
+                <Badge variant="secondary" className="text-xs">
+                  ${bestDay.avgEarnings.toFixed(0)} avg day
+                </Badge>
+                <Badge variant="secondary" className="text-xs">
+                  ${bestShift.avgEarnings.toFixed(0)} avg shift
+                </Badge>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Mood vs Earnings */}
       {moodStats.length > 0 && (
         <Card>
@@ -300,69 +363,6 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
           </CardContent>
         </Card>
       </div>
-
-      {/* Smart Predictions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5" />
-            Smart Suggestions
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Best Days */}
-          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-            <h4 className="font-medium text-green-800 mb-2">Best Days to Work</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              {dayStats.slice(0, 4).map((day, index) => (
-                <div key={day.day} className="text-center p-2 bg-white rounded">
-                  <div className="text-sm font-medium">{day.dayName}</div>
-                  <div className="text-xs text-green-700">${day.avgEarnings.toFixed(0)}</div>
-                  <div className="text-xs text-muted-foreground">{day.count} shifts</div>
-                </div>
-              ))}
-            </div>
-            {bestDay && (
-              <p className="text-sm text-green-700 mt-3">
-                You average {((bestDay.avgEarnings / dayStats[dayStats.length - 1]?.avgEarnings - 1) * 100 || 0).toFixed(0)}% higher earnings on {bestDay.dayName}s.
-              </p>
-            )}
-          </div>
-
-          {/* Next Shift Prediction */}
-          {todayStats && (
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <h4 className="font-medium text-blue-800 mb-2">Today's Shift Prediction</h4>
-              <p className="text-sm text-blue-700">
-                Based on your past {todayStats.count} {todayStats.dayName} shifts, you typically earn ${todayStats.avgEarnings.toFixed(0)} in total earnings.
-              </p>
-              {bestShift && (
-                <p className="text-xs text-blue-600 mt-1">
-                  Tip: {bestShift.shift} shifts tend to be your most profitable overall.
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Shift Match Score */}
-          {bestDay && bestShift && (
-            <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
-              <h4 className="font-medium text-purple-800 mb-2">Your Best-Fit Shifts</h4>
-              <p className="text-sm text-purple-700">
-                For maximum earnings: {bestDay.dayName} {bestShift.shift} shifts
-              </p>
-              <div className="flex gap-2 mt-2">
-                <Badge variant="secondary" className="text-xs">
-                  ${bestDay.avgEarnings.toFixed(0)} avg day
-                </Badge>
-                <Badge variant="secondary" className="text-xs">
-                  ${bestShift.avgEarnings.toFixed(0)} avg shift
-                </Badge>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 };
