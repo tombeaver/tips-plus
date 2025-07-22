@@ -172,20 +172,10 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <BarChart3 className="h-6 w-6" />
-            Detailed Shift Analytics
+            <Lightbulb className="h-6 w-6" />
+            Insights
           </CardTitle>
           <p className="text-muted-foreground">Comprehensive insights from your {insightsData.totalEntries} logged shifts</p>
-        </CardHeader>
-      </Card>
-
-      {/* Smart Suggestions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5" />
-            Smart Suggestions
-          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Next Shift Prediction */}
@@ -241,6 +231,7 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
           </div>
         </CardContent>
       </Card>
+
 
       {/* Mood vs Earnings */}
       {moodStats.length > 0 && (
