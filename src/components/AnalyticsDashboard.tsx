@@ -14,7 +14,7 @@ interface AnalyticsDashboardProps {
 }
 
 export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntries }) => {
-  const [periodType, setPeriodType] = useState<'week' | 'month' | 'year'>('year');
+  const [periodType, setPeriodType] = useState<'all' | 'week' | 'month' | 'year'>('all');
   const [selectedPeriod, setSelectedPeriod] = useState('');
   
   const realEntries = tipEntries.filter(entry => !entry.isPlaceholder);
@@ -23,7 +23,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
   const availableOptions = useMemo(() => {
     const now = new Date();
     
-    if (periodType === 'week') {
+    if (periodType === 'all') {
+      return [];
+    } else if (periodType === 'week') {
       const weeks = new Set(realEntries.map(entry => getISOWeek(entry.date)));
       return Array.from(weeks).sort((a, b) => b - a).map(week => ({
         value: week.toString(),
@@ -46,7 +48,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
 
   // Set default period when period type changes
   React.useEffect(() => {
-    if (availableOptions.length > 0) {
+    if (periodType === 'all') {
+      setSelectedPeriod('');
+    } else if (availableOptions.length > 0) {
       const now = new Date();
       if (periodType === 'week') {
         setSelectedPeriod(getISOWeek(now).toString());
@@ -60,7 +64,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
 
   // Filter entries based on selected period
   const filteredEntries = useMemo(() => {
-    if (!selectedPeriod) return realEntries;
+    if (periodType === 'all' || !selectedPeriod) return realEntries;
     
     if (periodType === 'week') {
       const weekNumber = parseInt(selectedPeriod);
@@ -77,6 +81,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
   }, [realEntries, periodType, selectedPeriod]);
 
   const getTimeFrameLabel = () => {
+    if (periodType === 'all') return 'All Time';
     if (!selectedPeriod) return 'Select a period';
     
     const option = availableOptions.find(opt => opt.value === selectedPeriod);
@@ -182,25 +187,74 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
     })).sort((a, b) => b.averageTipsPerShift - a.averageTipsPerShift);
   }, [filteredEntries]);
 
-  const weeklyData = useMemo(() => {
-    const weeks = new Map();
-    
-    filteredEntries.forEach(entry => {
-      const weekStart = startOfWeek(entry.date);
-      const weekKey = format(weekStart, 'MMM d');
-      
-      const existing = weeks.get(weekKey) || { week: weekKey, tips: 0, sales: 0, guests: 0, weekStart };
-      weeks.set(weekKey, {
-        ...existing,
-        tips: existing.tips + entry.creditTips + entry.cashTips,
-        sales: existing.sales + entry.totalSales,
-        guests: existing.guests + entry.guestCount,
-        weekStart
+  const trendData = useMemo(() => {
+    if (periodType === 'all') {
+      // Yearly trend
+      const years = new Map();
+      filteredEntries.forEach(entry => {
+        const yearKey = getYear(entry.date).toString();
+        const existing = years.get(yearKey) || { period: yearKey, tips: 0, sales: 0, guests: 0, date: new Date(parseInt(yearKey), 0, 1) };
+        years.set(yearKey, {
+          ...existing,
+          tips: existing.tips + entry.creditTips + entry.cashTips,
+          sales: existing.sales + entry.totalSales,
+          guests: existing.guests + entry.guestCount
+        });
       });
-    });
+      return Array.from(years.values()).sort((a, b) => a.date.getTime() - b.date.getTime());
+    } else if (periodType === 'year') {
+      // Monthly trend for selected year
+      const months = new Map();
+      filteredEntries.forEach(entry => {
+        const monthKey = format(entry.date, 'MMM yyyy');
+        const monthStart = startOfMonth(entry.date);
+        const existing = months.get(monthKey) || { period: monthKey, tips: 0, sales: 0, guests: 0, date: monthStart };
+        months.set(monthKey, {
+          ...existing,
+          tips: existing.tips + entry.creditTips + entry.cashTips,
+          sales: existing.sales + entry.totalSales,
+          guests: existing.guests + entry.guestCount
+        });
+      });
+      return Array.from(months.values()).sort((a, b) => a.date.getTime() - b.date.getTime());
+    } else if (periodType === 'month') {
+      // Weekly trend for selected month
+      const weeks = new Map();
+      filteredEntries.forEach(entry => {
+        const weekStart = startOfWeek(entry.date);
+        const weekKey = format(weekStart, 'MMM d');
+        const existing = weeks.get(weekKey) || { period: weekKey, tips: 0, sales: 0, guests: 0, date: weekStart };
+        weeks.set(weekKey, {
+          ...existing,
+          tips: existing.tips + entry.creditTips + entry.cashTips,
+          sales: existing.sales + entry.totalSales,
+          guests: existing.guests + entry.guestCount
+        });
+      });
+      return Array.from(weeks.values()).sort((a, b) => a.date.getTime() - b.date.getTime());
+    } else {
+      // Daily trend for selected week
+      const days = new Map();
+      filteredEntries.forEach(entry => {
+        const dayKey = format(entry.date, 'MMM d');
+        const existing = days.get(dayKey) || { period: dayKey, tips: 0, sales: 0, guests: 0, date: entry.date };
+        days.set(dayKey, {
+          ...existing,
+          tips: existing.tips + entry.creditTips + entry.cashTips,
+          sales: existing.sales + entry.totalSales,
+          guests: existing.guests + entry.guestCount
+        });
+      });
+      return Array.from(days.values()).sort((a, b) => a.date.getTime() - b.date.getTime());
+    }
+  }, [filteredEntries, periodType]);
 
-    return Array.from(weeks.values()).sort((a, b) => a.weekStart.getTime() - b.weekStart.getTime());
-  }, [filteredEntries]);
+  const getTrendTitle = () => {
+    if (periodType === 'all') return 'Yearly Tips Trend';
+    if (periodType === 'year') return 'Monthly Tips Trend';
+    if (periodType === 'month') return 'Weekly Tips Trend';
+    return 'Daily Tips Trend';
+  };
 
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'];
 
@@ -218,20 +272,21 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
             Viewing data for: {getTimeFrameLabel()}
           </p>
           <div className="flex items-center gap-2 mt-4">
-            <Select value={periodType} onValueChange={(value: 'week' | 'month' | 'year') => setPeriodType(value)}>
+            <Select value={periodType} onValueChange={(value: 'all' | 'week' | 'month' | 'year') => setPeriodType(value)}>
               <SelectTrigger className="w-32">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="all">All</SelectItem>
                 <SelectItem value="week">Week</SelectItem>
                 <SelectItem value="month">Month</SelectItem>
                 <SelectItem value="year">Year</SelectItem>
               </SelectContent>
             </Select>
             
-            <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+            <Select value={selectedPeriod} onValueChange={setSelectedPeriod} disabled={periodType === 'all'}>
               <SelectTrigger className="w-48">
-                <SelectValue placeholder={`Select ${periodType}`} />
+                <SelectValue placeholder={periodType === 'all' ? 'All time data' : `Select ${periodType}`} />
               </SelectTrigger>
               <SelectContent>
                 {availableOptions.map(option => (
@@ -333,18 +388,18 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
             </div>
           </div>
 
-          {/* Weekly Trend */}
+          {/* Trend Chart */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Weekly Tips Trend</CardTitle>
+              <CardTitle className="text-lg">{getTrendTitle()}</CardTitle>
               <CardDescription>Your tip earnings over time</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={weeklyData}>
+                  <LineChart data={trendData}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="week" />
+                    <XAxis dataKey="period" />
                     <YAxis />
                     <Tooltip 
                       formatter={(value, name) => [`$${value}`, name === 'tips' ? 'Tips' : name]}
