@@ -193,59 +193,79 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       const years = new Map();
       filteredEntries.forEach(entry => {
         const yearKey = getYear(entry.date).toString();
-        const existing = years.get(yearKey) || { period: yearKey, tips: 0, sales: 0, guests: 0, date: new Date(parseInt(yearKey), 0, 1) };
+        const existing = years.get(yearKey) || { period: yearKey, tips: 0, wages: 0, sales: 0, guests: 0, date: new Date(parseInt(yearKey), 0, 1) };
+        const entryWages = entry.hoursWorked * entry.hourlyRate;
         years.set(yearKey, {
           ...existing,
           tips: existing.tips + entry.creditTips + entry.cashTips,
+          wages: existing.wages + entryWages,
           sales: existing.sales + entry.totalSales,
           guests: existing.guests + entry.guestCount
         });
       });
-      return Array.from(years.values()).sort((a, b) => a.date.getTime() - b.date.getTime());
+      return Array.from(years.values()).map(item => ({
+        ...item,
+        total: item.tips + item.wages
+      })).sort((a, b) => a.date.getTime() - b.date.getTime());
     } else if (periodType === 'year') {
       // Monthly trend for selected year
       const months = new Map();
       filteredEntries.forEach(entry => {
         const monthKey = format(entry.date, 'MMM yyyy');
         const monthStart = startOfMonth(entry.date);
-        const existing = months.get(monthKey) || { period: monthKey, tips: 0, sales: 0, guests: 0, date: monthStart };
+        const existing = months.get(monthKey) || { period: monthKey, tips: 0, wages: 0, sales: 0, guests: 0, date: monthStart };
+        const entryWages = entry.hoursWorked * entry.hourlyRate;
         months.set(monthKey, {
           ...existing,
           tips: existing.tips + entry.creditTips + entry.cashTips,
+          wages: existing.wages + entryWages,
           sales: existing.sales + entry.totalSales,
           guests: existing.guests + entry.guestCount
         });
       });
-      return Array.from(months.values()).sort((a, b) => a.date.getTime() - b.date.getTime());
+      return Array.from(months.values()).map(item => ({
+        ...item,
+        total: item.tips + item.wages
+      })).sort((a, b) => a.date.getTime() - b.date.getTime());
     } else if (periodType === 'month') {
       // Weekly trend for selected month
       const weeks = new Map();
       filteredEntries.forEach(entry => {
         const weekStart = startOfWeek(entry.date);
         const weekKey = format(weekStart, 'MMM d');
-        const existing = weeks.get(weekKey) || { period: weekKey, tips: 0, sales: 0, guests: 0, date: weekStart };
+        const existing = weeks.get(weekKey) || { period: weekKey, tips: 0, wages: 0, sales: 0, guests: 0, date: weekStart };
+        const entryWages = entry.hoursWorked * entry.hourlyRate;
         weeks.set(weekKey, {
           ...existing,
           tips: existing.tips + entry.creditTips + entry.cashTips,
+          wages: existing.wages + entryWages,
           sales: existing.sales + entry.totalSales,
           guests: existing.guests + entry.guestCount
         });
       });
-      return Array.from(weeks.values()).sort((a, b) => a.date.getTime() - b.date.getTime());
+      return Array.from(weeks.values()).map(item => ({
+        ...item,
+        total: item.tips + item.wages
+      })).sort((a, b) => a.date.getTime() - b.date.getTime());
     } else {
       // Daily trend for selected week
       const days = new Map();
       filteredEntries.forEach(entry => {
         const dayKey = format(entry.date, 'MMM d');
-        const existing = days.get(dayKey) || { period: dayKey, tips: 0, sales: 0, guests: 0, date: entry.date };
+        const existing = days.get(dayKey) || { period: dayKey, tips: 0, wages: 0, sales: 0, guests: 0, date: entry.date };
+        const entryWages = entry.hoursWorked * entry.hourlyRate;
         days.set(dayKey, {
           ...existing,
           tips: existing.tips + entry.creditTips + entry.cashTips,
+          wages: existing.wages + entryWages,
           sales: existing.sales + entry.totalSales,
           guests: existing.guests + entry.guestCount
         });
       });
-      return Array.from(days.values()).sort((a, b) => a.date.getTime() - b.date.getTime());
+      return Array.from(days.values()).map(item => ({
+        ...item,
+        total: item.tips + item.wages
+      })).sort((a, b) => a.date.getTime() - b.date.getTime());
     }
   }, [filteredEntries, periodType]);
 
@@ -402,9 +422,22 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                     <XAxis dataKey="period" />
                     <YAxis />
                     <Tooltip 
-                      formatter={(value, name) => [`$${value}`, name === 'tips' ? 'Tips' : name]}
+                      formatter={(value, name) => {
+                        if (name === 'tips') return [`$${Number(value).toFixed(2)}`, 'Tips'];
+                        if (name === 'wages') return [`$${Number(value).toFixed(2)}`, 'Wages'];
+                        if (name === 'total') return [`$${Number(value).toFixed(2)}`, 'Total'];
+                        return [`$${value}`, name];
+                      }}
+                      labelFormatter={(label) => `Period: ${label}`}
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--background))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '6px'
+                      }}
                     />
-                    <Line type="monotone" dataKey="tips" stroke="#10B981" strokeWidth={2} />
+                    <Line type="monotone" dataKey="tips" stroke="#10B981" strokeWidth={2} name="tips" />
+                    <Line type="monotone" dataKey="wages" stroke="#3B82F6" strokeWidth={2} name="wages" />
+                    <Line type="monotone" dataKey="total" stroke="#8B5CF6" strokeWidth={2} name="total" />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
