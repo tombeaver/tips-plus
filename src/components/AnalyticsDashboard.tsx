@@ -7,80 +7,80 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { TrendingUp, DollarSign, Users, Percent, Calendar, HandCoins, Clock, CalendarRange } from 'lucide-react';
 import { TipEntry } from '@/hooks/useTipEntries';
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, subDays, isWithinInterval, getDay, getYear } from 'date-fns';
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, subDays, isWithinInterval, getDay, getYear, getWeek, getISOWeek } from 'date-fns';
 
 interface AnalyticsDashboardProps {
   tipEntries: TipEntry[];
 }
 
 export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntries }) => {
-  const [timeFrame, setTimeFrame] = useState('currentYear');
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
+  const [periodType, setPeriodType] = useState<'week' | 'month' | 'year'>('year');
+  const [selectedPeriod, setSelectedPeriod] = useState('');
   
   const realEntries = tipEntries.filter(entry => !entry.isPlaceholder);
   
-  // Get available years from data
-  const availableYears = useMemo(() => {
-    const years = new Set(realEntries.map(entry => getYear(entry.date)));
-    return Array.from(years).sort((a, b) => b - a);
-  }, [realEntries]);
-
-  // Filter entries based on selected time frame
-  const filteredEntries = useMemo(() => {
+  // Get available options based on period type
+  const availableOptions = useMemo(() => {
     const now = new Date();
     
-    switch (timeFrame) {
-      case 'last30Days':
-        const thirtyDaysAgo = subDays(now, 30);
-        return realEntries.filter(entry => 
-          isWithinInterval(entry.date, { start: thirtyDaysAgo, end: now })
-        );
-      
-      case 'currentMonth':
-        const monthStart = startOfMonth(now);
-        const monthEnd = endOfMonth(now);
-        return realEntries.filter(entry => 
-          isWithinInterval(entry.date, { start: monthStart, end: monthEnd })
-        );
-      
-      case 'lastMonth':
-        const lastMonth = subMonths(now, 1);
-        const lastMonthStart = startOfMonth(lastMonth);
-        const lastMonthEnd = endOfMonth(lastMonth);
-        return realEntries.filter(entry => 
-          isWithinInterval(entry.date, { start: lastMonthStart, end: lastMonthEnd })
-        );
-      
-      case 'currentYear':
-        const yearStart = startOfYear(now);
-        const yearEnd = endOfYear(now);
-        return realEntries.filter(entry => 
-          isWithinInterval(entry.date, { start: yearStart, end: yearEnd })
-        );
-      
-      case 'specificYear':
-        const specificYearStart = startOfYear(new Date(parseInt(selectedYear), 0, 1));
-        const specificYearEnd = endOfYear(new Date(parseInt(selectedYear), 11, 31));
-        return realEntries.filter(entry => 
-          isWithinInterval(entry.date, { start: specificYearStart, end: specificYearEnd })
-        );
-      
-      case 'allTime':
-      default:
-        return realEntries;
+    if (periodType === 'week') {
+      const weeks = new Set(realEntries.map(entry => getISOWeek(entry.date)));
+      return Array.from(weeks).sort((a, b) => b - a).map(week => ({
+        value: week.toString(),
+        label: `Week ${week}`
+      }));
+    } else if (periodType === 'month') {
+      const months = new Set(realEntries.map(entry => format(entry.date, 'yyyy-MM')));
+      return Array.from(months).sort((a, b) => b.localeCompare(a)).map(month => ({
+        value: month,
+        label: format(new Date(month + '-01'), 'MMMM yyyy')
+      }));
+    } else {
+      const years = new Set(realEntries.map(entry => getYear(entry.date)));
+      return Array.from(years).sort((a, b) => b - a).map(year => ({
+        value: year.toString(),
+        label: year.toString()
+      }));
     }
-  }, [realEntries, timeFrame, selectedYear]);
+  }, [realEntries, periodType]);
+
+  // Set default period when period type changes
+  React.useEffect(() => {
+    if (availableOptions.length > 0) {
+      const now = new Date();
+      if (periodType === 'week') {
+        setSelectedPeriod(getISOWeek(now).toString());
+      } else if (periodType === 'month') {
+        setSelectedPeriod(format(now, 'yyyy-MM'));
+      } else {
+        setSelectedPeriod(now.getFullYear().toString());
+      }
+    }
+  }, [periodType, availableOptions]);
+
+  // Filter entries based on selected period
+  const filteredEntries = useMemo(() => {
+    if (!selectedPeriod) return realEntries;
+    
+    if (periodType === 'week') {
+      const weekNumber = parseInt(selectedPeriod);
+      return realEntries.filter(entry => getISOWeek(entry.date) === weekNumber);
+    } else if (periodType === 'month') {
+      const [year, month] = selectedPeriod.split('-');
+      return realEntries.filter(entry => 
+        format(entry.date, 'yyyy-MM') === selectedPeriod
+      );
+    } else {
+      const year = parseInt(selectedPeriod);
+      return realEntries.filter(entry => getYear(entry.date) === year);
+    }
+  }, [realEntries, periodType, selectedPeriod]);
 
   const getTimeFrameLabel = () => {
-    switch (timeFrame) {
-      case 'last30Days': return 'Last 30 Days';
-      case 'currentMonth': return format(new Date(), 'MMMM yyyy');
-      case 'lastMonth': return format(subMonths(new Date(), 1), 'MMMM yyyy');
-      case 'currentYear': return new Date().getFullYear().toString();
-      case 'specificYear': return selectedYear;
-      case 'allTime': return 'All Time';
-      default: return 'Current Year';
-    }
+    if (!selectedPeriod) return 'Select a period';
+    
+    const option = availableOptions.find(opt => opt.value === selectedPeriod);
+    return option ? option.label : selectedPeriod;
   };
 
   const stats = useMemo(() => {
@@ -218,36 +218,29 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
             Viewing data for: {getTimeFrameLabel()}
           </p>
           <div className="flex items-center gap-2 mt-4">
-            <Select value={timeFrame} onValueChange={setTimeFrame}>
-              <SelectTrigger className="w-48">
+            <Select value={periodType} onValueChange={(value: 'week' | 'month' | 'year') => setPeriodType(value)}>
+              <SelectTrigger className="w-32">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="last30Days">Last 30 Days</SelectItem>
-                <SelectItem value="currentMonth">Current Month</SelectItem>
-                <SelectItem value="lastMonth">Last Month</SelectItem>
-                <SelectItem value="currentYear">Current Year</SelectItem>
-                {availableYears.length > 1 && (
-                  <SelectItem value="specificYear">Specific Year</SelectItem>
-                )}
-                <SelectItem value="allTime">All Time</SelectItem>
+                <SelectItem value="week">Week</SelectItem>
+                <SelectItem value="month">Month</SelectItem>
+                <SelectItem value="year">Year</SelectItem>
               </SelectContent>
             </Select>
             
-            {timeFrame === 'specificYear' && (
-              <Select value={selectedYear} onValueChange={setSelectedYear}>
-                <SelectTrigger className="w-24">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableYears.map(year => (
-                    <SelectItem key={year} value={year.toString()}>
-                      {year}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+            <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder={`Select ${periodType}`} />
+              </SelectTrigger>
+              <SelectContent>
+                {availableOptions.map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardHeader>
       </Card>
