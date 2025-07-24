@@ -21,7 +21,7 @@ export type Database = {
           id: string
           monthly_goal: number
           updated_at: string
-          user_id: string | null
+          user_id: string
           weekly_goal: number
           yearly_goal: number
         }
@@ -31,7 +31,7 @@ export type Database = {
           id?: string
           monthly_goal?: number
           updated_at?: string
-          user_id?: string | null
+          user_id: string
           weekly_goal?: number
           yearly_goal?: number
         }
@@ -41,7 +41,7 @@ export type Database = {
           id?: string
           monthly_goal?: number
           updated_at?: string
-          user_id?: string | null
+          user_id?: string
           weekly_goal?: number
           yearly_goal?: number
         }
@@ -62,7 +62,7 @@ export type Database = {
           shift: string
           tips: number
           updated_at: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           cash_tips?: number
@@ -78,7 +78,7 @@ export type Database = {
           shift?: string
           tips?: number
           updated_at?: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           cash_tips?: number
@@ -94,7 +94,7 @@ export type Database = {
           shift?: string
           tips?: number
           updated_at?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
