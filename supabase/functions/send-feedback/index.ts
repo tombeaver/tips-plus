@@ -33,7 +33,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const emailResponse = await resend.emails.send({
       from: "Tip Tracker App <onboarding@resend.dev>",
-      to: ["your-email@gmail.com"], // Replace with your actual email
+      to: ["tombeaver22@gmail.com"], // Your email address for receiving feedback
       subject: `New Feedback - ${rating} Star${rating !== 1 ? 's' : ''}`,
       html: `
         <h1>New Feedback Received</h1>
