@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Star, Upload, X, Heart, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -51,9 +52,17 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
     setIsSubmitting(true);
     
     try {
-      // Here you would typically send the feedback to your backend
-      // For now, we'll just simulate a successful submission
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const { data, error } = await supabase.functions.invoke('send-feedback', {
+        body: {
+          rating,
+          message,
+          screenshots: screenshots.map(file => file.name), // Just send filenames for now
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
       
       toast({
         title: "Feedback submitted!",
@@ -67,6 +76,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
       setScreenshots([]);
       onClose();
     } catch (error) {
+      console.error('Error sending feedback:', error);
       toast({
         title: "Error",
         description: "Failed to submit feedback. Please try again.",
