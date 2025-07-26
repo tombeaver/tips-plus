@@ -74,21 +74,26 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
     localStorage.setItem('analytics-selected-period', selectedPeriod);
   }, [selectedPeriod]);
 
-  // Set default period when period type changes (only if no saved period exists)
+  // Set default period when period type changes
   React.useEffect(() => {
     if (periodType === 'all') {
       setSelectedPeriod('');
-    } else if (availableOptions.length > 0 && !selectedPeriod) {
-      const now = new Date();
-      if (periodType === 'week') {
-        setSelectedPeriod(getSundayWeek(now).toString());
-      } else if (periodType === 'month') {
-        setSelectedPeriod(format(now, 'yyyy-MM'));
-      } else {
-        setSelectedPeriod(now.getFullYear().toString());
+    } else if (availableOptions.length > 0) {
+      // Check if current selectedPeriod is valid for this period type
+      const isValidPeriod = availableOptions.some(option => option.value === selectedPeriod);
+      
+      if (!selectedPeriod || !isValidPeriod) {
+        const now = new Date();
+        if (periodType === 'week') {
+          setSelectedPeriod(getSundayWeek(now).toString());
+        } else if (periodType === 'month') {
+          setSelectedPeriod(format(now, 'yyyy-MM'));
+        } else {
+          setSelectedPeriod(now.getFullYear().toString());
+        }
       }
     }
-  }, [periodType, availableOptions, selectedPeriod]);
+  }, [periodType, availableOptions]);
 
   // Filter entries based on selected period
   const filteredEntries = useMemo(() => {
