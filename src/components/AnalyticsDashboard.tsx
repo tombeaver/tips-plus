@@ -19,6 +19,19 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
   
   const realEntries = tipEntries.filter(entry => !entry.isPlaceholder);
   
+  // Helper function to get week starting on Sunday
+  const getSundayWeek = (date: Date) => {
+    const startOfYear = new Date(date.getFullYear(), 0, 1);
+    const firstSunday = new Date(startOfYear);
+    const dayOfWeek = startOfYear.getDay();
+    if (dayOfWeek !== 0) {
+      firstSunday.setDate(startOfYear.getDate() + (7 - dayOfWeek));
+    }
+    const diffTime = date.getTime() - firstSunday.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return Math.floor(diffDays / 7) + 1;
+  };
+
   // Get available options based on period type
   const availableOptions = useMemo(() => {
     const now = new Date();
@@ -26,7 +39,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
     if (periodType === 'all') {
       return [];
     } else if (periodType === 'week') {
-      const weeks = new Set(realEntries.map(entry => getISOWeek(entry.date)));
+      const weeks = new Set(realEntries.map(entry => getSundayWeek(entry.date)));
       return Array.from(weeks).sort((a, b) => b - a).map(week => ({
         value: week.toString(),
         label: `Week ${week}`
@@ -53,7 +66,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
     } else if (availableOptions.length > 0) {
       const now = new Date();
       if (periodType === 'week') {
-        setSelectedPeriod(getISOWeek(now).toString());
+        setSelectedPeriod(getSundayWeek(now).toString());
       } else if (periodType === 'month') {
         setSelectedPeriod(format(now, 'yyyy-MM'));
       } else {
@@ -68,7 +81,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
     
     if (periodType === 'week') {
       const weekNumber = parseInt(selectedPeriod);
-      return realEntries.filter(entry => getISOWeek(entry.date) === weekNumber);
+      return realEntries.filter(entry => getSundayWeek(entry.date) === weekNumber);
     } else if (periodType === 'month') {
       const [year, month] = selectedPeriod.split('-');
       return realEntries.filter(entry => 
