@@ -14,8 +14,13 @@ interface AnalyticsDashboardProps {
 }
 
 export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntries }) => {
-  const [periodType, setPeriodType] = useState<'all' | 'week' | 'month' | 'year'>('all');
-  const [selectedPeriod, setSelectedPeriod] = useState('');
+  const [periodType, setPeriodType] = useState<'all' | 'week' | 'month' | 'year'>(() => {
+    const saved = localStorage.getItem('analytics-period-type');
+    return (saved as 'all' | 'week' | 'month' | 'year') || 'all';
+  });
+  const [selectedPeriod, setSelectedPeriod] = useState(() => {
+    return localStorage.getItem('analytics-selected-period') || '';
+  });
   
   const realEntries = tipEntries.filter(entry => !entry.isPlaceholder);
   
@@ -59,11 +64,21 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
     }
   }, [realEntries, periodType]);
 
-  // Set default period when period type changes
+  // Save to localStorage when period type changes
+  React.useEffect(() => {
+    localStorage.setItem('analytics-period-type', periodType);
+  }, [periodType]);
+
+  // Save to localStorage when selected period changes
+  React.useEffect(() => {
+    localStorage.setItem('analytics-selected-period', selectedPeriod);
+  }, [selectedPeriod]);
+
+  // Set default period when period type changes (only if no saved period exists)
   React.useEffect(() => {
     if (periodType === 'all') {
       setSelectedPeriod('');
-    } else if (availableOptions.length > 0) {
+    } else if (availableOptions.length > 0 && !selectedPeriod) {
       const now = new Date();
       if (periodType === 'week') {
         setSelectedPeriod(getSundayWeek(now).toString());
@@ -73,7 +88,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         setSelectedPeriod(now.getFullYear().toString());
       }
     }
-  }, [periodType, availableOptions]);
+  }, [periodType, availableOptions, selectedPeriod]);
 
   // Filter entries based on selected period
   const filteredEntries = useMemo(() => {
