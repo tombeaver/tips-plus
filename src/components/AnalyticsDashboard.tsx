@@ -395,9 +395,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                     <YAxis stroke="rgba(255,255,255,0.8)" fontSize={12} />
                     <Tooltip 
                       formatter={(value, name) => {
-                        if (name === 'tips') return [`$${Number(value).toFixed(2)}`, 'Tips'];
-                        if (name === 'wages') return [`$${Number(value).toFixed(2)}`, 'Wages'];
-                        return [`$${value}`, name];
+                        if (name === 'tips') return [`${Number(value).toFixed(2)}`, 'Tips'];
+                        if (name === 'wages') return [`${Number(value).toFixed(2)}`, 'Wages'];
+                        return [`${value}`, name];
                       }}
                       labelFormatter={(label, payload) => {
                         if (!payload || payload.length === 0) return `Period: ${label}`;
@@ -408,15 +408,16 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                         const totalTips = data.tips || 0;
                         const totalWages = data.wages || 0;
                         const totalEarnings = totalTips + totalWages;
-                        const hourlyRate = totalWages > 0 && data.hours ? totalWages / data.hours : 0;
                         
                         return (
                           <div className="space-y-1">
                             <div className="font-medium">{label}</div>
                             <div className="text-sm space-y-0.5">
-                              <div>Tips: $${totalTips.toFixed(2)}</div>
-                              <div>Total Earnings: $${totalEarnings.toFixed(2)}</div>
-                              {hourlyRate > 0 && <div>Hourly Rate: $${hourlyRate.toFixed(2)}</div>}
+                              <div>Tips: ${totalTips.toFixed(2)}</div>
+                              <div>Wages: ${totalWages.toFixed(2)}</div>
+                              <div className="border-t pt-1 mt-1">
+                                <div className="font-medium">Total Earnings: ${totalEarnings.toFixed(2)}</div>
+                              </div>
                             </div>
                           </div>
                         );
