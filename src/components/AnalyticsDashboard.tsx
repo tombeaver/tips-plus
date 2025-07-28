@@ -361,118 +361,167 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         </div>
       ) : (
         <>
-          {/* Analytics Cards */}
-          <div className="space-y-4">
-            {/* Row 1: Total Earnings (full width) */}
-            <Card className="bg-gradient-to-r from-green-500 to-emerald-600">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-white/80 text-lg">Total Earnings</p>
-                    <p className="text-4xl font-bold text-white">${stats.totalEarnings.toFixed(2)}</p>
-                    <div className="flex items-center gap-4 mt-2">
-                      <p className="text-white/70 text-sm">
-                        Tips + Wages for {getTimeFrameLabel()}
-                      </p>
-                      <p className="text-white/80 text-sm font-medium">
-                        {stats.averageTipPercentage.toFixed(1)}% avg tip
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-white/80">
-                    <DollarSign className="h-12 w-12" />
+          {/* Total Earnings Card with Stack Bar Chart */}
+          <Card className="bg-gradient-to-r from-emerald-500 to-emerald-600">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <p className="text-white/80 text-lg">Total Earnings</p>
+                  <p className="text-4xl font-bold text-white">${stats.totalEarnings.toFixed(2)}</p>
+                  <div className="flex items-center gap-4 mt-2">
+                    <p className="text-white/70 text-sm">
+                      Tips + Wages for {getTimeFrameLabel()}
+                    </p>
+                    <p className="text-white/80 text-sm font-medium">
+                      {stats.averageTipPercentage.toFixed(1)}% avg tip
+                    </p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Row 2: Total Tips | Tips per Hour */}
-            <div className="grid grid-cols-2 gap-4">
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">Total Tips</p>
-                      <p className="text-2xl font-bold text-green-600">${stats.totalTips.toFixed(2)}</p>
-                    </div>
-                    <HandCoins className="h-8 w-8 text-green-600" />
-                  </div>
-                </CardContent>
-              </Card>
+                <div className="text-white/80">
+                  <DollarSign className="h-12 w-12" />
+                </div>
+              </div>
               
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">Earnings per Hour</p>
-                      <p className="text-2xl font-bold text-purple-600">${stats.earningsPerHour.toFixed(2)}</p>
-                    </div>
-                    <Clock className="h-8 w-8 text-purple-600" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Row 3: Per Guest | Shifts */}
-            <div className="grid grid-cols-2 gap-4">
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">Per Guest</p>
-                      <p className="text-2xl font-bold">${stats.averagePerGuest.toFixed(2)}</p>
-                    </div>
-                    <Users className="h-8 w-8 text-orange-600" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">Shifts</p>
-                      <p className="text-2xl font-bold">{stats.shiftsWorked}</p>
-                    </div>
-                    <Calendar className="h-8 w-8 text-blue-600" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          {/* Trend Chart */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">{getTrendTitle()}</CardTitle>
-              <CardDescription>Your tip earnings over time</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64">
+              {/* Monochromatic Stack Bar Chart */}
+              <div className="h-48">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={trendData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="period" />
-                    <YAxis />
+                  <BarChart data={trendData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.2)" />
+                    <XAxis dataKey="period" stroke="rgba(255,255,255,0.8)" fontSize={12} />
+                    <YAxis stroke="rgba(255,255,255,0.8)" fontSize={12} />
                     <Tooltip 
                       formatter={(value, name) => {
                         if (name === 'tips') return [`$${Number(value).toFixed(2)}`, 'Tips'];
                         if (name === 'wages') return [`$${Number(value).toFixed(2)}`, 'Wages'];
-                        if (name === 'total') return [`$${Number(value).toFixed(2)}`, 'Total'];
                         return [`$${value}`, name];
                       }}
                       labelFormatter={(label) => `Period: ${label}`}
                       contentStyle={{
-                        backgroundColor: 'hsl(var(--background))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '6px'
+                        backgroundColor: 'rgba(255,255,255,0.95)',
+                        border: 'none',
+                        borderRadius: '8px',
+                        color: '#374151'
                       }}
                     />
-                    <Line type="monotone" dataKey="tips" stroke="#10B981" strokeWidth={2} name="tips" />
-                    <Line type="monotone" dataKey="wages" stroke="#3B82F6" strokeWidth={2} name="wages" />
-                    <Line type="monotone" dataKey="total" stroke="#8B5CF6" strokeWidth={2} name="total" />
-                  </LineChart>
+                    <Bar dataKey="tips" stackId="earnings" fill="rgba(255,255,255,0.9)" name="tips" />
+                    <Bar dataKey="wages" stackId="earnings" fill="rgba(255,255,255,0.6)" name="wages" />
+                  </BarChart>
                 </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Highlight Cards: Average Hourly Rate and Average Daily Income */}
+          <div className="grid grid-cols-2 gap-4">
+            <Card className="bg-gradient-to-br from-blue-500 to-blue-600">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-white/80 text-sm font-medium">Average Hourly Rate</p>
+                    <p className="text-3xl font-bold text-white">${stats.earningsPerHour.toFixed(2)}</p>
+                    <p className="text-white/70 text-xs mt-1">
+                      Total earnings ÷ Hours worked
+                    </p>
+                  </div>
+                  <Clock className="h-10 w-10 text-white/80" />
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-gradient-to-br from-purple-500 to-purple-600">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-white/80 text-sm font-medium">Average Daily Income</p>
+                    <p className="text-3xl font-bold text-white">
+                      ${stats.shiftsWorked > 0 ? (stats.totalEarnings / stats.shiftsWorked).toFixed(2) : '0.00'}
+                    </p>
+                    <p className="text-white/70 text-xs mt-1">
+                      Total earnings ÷ Days worked
+                    </p>
+                  </div>
+                  <CalendarRange className="h-10 w-10 text-white/80" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Money & Income Metrics List */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <DollarSign className="h-5 w-5" />
+                Financial Metrics
+              </CardTitle>
+              <CardDescription>Detailed breakdown of your earnings and performance</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 bg-muted/50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Total Tips</p>
+                        <p className="text-xl font-bold text-emerald-600">${stats.totalTips.toFixed(2)}</p>
+                      </div>
+                      <HandCoins className="h-6 w-6 text-emerald-600" />
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 bg-muted/50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Tips per Hour</p>
+                        <p className="text-xl font-bold text-blue-600">${stats.tipsPerHour.toFixed(2)}</p>
+                      </div>
+                      <Clock className="h-6 w-6 text-blue-600" />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 bg-muted/50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Average per Guest</p>
+                        <p className="text-xl font-bold text-orange-600">${stats.averagePerGuest.toFixed(2)}</p>
+                      </div>
+                      <Users className="h-6 w-6 text-orange-600" />
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 bg-muted/50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Average Tip %</p>
+                        <p className="text-xl font-bold text-purple-600">{stats.averageTipPercentage.toFixed(1)}%</p>
+                      </div>
+                      <Percent className="h-6 w-6 text-purple-600" />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 bg-muted/50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Total Shifts</p>
+                        <p className="text-xl font-bold text-slate-600">{stats.shiftsWorked}</p>
+                      </div>
+                      <Calendar className="h-6 w-6 text-slate-600" />
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 bg-muted/50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Total Hours</p>
+                        <p className="text-xl font-bold text-indigo-600">{stats.totalHours.toFixed(1)}</p>
+                      </div>
+                      <Clock className="h-6 w-6 text-indigo-600" />
+                    </div>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
