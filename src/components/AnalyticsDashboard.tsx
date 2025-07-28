@@ -415,7 +415,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                             <div className="text-sm space-y-0.5">
                               <div>Tips: ${totalTips.toFixed(2)}</div>
                               <div>Wages: ${totalWages.toFixed(2)}</div>
-                              <div className="border-t pt-1 mt-1">
+                              <div className="border-t pt-0.5 mt-0.5">
                                 <div className="font-medium">Total Earnings: ${totalEarnings.toFixed(2)}</div>
                               </div>
                             </div>
