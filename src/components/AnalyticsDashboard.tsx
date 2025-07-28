@@ -226,14 +226,15 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       const years = new Map();
       filteredEntries.forEach(entry => {
         const yearKey = getYear(entry.date).toString();
-        const existing = years.get(yearKey) || { period: yearKey, tips: 0, wages: 0, sales: 0, guests: 0, date: new Date(parseInt(yearKey), 0, 1) };
+        const existing = years.get(yearKey) || { period: yearKey, tips: 0, wages: 0, sales: 0, guests: 0, hours: 0, date: new Date(parseInt(yearKey), 0, 1) };
         const entryWages = entry.hoursWorked * entry.hourlyRate;
         years.set(yearKey, {
           ...existing,
           tips: existing.tips + entry.creditTips + entry.cashTips,
           wages: existing.wages + entryWages,
           sales: existing.sales + entry.totalSales,
-          guests: existing.guests + entry.guestCount
+          guests: existing.guests + entry.guestCount,
+          hours: existing.hours + entry.hoursWorked
         });
       });
       return Array.from(years.values()).map(item => ({
@@ -246,14 +247,15 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       filteredEntries.forEach(entry => {
         const monthKey = format(entry.date, 'MMM yyyy');
         const monthStart = startOfMonth(entry.date);
-        const existing = months.get(monthKey) || { period: monthKey, tips: 0, wages: 0, sales: 0, guests: 0, date: monthStart };
+        const existing = months.get(monthKey) || { period: monthKey, tips: 0, wages: 0, sales: 0, guests: 0, hours: 0, date: monthStart };
         const entryWages = entry.hoursWorked * entry.hourlyRate;
         months.set(monthKey, {
           ...existing,
           tips: existing.tips + entry.creditTips + entry.cashTips,
           wages: existing.wages + entryWages,
           sales: existing.sales + entry.totalSales,
-          guests: existing.guests + entry.guestCount
+          guests: existing.guests + entry.guestCount,
+          hours: existing.hours + entry.hoursWorked
         });
       });
       return Array.from(months.values()).map(item => ({
@@ -266,14 +268,15 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       filteredEntries.forEach(entry => {
         const weekStart = startOfWeek(entry.date);
         const weekKey = format(weekStart, 'MMM d');
-        const existing = weeks.get(weekKey) || { period: weekKey, tips: 0, wages: 0, sales: 0, guests: 0, date: weekStart };
+        const existing = weeks.get(weekKey) || { period: weekKey, tips: 0, wages: 0, sales: 0, guests: 0, hours: 0, date: weekStart };
         const entryWages = entry.hoursWorked * entry.hourlyRate;
         weeks.set(weekKey, {
           ...existing,
           tips: existing.tips + entry.creditTips + entry.cashTips,
           wages: existing.wages + entryWages,
           sales: existing.sales + entry.totalSales,
-          guests: existing.guests + entry.guestCount
+          guests: existing.guests + entry.guestCount,
+          hours: existing.hours + entry.hoursWorked
         });
       });
       return Array.from(weeks.values()).map(item => ({
@@ -285,14 +288,15 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       const days = new Map();
       filteredEntries.forEach(entry => {
         const dayKey = format(entry.date, 'MMM d');
-        const existing = days.get(dayKey) || { period: dayKey, tips: 0, wages: 0, sales: 0, guests: 0, date: entry.date };
+        const existing = days.get(dayKey) || { period: dayKey, tips: 0, wages: 0, sales: 0, guests: 0, hours: 0, date: entry.date };
         const entryWages = entry.hoursWorked * entry.hourlyRate;
         days.set(dayKey, {
           ...existing,
           tips: existing.tips + entry.creditTips + entry.cashTips,
           wages: existing.wages + entryWages,
           sales: existing.sales + entry.totalSales,
-          guests: existing.guests + entry.guestCount
+          guests: existing.guests + entry.guestCount,
+          hours: existing.hours + entry.hoursWorked
         });
       });
       return Array.from(days.values()).map(item => ({
@@ -395,7 +399,28 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                         if (name === 'wages') return [`$${Number(value).toFixed(2)}`, 'Wages'];
                         return [`$${value}`, name];
                       }}
-                      labelFormatter={(label) => `Period: ${label}`}
+                      labelFormatter={(label, payload) => {
+                        if (!payload || payload.length === 0) return `Period: ${label}`;
+                        
+                        const data = payload[0]?.payload;
+                        if (!data) return `Period: ${label}`;
+                        
+                        const totalTips = data.tips || 0;
+                        const totalWages = data.wages || 0;
+                        const totalEarnings = totalTips + totalWages;
+                        const hourlyRate = totalWages > 0 && data.hours ? totalWages / data.hours : 0;
+                        
+                        return (
+                          <div className="space-y-1">
+                            <div className="font-medium">{label}</div>
+                            <div className="text-sm space-y-0.5">
+                              <div>Tips: $${totalTips.toFixed(2)}</div>
+                              <div>Total Earnings: $${totalEarnings.toFixed(2)}</div>
+                              {hourlyRate > 0 && <div>Hourly Rate: $${hourlyRate.toFixed(2)}</div>}
+                            </div>
+                          </div>
+                        );
+                      }}
                       contentStyle={{
                         backgroundColor: 'rgba(255,255,255,0.95)',
                         border: 'none',
