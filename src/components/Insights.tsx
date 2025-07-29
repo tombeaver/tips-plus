@@ -273,13 +273,13 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
       )}
 
       {/* 2. Recommended Sections */}
-      <Card>
-        <CardHeader className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white">
+      <Card className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white">
+        <CardHeader>
           <CardTitle className="text-white text-lg">
             Recommended Sections
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 bg-white">
+        <CardContent className="space-y-3">
           {sectionStats.slice(0, 4).map((section, index) => (
             <div key={section.section} className="flex justify-between items-center p-3 border rounded-lg">
               <div className="flex items-center gap-3">
@@ -317,18 +317,18 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
       </Card>
 
       {/* 3. Smart Shift Suggestions */}
-      <Card>
-        <CardHeader className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+      <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+        <CardHeader>
           <CardTitle className="text-white text-lg">
             Smart Shift Suggestions
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4 bg-white">
+        <CardContent className="space-y-4">
           <div className="grid gap-3">
             {dayShiftStats.slice(0, 3).map((combo, index) => (
               <div key={combo.key} className="flex justify-between items-center p-3 bg-green-50 border border-green-200 rounded-lg">
                 <div>
-                  <p className="font-medium text-gray-900">{combo.dayName} {combo.shiftType}</p>
+                  <p className="font-medium">{combo.dayName} {combo.shiftType}</p>
                   <p className="text-sm text-muted-foreground">{combo.count} shifts worked</p>
                 </div>
                 <div className="text-right">
@@ -362,13 +362,13 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
 
       {/* 4. Change-It-Up Recommendations */}
       {(consecutiveShiftType || consecutiveSection) && (
-        <Card>
-          <CardHeader className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+        <Card className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+          <CardHeader>
             <CardTitle className="text-white text-lg">
               Change-It-Up Recommendations
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 bg-white">
+          <CardContent className="space-y-3">
             {consecutiveShiftType && (
               <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
                 <p className="text-sm font-medium text-orange-800">
@@ -406,16 +406,16 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
       )}
 
       {/* 5. Insights Feed */}
-      <Card>
-        <CardHeader className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white">
+      <Card className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white">
+        <CardHeader>
           <CardTitle className="text-white text-lg">
             Quick Tips
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 bg-white">
+        <CardContent className="space-y-3">
           {dayShiftStats[0] && (
             <div className="p-3 bg-gradient-to-r from-green-50 to-blue-50 border rounded-lg">
-              <p className="text-sm font-medium text-gray-800">
+              <p className="text-sm font-medium">
                 🏆 {dayShiftStats[0].dayName} {dayShiftStats[0].shiftType} shifts are your top earners — try grabbing one this week!
               </p>
             </div>
@@ -423,7 +423,7 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
           
           {sectionStats[0] && sectionStats[0].avgMood && sectionStats[0].avgMood > 4 && (
             <div className="p-3 bg-gradient-to-r from-yellow-50 to-green-50 border rounded-lg">
-              <p className="text-sm font-medium text-gray-800">
+              <p className="text-sm font-medium">
                 😊 Section {sectionStats[0].section} correlates with higher mood ratings ({sectionStats[0].avgMood.toFixed(1)}/5)
               </p>
             </div>
@@ -431,14 +431,14 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
           
           {sectionStats.length > 1 && (
             <div className="p-3 bg-gradient-to-r from-orange-50 to-red-50 border rounded-lg">
-              <p className="text-sm font-medium text-gray-800">
+              <p className="text-sm font-medium">
                 📊 Section {sectionStats[sectionStats.length - 1].section} underperforms — consider switching when possible
               </p>
             </div>
           )}
 
           <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 border rounded-lg">
-            <p className="text-sm font-medium text-gray-800">
+            <p className="text-sm font-medium">
               💡 Based on {last30Days.length} recent shifts, your earning patterns show clear optimization opportunities
             </p>
           </div>
