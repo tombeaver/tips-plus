@@ -258,35 +258,26 @@ const Index = () => {
                 {selectedEntry ? (
                   <div className="space-y-6">
                     {/* Your Tips Header */}
-                    <div className="bg-background/50 rounded-xl p-4 border border-border/50">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold">Your Tips</h3>
-                        <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                            {selectedEntry.shift}
-                          </span>
-                          <span>{selectedEntry.hoursWorked}h</span>
-                        </div>
-                      </div>
+                    <div className="mb-4">
+                      <h3 className="text-lg font-semibold mb-4">Your Tips</h3>
                       
                       <div className="text-center">
                         <div className="text-3xl font-bold text-green-600 mb-1">
-                          ${selectedEntry.hoursWorked > 0 ? (getTotalEarnings(selectedEntry) / selectedEntry.hoursWorked).toFixed(2) : '0.00'}
-                          <span className="text-base font-normal text-muted-foreground ml-1">/hour</span>
+                          ${getTotalEarnings(selectedEntry).toFixed(2)}
+                          <span className="text-base font-normal text-muted-foreground ml-1">total earnings</span>
                         </div>
                         <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                            {selectedEntry.section}
+                            {selectedEntry.shift}
                           </span>
                           <span className="flex items-center gap-1">
                             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                            ${getTotalTips(selectedEntry)}
+                            {selectedEntry.hoursWorked}h worked
                           </span>
                           <span className="flex items-center gap-1">
                             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                            {selectedEntry.hoursWorked}h
+                            ${selectedEntry.hoursWorked > 0 ? (getTotalEarnings(selectedEntry) / selectedEntry.hoursWorked).toFixed(2) : '0.00'}/hr
                           </span>
                         </div>
                       </div>
@@ -344,15 +335,27 @@ const Index = () => {
                           </div>
                         </div>
 
-                        <div className="bg-background/50 rounded-xl p-4 border border-border/50 col-span-2">
+                        <div className="bg-background/50 rounded-xl p-4 border border-border/50">
                           <div className="flex items-center gap-3 mb-2">
                             <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
                               <Users className="w-5 h-5 text-amber-600" />
                             </div>
-                            <span className="text-muted-foreground">Covers / Guests</span>
+                            <span className="text-muted-foreground">Guest Count</span>
                           </div>
                           <div className="text-2xl font-bold text-amber-600">
                             {selectedEntry.guestCount}
+                          </div>
+                        </div>
+                        
+                        <div className="bg-background/50 rounded-xl p-4 border border-border/50">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                              <Receipt className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <span className="text-muted-foreground">{selectedEntry.section}</span>
+                          </div>
+                          <div className="text-lg font-semibold text-blue-600">
+                            Section
                           </div>
                         </div>
                       </div>
