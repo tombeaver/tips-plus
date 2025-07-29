@@ -214,7 +214,7 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
   const recentShiftFactors = mostRecentShift ? getPerformanceFactors(mostRecentShift) : [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
       <Card>
         <CardHeader>
@@ -222,8 +222,8 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
             <Lightbulb className="h-6 w-6" />
             Insights
           </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Smart recommendations based on your last 30 days ({last30Days.length} shifts)
+          <p className="body-md text-muted-foreground">
+            Based on your last 30 days ({last30Days.length} shifts)
           </p>
         </CardHeader>
       </Card>
