@@ -292,7 +292,7 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
                   {index + 1}
                 </div>
                 <div>
-                  <p className="font-medium text-white">Section {section.section}</p>
+                  <p className="font-medium text-white">{section.section}</p>
                   <p className="text-sm text-white/70">{section.count} shifts worked</p>
                 </div>
               </div>
