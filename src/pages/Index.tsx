@@ -13,7 +13,7 @@ import { Insights } from '@/components/Insights';
 import { FeedbackModal } from '@/components/FeedbackModal';
 import { EarningsCalendar } from '@/components/EarningsCalendar';
 import { PrivacyPolicy } from '@/components/PrivacyPolicy';
-import { CalendarDays, TrendingUp, Target, Plus, Lightbulb, LogOut, MessageCircle, Frown, Meh, Smile, Laugh, Zap } from 'lucide-react';
+import { CalendarDays, TrendingUp, Target, Plus, Lightbulb, LogOut, MessageCircle, Frown, Meh, Smile, Laugh, Zap, DollarSign, CreditCard, Clock, Receipt, Users } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
 import { useTipEntries, type TipEntry } from '@/hooks/useTipEntries';
 import { useGoals, type Goal } from '@/hooks/useGoals';
@@ -256,74 +256,105 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 {selectedEntry ? (
-                  <div className="space-group">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="label-md text-muted-foreground">Total Sales</p>
-                        <p className="display-md">${selectedEntry.totalSales}</p>
+                  <div className="space-y-6">
+                    {/* Your Tips Header */}
+                    <div className="bg-background/50 rounded-xl p-4 border border-border/50">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold">Your Tips</h3>
+                        <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            {selectedEntry.shift}
+                          </span>
+                          <span>{selectedEntry.hoursWorked}h</span>
+                        </div>
                       </div>
-                      <div>
-                        <p className="label-md text-muted-foreground">Total Tips</p>
-                        <p className="display-md text-success">
-                          ${getTotalTips(selectedEntry)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="label-md text-muted-foreground">Tip %</p>
-                        <p className="display-md">
-                          {getTipPercentage(selectedEntry).toFixed(1)}%
-                        </p>
-                      </div>
-                      <div>
-                        <p className="label-md text-muted-foreground">Per Guest</p>
-                        <p className="display-md">
-                          ${selectedEntry.guestCount > 0 ? (getTotalTips(selectedEntry) / selectedEntry.guestCount).toFixed(2) : '0.00'}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-3 gap-4 pt-2 border-t">
-                      <div>
-                        <p className="label-md text-muted-foreground">Shift</p>
-                        <p className="body-lg font-medium">{selectedEntry.shift}</p>
-                      </div>
-                      <div>
-                        <p className="label-md text-muted-foreground">Hours</p>
-                        <p className="body-lg font-medium">{selectedEntry.hoursWorked}h</p>
-                      </div>
-                      <div>
-                        <p className="label-md text-muted-foreground">Actual Rate</p>
-                        <p className="body-lg font-medium">
-                          ${selectedEntry.hoursWorked > 0 ? (getTotalEarnings(selectedEntry) / selectedEntry.hoursWorked).toFixed(2) : '0.00'}/hr
-                        </p>
+                      
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-green-600 mb-1">
+                          ${selectedEntry.hoursWorked > 0 ? (getTotalEarnings(selectedEntry) / selectedEntry.hoursWorked).toFixed(2) : '0.00'}
+                          <span className="text-base font-normal text-muted-foreground ml-1">/hour</span>
+                        </div>
+                        <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            {selectedEntry.section}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            ${getTotalTips(selectedEntry)}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            {selectedEntry.hoursWorked}h
+                          </span>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-4 pt-2">
-                      <div>
-                        <p className="label-md text-muted-foreground">Credit Tips</p>
-                        <p className="body-lg font-medium">${selectedEntry.creditTips}</p>
-                      </div>
-                      <div>
-                        <p className="label-md text-muted-foreground">Cash Tips</p>
-                        <p className="body-lg font-medium">${selectedEntry.cashTips}</p>
-                      </div>
-                      <div>
-                        <p className="label-md text-muted-foreground">Guests</p>
-                        <p className="body-lg font-medium">{selectedEntry.guestCount}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center pt-2 border-t">
-                      <div>
-                        <p className="label-md text-muted-foreground">Section</p>
-                        <p className="body-lg font-medium">{selectedEntry.section}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="label-md text-muted-foreground">Total Earnings</p>
-                        <p className="display-md text-success">
-                          ${getTotalEarnings(selectedEntry).toFixed(2)}
-                        </p>
+                    {/* Income Breakdown */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Income Breakdown</h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-background/50 rounded-xl p-4 border border-border/50">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                              <DollarSign className="w-5 h-5 text-green-600" />
+                            </div>
+                            <span className="text-muted-foreground">Cash</span>
+                          </div>
+                          <div className="text-2xl font-bold text-green-600">
+                            ${selectedEntry.cashTips}
+                          </div>
+                        </div>
+
+                        <div className="bg-background/50 rounded-xl p-4 border border-border/50">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                              <CreditCard className="w-5 h-5 text-green-600" />
+                            </div>
+                            <span className="text-muted-foreground">Credit</span>
+                          </div>
+                          <div className="text-2xl font-bold text-green-600">
+                            ${selectedEntry.creditTips}
+                          </div>
+                        </div>
+
+                        <div className="bg-background/50 rounded-xl p-4 border border-border/50">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                              <Clock className="w-5 h-5 text-green-600" />
+                            </div>
+                            <span className="text-muted-foreground">Wages</span>
+                          </div>
+                          <div className="text-2xl font-bold text-green-600">
+                            ${(selectedEntry.hourlyRate * selectedEntry.hoursWorked).toFixed(2)}
+                          </div>
+                        </div>
+
+                        <div className="bg-background/50 rounded-xl p-4 border border-border/50">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                              <Receipt className="w-5 h-5 text-orange-600" />
+                            </div>
+                            <span className="text-muted-foreground">Total Sales</span>
+                          </div>
+                          <div className="text-2xl font-bold text-orange-600">
+                            ${selectedEntry.totalSales}
+                          </div>
+                        </div>
+
+                        <div className="bg-background/50 rounded-xl p-4 border border-border/50 col-span-2">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                              <Users className="w-5 h-5 text-amber-600" />
+                            </div>
+                            <span className="text-muted-foreground">Covers / Guests</span>
+                          </div>
+                          <div className="text-2xl font-bold text-amber-600">
+                            {selectedEntry.guestCount}
+                          </div>
+                        </div>
                       </div>
                     </div>
                     
