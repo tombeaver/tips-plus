@@ -257,14 +257,10 @@ const Index = () => {
               <CardContent>
                 {selectedEntry ? (
                   <div className="space-y-6">
-                    {/* Your Tips Header */}
                     <div className="mb-4">
-                      <h3 className="text-lg font-semibold mb-4">Your Tips</h3>
-                      
                       <div className="text-center">
                         <div className="text-3xl font-bold text-green-600 mb-1">
                           ${getTotalEarnings(selectedEntry).toFixed(2)}
-                          <span className="text-base font-normal text-muted-foreground ml-1">total earnings</span>
                         </div>
                         <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1">
