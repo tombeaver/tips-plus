@@ -305,14 +305,6 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
               </div>
             </div>
           ))}
-          
-          {sectionStats.length > 1 && (
-            <div className="p-3 border border-white/20 rounded-lg">
-              <p className="text-sm font-medium text-white">
-                💡 You earn {((sectionStats[0].avgEarningsPerHour / sectionStats[sectionStats.length - 1].avgEarningsPerHour - 1) * 100).toFixed(0)}% more per hour in Section {sectionStats[0].section} vs Section {sectionStats[sectionStats.length - 1].section}
-              </p>
-            </div>
-          )}
         </CardContent>
       </Card>
 
@@ -340,7 +332,7 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
           </div>
 
           {missedOpportunities.length > 0 && (
-            <div className="p-4 border border-white/20 rounded-lg">
+            <div className="p-4">
               <p className="text-sm font-medium text-white mb-2">Untapped opportunities:</p>
               <div className="grid grid-cols-2 gap-2">
                 {missedOpportunities.slice(0, 4).map(combo => {
@@ -365,12 +357,12 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
         <Card className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
           <CardHeader>
             <CardTitle className="text-white text-lg">
-              Change-It-Up Recommendations
+              Change It Up
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {consecutiveShiftType && (
-              <div className="p-4 border border-white/20 rounded-lg">
+              <div className="p-4">
                 <p className="text-sm font-medium text-white">
                   🔄 You've worked {mostRecentShift?.shift} shifts recently
                 </p>
@@ -381,7 +373,7 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
             )}
             
             {consecutiveSection && (
-              <div className="p-4 border border-white/20 rounded-lg">
+              <div className="p-4">
                 <p className="text-sm font-medium text-white">
                   📍 You've been working Section {mostRecentShift?.section} frequently
                 </p>
@@ -392,7 +384,7 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
             )}
 
             {recentGuestCount > avgGuestCount * 1.2 && (
-              <div className="p-4 border border-white/20 rounded-lg">
+              <div className="p-4">
                 <p className="text-sm font-medium text-white">
                   👥 Recent guest counts have been high ({recentGuestCount} vs {avgGuestCount.toFixed(0)} avg)
                 </p>
