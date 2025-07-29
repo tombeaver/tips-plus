@@ -230,34 +230,33 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
 
       {/* 1. Shift Performance Breakdown */}
       {mostRecentShift && (
-        <Card>
-          <CardHeader className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-t-lg">
-            <CardTitle className="flex items-center gap-2 text-white">
-              <BarChart3 className="h-5 w-5" />
+        <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+          <CardHeader>
+            <CardTitle className="text-white text-lg">
               Recent Shift Analysis
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="p-4 border rounded-lg">
+            <div className="space-y-4">
               <div className="flex justify-between items-start mb-3">
                 <div>
-                  <p className="font-medium">
+                  <p className="font-medium text-white">
                     {format(mostRecentShift.date, 'EEEE, MMM d')} - {mostRecentShift.shift} Shift
                   </p>
-                  <p className="text-sm text-muted-foreground">Section {mostRecentShift.section}</p>
+                  <p className="text-sm text-white/80">Section {mostRecentShift.section}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-lg font-bold">${calculateTotalEarnings(mostRecentShift).toFixed(0)}</p>
-                  <p className="text-sm text-muted-foreground">Total earnings</p>
+                  <p className="text-lg font-bold text-white">${calculateTotalEarnings(mostRecentShift).toFixed(0)}</p>
+                  <p className="text-sm text-white/80">Total earnings</p>
                 </div>
               </div>
               
               {recentShiftFactors.length > 0 && (
                 <div className="space-y-2">
-                  <p className="text-sm font-medium">Performance factors:</p>
+                  <p className="text-sm font-medium text-white">Performance factors:</p>
                   {recentShiftFactors.map((factor, index) => (
                     <div key={index} className={`flex items-center gap-2 text-sm ${
-                      factor.type === 'positive' ? 'text-green-700' : 'text-red-700'
+                      factor.type === 'positive' ? 'text-green-200' : 'text-red-200'
                     }`}>
                       {factor.type === 'positive' ? 
                         <CheckCircle className="h-4 w-4" /> : 
@@ -274,10 +273,9 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
       )}
 
       {/* 2. Recommended Sections */}
-      <Card>
-        <CardHeader className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-t-lg">
-          <CardTitle className="flex items-center gap-2 text-white">
-            <MapPin className="h-5 w-5" />
+      <Card className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white">
+        <CardHeader>
+          <CardTitle className="text-white text-lg">
             Recommended Sections
           </CardTitle>
         </CardHeader>
@@ -319,10 +317,9 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
       </Card>
 
       {/* 3. Smart Shift Suggestions */}
-      <Card>
-        <CardHeader className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-t-lg">
-          <CardTitle className="flex items-center gap-2 text-white">
-            <Calendar className="h-5 w-5" />
+      <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+        <CardHeader>
+          <CardTitle className="text-white text-lg">
             Smart Shift Suggestions
           </CardTitle>
         </CardHeader>
@@ -365,10 +362,9 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
 
       {/* 4. Change-It-Up Recommendations */}
       {(consecutiveShiftType || consecutiveSection) && (
-        <Card>
-          <CardHeader className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-t-lg">
-            <CardTitle className="flex items-center gap-2 text-white">
-              <Shuffle className="h-5 w-5" />
+        <Card className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+          <CardHeader>
+            <CardTitle className="text-white text-lg">
               Change-It-Up Recommendations
             </CardTitle>
           </CardHeader>
@@ -410,10 +406,9 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
       )}
 
       {/* 5. Insights Feed */}
-      <Card>
-        <CardHeader className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-t-lg">
-          <CardTitle className="flex items-center gap-2 text-white">
-            <Zap className="h-5 w-5" />
+      <Card className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white">
+        <CardHeader>
+          <CardTitle className="text-white text-lg">
             Quick Tips
           </CardTitle>
         </CardHeader>
