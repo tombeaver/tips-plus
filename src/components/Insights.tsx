@@ -1,9 +1,8 @@
 import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { TrendingUp, Calendar, MapPin, Lightbulb, DollarSign, Clock, Heart, Target, BarChart3, PieChart, Download, TrendingDown } from 'lucide-react';
-import { format, getDay, isAfter, startOfWeek } from 'date-fns';
+import { TrendingUp, Calendar, MapPin, Lightbulb, DollarSign, Clock, Heart, Target, BarChart3, AlertTriangle, CheckCircle, Shuffle, Zap, TrendingDown } from 'lucide-react';
+import { format, getDay, isAfter, startOfWeek, subDays, differenceInDays } from 'date-fns';
 import { TipEntry } from '@/hooks/useTipEntries';
 
 interface InsightsProps {
@@ -32,113 +31,114 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
 
     const calculateTips = (entry: TipEntry) => (entry.creditTips || 0) + (entry.cashTips || 0);
 
-    // 1. Mood vs Earnings Analysis
-    const moodAnalysis = realEntries
-      .filter(entry => entry.moodRating)
-      .reduce((acc, entry) => {
-        const mood = entry.moodRating!;
-        const earnings = calculateTotalEarnings(entry);
-        const tips = calculateTips(entry);
-        
-        if (!acc[mood]) {
-          acc[mood] = { totalEarnings: 0, totalTips: 0, count: 0, entries: [] };
-        }
-        acc[mood].totalEarnings += earnings;
-        acc[mood].totalTips += tips;
-        acc[mood].count += 1;
-        acc[mood].entries.push(entry);
-        return acc;
-      }, {} as { [key: number]: { totalEarnings: number; totalTips: number; count: number; entries: TipEntry[] } });
+    // Filter last 30 days
+    const last30Days = realEntries.filter(entry => 
+      differenceInDays(new Date(), entry.date) <= 30
+    );
 
-    const moodStats = Object.entries(moodAnalysis).map(([mood, stats]) => ({
-      mood: parseInt(mood),
-      avgEarnings: stats.totalEarnings / stats.count,
-      avgTips: stats.totalTips / stats.count,
-      count: stats.count,
-      totalEarnings: stats.totalEarnings
-    })).sort((a, b) => b.avgEarnings - a.avgEarnings);
+    // Get most recent shift for analysis
+    const sortedEntries = realEntries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const mostRecentShift = sortedEntries[0];
 
-    // 2. Shift Type Performance (AM/PM/Double)
-    const shiftAnalysis = realEntries.reduce((acc, entry) => {
-      const shift = entry.shift || 'PM';
+    // Section Analysis
+    const sectionAnalysis = last30Days.reduce((acc, entry) => {
+      const section = entry.section?.toString() || 'Unknown';
       const earnings = calculateTotalEarnings(entry);
       const tips = calculateTips(entry);
-      const hourlyRate = earnings / (entry.hoursWorked || 1);
+      const tipPercentage = entry.totalSales > 0 ? (tips / entry.totalSales) * 100 : 0;
       
-      if (!acc[shift]) {
-        acc[shift] = { totalEarnings: 0, totalTips: 0, totalHours: 0, count: 0 };
+      if (!acc[section]) {
+        acc[section] = { 
+          totalEarnings: 0, 
+          totalTips: 0, 
+          totalHours: 0, 
+          totalSales: 0,
+          count: 0,
+          moodSum: 0,
+          moodCount: 0
+        };
       }
-      acc[shift].totalEarnings += earnings;
-      acc[shift].totalTips += tips;
-      acc[shift].totalHours += entry.hoursWorked || 0;
-      acc[shift].count += 1;
+      acc[section].totalEarnings += earnings;
+      acc[section].totalTips += tips;
+      acc[section].totalHours += entry.hoursWorked || 0;
+      acc[section].totalSales += entry.totalSales || 0;
+      acc[section].count += 1;
+      
+      if (entry.moodRating) {
+        acc[section].moodSum += entry.moodRating;
+        acc[section].moodCount += 1;
+      }
+      
       return acc;
-    }, {} as { [key: string]: { totalEarnings: number; totalTips: number; totalHours: number; count: number } });
+    }, {} as { [key: string]: { totalEarnings: number; totalTips: number; totalHours: number; totalSales: number; count: number; moodSum: number; moodCount: number } });
 
-    const shiftStats = Object.entries(shiftAnalysis).map(([shift, stats]) => ({
-      shift,
+    const sectionStats = Object.entries(sectionAnalysis).map(([section, stats]) => ({
+      section,
+      avgEarningsPerHour: stats.totalHours > 0 ? stats.totalEarnings / stats.totalHours : 0,
+      avgTipPercentage: stats.totalSales > 0 ? (stats.totalTips / stats.totalSales) * 100 : 0,
+      avgMood: stats.moodCount > 0 ? stats.moodSum / stats.moodCount : null,
+      count: stats.count,
+      avgEarnings: stats.totalEarnings / stats.count
+    })).sort((a, b) => b.avgEarningsPerHour - a.avgEarningsPerHour);
+
+    // Day + Shift Analysis
+    const dayShiftAnalysis = last30Days.reduce((acc, entry) => {
+      const dayOfWeek = getDay(entry.date);
+      const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayOfWeek];
+      const shiftType = entry.shift || 'PM';
+      const key = `${dayName}-${shiftType}`;
+      const earnings = calculateTotalEarnings(entry);
+      
+      if (!acc[key]) {
+        acc[key] = { totalEarnings: 0, count: 0, dayName, shiftType };
+      }
+      acc[key].totalEarnings += earnings;
+      acc[key].count += 1;
+      return acc;
+    }, {} as { [key: string]: { totalEarnings: number; count: number; dayName: string; shiftType: string } });
+
+    const dayShiftStats = Object.entries(dayShiftAnalysis).map(([key, stats]) => ({
+      key,
+      dayName: stats.dayName,
+      shiftType: stats.shiftType,
       avgEarnings: stats.totalEarnings / stats.count,
-      avgTips: stats.totalTips / stats.count,
-      avgHourlyRate: stats.totalEarnings / stats.totalHours,
       count: stats.count
     })).sort((a, b) => b.avgEarnings - a.avgEarnings);
 
-    // 3. Day of Week Analysis
-    const dayAnalysis = realEntries.reduce((acc, entry) => {
-      const dayOfWeek = getDay(entry.date);
-      const earnings = calculateTotalEarnings(entry);
-      const tips = calculateTips(entry);
-      
-      if (!acc[dayOfWeek]) {
-        acc[dayOfWeek] = { totalEarnings: 0, totalTips: 0, count: 0, shifts: { AM: 0, PM: 0, Double: 0 } };
-      }
-      acc[dayOfWeek].totalEarnings += earnings;
-      acc[dayOfWeek].totalTips += tips;
-      acc[dayOfWeek].count += 1;
-      acc[dayOfWeek].shifts[entry.shift || 'PM'] += 1;
-      return acc;
-    }, {} as { [key: number]: { totalEarnings: number; totalTips: number; count: number; shifts: { AM: number; PM: number; Double: number } } });
+    // Pattern analysis for change-it-up recommendations
+    const recentShifts = sortedEntries.slice(0, 5);
+    const consecutiveShiftType = recentShifts.every(shift => shift.shift === recentShifts[0].shift);
+    const consecutiveSection = recentShifts.every(shift => shift.section === recentShifts[0].section);
 
-    const dayStats = Object.entries(dayAnalysis).map(([day, stats]) => ({
-      day: parseInt(day),
-      dayName: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][parseInt(day)],
-      avgEarnings: stats.totalEarnings / stats.count,
-      avgTips: stats.totalTips / stats.count,
-      count: stats.count,
-      shifts: stats.shifts
-    })).sort((a, b) => b.avgEarnings - a.avgEarnings);
+    // Missing opportunities analysis
+    const allDayShiftCombos = [
+      'Sunday-AM', 'Sunday-PM', 'Sunday-Double',
+      'Monday-AM', 'Monday-PM', 'Monday-Double',
+      'Tuesday-AM', 'Tuesday-PM', 'Tuesday-Double',
+      'Wednesday-AM', 'Wednesday-PM', 'Wednesday-Double',
+      'Thursday-AM', 'Thursday-PM', 'Thursday-Double',
+      'Friday-AM', 'Friday-PM', 'Friday-Double',
+      'Saturday-AM', 'Saturday-PM', 'Saturday-Double'
+    ];
 
-    // 5. Cash vs Credit Analysis
-    const totalCash = realEntries.reduce((sum, entry) => sum + (entry.cashTips || 0), 0);
-    const totalCredit = realEntries.reduce((sum, entry) => sum + (entry.creditTips || 0), 0);
-    const totalTips = totalCash + totalCredit;
-    const cashPercentage = totalTips > 0 ? (totalCash / totalTips) * 100 : 0;
+    const workedCombos = new Set(Object.keys(dayShiftAnalysis));
+    const missedOpportunities = allDayShiftCombos.filter(combo => !workedCombos.has(combo));
 
-    // 6. Next Shift Prediction
-    const today = new Date();
-    const todayDayOfWeek = getDay(today);
-    const todayStats = dayStats.find(d => d.day === todayDayOfWeek);
-    
-    // 7. Wage vs Tip Breakdown
-    const totalWages = realEntries.reduce((sum, entry) => sum + ((entry.hoursWorked || 0) * (entry.hourlyRate || 0)), 0);
-    const totalTipsAmount = realEntries.reduce((sum, entry) => sum + calculateTips(entry), 0);
-    const totalEarnings = totalWages + totalTipsAmount;
-    const wagePercentage = totalEarnings > 0 ? (totalWages / totalEarnings) * 100 : 0;
-    const tipPercentage = totalEarnings > 0 ? (totalTipsAmount / totalEarnings) * 100 : 0;
+    // Guest count analysis for most recent shift
+    const avgGuestCount = last30Days.reduce((sum, entry) => sum + (entry.guestCount || 0), 0) / last30Days.length;
+    const recentGuestCount = mostRecentShift?.guestCount || 0;
 
     return {
-      moodStats,
-      shiftStats,
-      dayStats,
-      cashPercentage,
-      creditPercentage: 100 - cashPercentage,
-      todayStats,
-      wagePercentage,
-      tipPercentage,
-      totalEntries: realEntries.length,
-      totalEarnings,
-      totalTipsAmount,
-      totalWages
+      realEntries,
+      last30Days,
+      mostRecentShift,
+      sectionStats,
+      dayShiftStats,
+      consecutiveShiftType,
+      consecutiveSection,
+      missedOpportunities,
+      avgGuestCount,
+      recentGuestCount
     };
   }, [tipEntries, selectedDate]);
 
@@ -148,23 +148,70 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BarChart3 className="h-5 w-5" />
-            Detailed Insights
+            Insights
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">
-            Keep logging your shifts! Detailed insights will appear after you have at least 3 entries.
+            Keep logging your shifts! Smart insights will appear after you have at least 3 entries.
           </p>
         </CardContent>
       </Card>
     );
   }
 
-  const { moodStats, shiftStats, dayStats, cashPercentage, creditPercentage, todayStats, wagePercentage, tipPercentage, totalEarnings, totalTipsAmount, totalWages } = insightsData;
+  const { 
+    realEntries, 
+    last30Days, 
+    mostRecentShift, 
+    sectionStats, 
+    dayShiftStats, 
+    consecutiveShiftType, 
+    consecutiveSection,
+    missedOpportunities,
+    avgGuestCount,
+    recentGuestCount
+  } = insightsData;
 
-  const bestMood = moodStats[0];
-  const bestShift = shiftStats[0];
-  const bestDay = dayStats[0];
+  // Helper functions for insights
+  const calculateTotalEarnings = (entry: TipEntry) => {
+    const tips = (entry.creditTips || 0) + (entry.cashTips || 0);
+    const wages = (entry.hoursWorked || 0) * (entry.hourlyRate || 0);
+    return tips + wages;
+  };
+
+  const getPerformanceFactors = (shift: TipEntry) => {
+    const factors = [];
+    const earnings = calculateTotalEarnings(shift);
+    const avgEarnings = last30Days.reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0) / last30Days.length;
+    
+    if (earnings > avgEarnings * 1.1) {
+      factors.push({ type: 'positive', text: `Above average earnings (+${((earnings / avgEarnings - 1) * 100).toFixed(0)}%)` });
+    } else if (earnings < avgEarnings * 0.9) {
+      factors.push({ type: 'negative', text: `Below average earnings (-${((1 - earnings / avgEarnings) * 100).toFixed(0)}%)` });
+    }
+
+    const sectionData = sectionStats.find(s => s.section === shift.section?.toString());
+    if (sectionData && sectionStats.indexOf(sectionData) < sectionStats.length / 2) {
+      factors.push({ type: 'positive', text: `Section ${shift.section} is one of your better performers` });
+    }
+
+    if (shift.guestCount && shift.guestCount < 8) {
+      factors.push({ type: 'positive', text: 'Lower guest count often leads to better service quality' });
+    } else if (shift.guestCount && shift.guestCount > 15) {
+      factors.push({ type: 'negative', text: 'High guest count can impact service quality' });
+    }
+
+    if (shift.moodRating && shift.moodRating >= 4) {
+      factors.push({ type: 'positive', text: 'Great mood typically correlates with higher earnings' });
+    } else if (shift.moodRating && shift.moodRating <= 2) {
+      factors.push({ type: 'negative', text: 'Low mood may have impacted performance' });
+    }
+
+    return factors;
+  };
+
+  const recentShiftFactors = mostRecentShift ? getPerformanceFactors(mostRecentShift) : [];
 
   return (
     <div className="space-y-6">
@@ -175,185 +222,233 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
             <Lightbulb className="h-6 w-6" />
             Insights
           </CardTitle>
-          <p className="body-md text-muted-foreground">Comprehensive insights from your {insightsData.totalEntries} logged shifts</p>
+          <p className="text-sm text-muted-foreground">
+            Smart recommendations based on your last 30 days ({last30Days.length} shifts)
+          </p>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Next Shift Prediction */}
-          {todayStats && (
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <h4 className="font-medium text-blue-800 mb-2">Today's Shift Prediction</h4>
-              <p className="text-sm text-blue-700">
-                Based on your past {todayStats.count} {todayStats.dayName} shifts, you typically earn ${todayStats.avgEarnings.toFixed(0)} in total earnings.
-              </p>
-              {bestShift && (
-                <p className="text-xs text-blue-600 mt-1">
-                  Tip: {bestShift.shift} shifts tend to be your most profitable overall.
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Shift Match Score */}
-          {bestDay && bestShift && (
-            <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
-              <h4 className="font-medium text-purple-800 mb-2">Your Best-Fit Shifts</h4>
-              <p className="text-sm text-purple-700">
-                For maximum earnings: {bestDay.dayName} {bestShift.shift} shifts
-              </p>
-              <div className="flex gap-2 mt-2">
-                <Badge variant="secondary" className="text-xs">
-                  ${bestDay.avgEarnings.toFixed(0)} avg day
-                </Badge>
-                <Badge variant="secondary" className="text-xs">
-                  ${bestShift.avgEarnings.toFixed(0)} avg shift
-                </Badge>
-              </div>
-            </div>
-          )}
-
-          {/* Best Days */}
-          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-            <h4 className="font-medium text-green-800 mb-2">Best Days to Work</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              {dayStats.slice(0, 4).map((day, index) => (
-                <div key={day.day} className="text-center p-2 bg-white rounded">
-                  <div className="text-sm font-medium">{day.dayName}</div>
-                  <div className="text-xs text-green-700">${day.avgEarnings.toFixed(0)}</div>
-                  <div className="text-xs text-muted-foreground">{day.count} shifts</div>
-                </div>
-              ))}
-            </div>
-            {bestDay && (
-              <p className="text-sm text-green-700 mt-3">
-                You average {((bestDay.avgEarnings / dayStats[dayStats.length - 1]?.avgEarnings - 1) * 100 || 0).toFixed(0)}% higher earnings on {bestDay.dayName}s.
-              </p>
-            )}
-          </div>
-        </CardContent>
       </Card>
 
-
-      {/* Mood vs Earnings */}
-      {moodStats.length > 0 && (
+      {/* 1. Shift Performance Breakdown */}
+      {mostRecentShift && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Heart className="h-5 w-5" />
-              Mood vs Earnings Insights
+              <BarChart3 className="h-5 w-5" />
+              Recent Shift Analysis
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {bestMood && (
-              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-sm font-medium text-green-800">
-                  You earn the most when feeling good! On {bestMood.mood}/5 days, you average ${bestMood.avgEarnings.toFixed(0)} total earnings.
-                </p>
-                <p className="text-xs text-green-600 mt-1">
-                  Morale matters — you've worked {bestMood.count} shifts at this mood level.
-                </p>
-              </div>
-            )}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-              {moodStats.map(mood => (
-                <div key={mood.mood} className="text-center p-2 bg-muted/50 rounded">
-                  <div className="text-lg font-bold">{mood.mood}/5</div>
-                  <div className="text-xs text-muted-foreground">${mood.avgEarnings.toFixed(0)}</div>
-                  <div className="text-xs text-muted-foreground">{mood.count} shifts</div>
+            <div className="p-4 border rounded-lg">
+              <div className="flex justify-between items-start mb-3">
+                <div>
+                  <p className="font-medium">
+                    {format(mostRecentShift.date, 'EEEE, MMM d')} - {mostRecentShift.shift} Shift
+                  </p>
+                  <p className="text-sm text-muted-foreground">Section {mostRecentShift.section}</p>
                 </div>
-              ))}
+                <div className="text-right">
+                  <p className="text-lg font-bold">${calculateTotalEarnings(mostRecentShift).toFixed(0)}</p>
+                  <p className="text-sm text-muted-foreground">Total earnings</p>
+                </div>
+              </div>
+              
+              {recentShiftFactors.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Performance factors:</p>
+                  {recentShiftFactors.map((factor, index) => (
+                    <div key={index} className={`flex items-center gap-2 text-sm ${
+                      factor.type === 'positive' ? 'text-green-700' : 'text-red-700'
+                    }`}>
+                      {factor.type === 'positive' ? 
+                        <CheckCircle className="h-4 w-4" /> : 
+                        <AlertTriangle className="h-4 w-4" />
+                      }
+                      {factor.text}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Shift Performance */}
+      {/* 2. Recommended Sections */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5" />
-            Performance by Shift Type
+            <MapPin className="h-5 w-5" />
+            Recommended Sections
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {shiftStats.map(shift => (
-            <div key={shift.shift} className="flex justify-between items-center p-3 bg-muted/30 rounded">
-              <div>
-                <div className="font-medium">{shift.shift} Shifts</div>
-                <div className="text-xs text-muted-foreground">{shift.count} worked</div>
+          {sectionStats.slice(0, 4).map((section, index) => (
+            <div key={section.section} className="flex justify-between items-center p-3 border rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                  index === 0 ? 'bg-yellow-100 text-yellow-800' :
+                  index === 1 ? 'bg-gray-100 text-gray-800' :
+                  index === 2 ? 'bg-orange-100 text-orange-800' :
+                  'bg-blue-100 text-blue-800'
+                }`}>
+                  {index + 1}
+                </div>
+                <div>
+                  <p className="font-medium">Section {section.section}</p>
+                  <p className="text-sm text-muted-foreground">{section.count} shifts worked</p>
+                </div>
               </div>
               <div className="text-right">
-                <div className="font-bold">${shift.avgEarnings.toFixed(0)}</div>
-                <div className="text-xs text-muted-foreground">${shift.avgHourlyRate.toFixed(0)}/hr</div>
+                <p className="font-bold">${section.avgEarningsPerHour.toFixed(0)}/hr</p>
+                <p className="text-sm text-muted-foreground">{section.avgTipPercentage.toFixed(1)}% tip rate</p>
+                {section.avgMood && (
+                  <p className="text-xs text-muted-foreground">😊 {section.avgMood.toFixed(1)}/5</p>
+                )}
               </div>
             </div>
           ))}
-          {bestShift && (
-            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg mt-3">
+          
+          {sectionStats.length > 1 && (
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm font-medium text-blue-800">
-                {bestShift.shift} shifts are your most profitable at ${bestShift.avgEarnings.toFixed(0)} average earnings
+                💡 You earn {((sectionStats[0].avgEarningsPerHour / sectionStats[sectionStats.length - 1].avgEarningsPerHour - 1) * 100).toFixed(0)}% more per hour in Section {sectionStats[0].section} vs Section {sectionStats[sectionStats.length - 1].section}
               </p>
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Payment & Earnings Breakdown */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Cash vs Credit */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <PieChart className="h-5 w-5" />
-              Cash vs Credit Tips
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Cash Tips</span>
-                <span>{cashPercentage.toFixed(1)}%</span>
+      {/* 3. Smart Shift Suggestions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="h-5 w-5" />
+            Smart Shift Suggestions
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-3">
+            {dayShiftStats.slice(0, 3).map((combo, index) => (
+              <div key={combo.key} className="flex justify-between items-center p-3 bg-green-50 border border-green-200 rounded-lg">
+                <div>
+                  <p className="font-medium">{combo.dayName} {combo.shiftType}</p>
+                  <p className="text-sm text-muted-foreground">{combo.count} shifts worked</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold text-green-700">${combo.avgEarnings.toFixed(0)}</p>
+                  <p className="text-sm text-green-600">avg earnings</p>
+                </div>
               </div>
-              <Progress value={cashPercentage} className="h-2" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Credit Tips</span>
-                <span>{creditPercentage.toFixed(1)}%</span>
-              </div>
-              <Progress value={creditPercentage} className="h-2" />
-            </div>
-            <div className="text-xs text-muted-foreground">
-              Helpful for planning cash-on-hand needs and payout timing
-            </div>
-          </CardContent>
-        </Card>
+            ))}
+          </div>
 
-        {/* Wage vs Tips */}
+          {missedOpportunities.length > 0 && (
+            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-sm font-medium text-yellow-800 mb-2">Untapped opportunities:</p>
+              <div className="grid grid-cols-2 gap-2">
+                {missedOpportunities.slice(0, 4).map(combo => {
+                  const [day, shift] = combo.split('-');
+                  return (
+                    <p key={combo} className="text-sm text-yellow-700">
+                      {day} {shift}
+                    </p>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-yellow-600 mt-2">
+                Try picking up one of these shift types to discover new earning potential
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* 4. Change-It-Up Recommendations */}
+      {(consecutiveShiftType || consecutiveSection) && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5" />
-              Wage vs Tip Breakdown
+              <Shuffle className="h-5 w-5" />
+              Change-It-Up Recommendations
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4 text-center">
-              <div className="p-3 bg-green-50 rounded">
-                <div className="text-2xl font-bold text-green-700">${totalTipsAmount.toFixed(0)}</div>
-                <div className="text-xs text-green-600">Total Tips ({tipPercentage.toFixed(0)}%)</div>
+          <CardContent className="space-y-3">
+            {consecutiveShiftType && (
+              <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                <p className="text-sm font-medium text-orange-800">
+                  🔄 You've worked {mostRecentShift?.shift} shifts recently
+                </p>
+                <p className="text-sm text-orange-700 mt-1">
+                  Consider trying a different shift type to reset and potentially discover new earning patterns
+                </p>
               </div>
-              <div className="p-3 bg-blue-50 rounded">
-                <div className="text-2xl font-bold text-blue-700">${totalWages.toFixed(0)}</div>
-                <div className="text-xs text-blue-600">Total Wages ({wagePercentage.toFixed(0)}%)</div>
+            )}
+            
+            {consecutiveSection && (
+              <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                <p className="text-sm font-medium text-purple-800">
+                  📍 You've been working Section {mostRecentShift?.section} frequently
+                </p>
+                <p className="text-sm text-purple-700 mt-1">
+                  Try rotating to {sectionStats.find(s => s.section !== mostRecentShift?.section?.toString())?.section ? `Section ${sectionStats.find(s => s.section !== mostRecentShift?.section?.toString())?.section}` : 'a different section'} for variety
+                </p>
               </div>
-            </div>
-            <div className="text-center">
-              <div className="text-lg font-bold">${totalEarnings.toFixed(0)}</div>
-              <div className="text-xs text-muted-foreground">Total Earnings</div>
-            </div>
+            )}
+
+            {recentGuestCount > avgGuestCount * 1.2 && (
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm font-medium text-blue-800">
+                  👥 Recent guest counts have been high ({recentGuestCount} vs {avgGuestCount.toFixed(0)} avg)
+                </p>
+                <p className="text-sm text-blue-700 mt-1">
+                  Consider requesting a slower section to focus on service quality
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
-      </div>
+      )}
+
+      {/* 5. Insights Feed */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Zap className="h-5 w-5" />
+            Quick Tips
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {dayShiftStats[0] && (
+            <div className="p-3 bg-gradient-to-r from-green-50 to-blue-50 border rounded-lg">
+              <p className="text-sm font-medium">
+                🏆 {dayShiftStats[0].dayName} {dayShiftStats[0].shiftType} shifts are your top earners — try grabbing one this week!
+              </p>
+            </div>
+          )}
+          
+          {sectionStats[0] && sectionStats[0].avgMood && sectionStats[0].avgMood > 4 && (
+            <div className="p-3 bg-gradient-to-r from-yellow-50 to-green-50 border rounded-lg">
+              <p className="text-sm font-medium">
+                😊 Section {sectionStats[0].section} correlates with higher mood ratings ({sectionStats[0].avgMood.toFixed(1)}/5)
+              </p>
+            </div>
+          )}
+          
+          {sectionStats.length > 1 && (
+            <div className="p-3 bg-gradient-to-r from-orange-50 to-red-50 border rounded-lg">
+              <p className="text-sm font-medium">
+                📊 Section {sectionStats[sectionStats.length - 1].section} underperforms — consider switching when possible
+              </p>
+            </div>
+          )}
+
+          <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 border rounded-lg">
+            <p className="text-sm font-medium">
+              💡 Based on {last30Days.length} recent shifts, your earning patterns show clear optimization opportunities
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
