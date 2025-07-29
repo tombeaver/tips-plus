@@ -231,8 +231,8 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
       {/* 1. Shift Performance Breakdown */}
       {mostRecentShift && (
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+          <CardHeader className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-t-lg">
+            <CardTitle className="flex items-center gap-2 text-white">
               <BarChart3 className="h-5 w-5" />
               Recent Shift Analysis
             </CardTitle>
@@ -275,8 +275,8 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
 
       {/* 2. Recommended Sections */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+        <CardHeader className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-t-lg">
+          <CardTitle className="flex items-center gap-2 text-white">
             <MapPin className="h-5 w-5" />
             Recommended Sections
           </CardTitle>
@@ -320,8 +320,8 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
 
       {/* 3. Smart Shift Suggestions */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+        <CardHeader className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-t-lg">
+          <CardTitle className="flex items-center gap-2 text-white">
             <Calendar className="h-5 w-5" />
             Smart Shift Suggestions
           </CardTitle>
@@ -366,8 +366,8 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
       {/* 4. Change-It-Up Recommendations */}
       {(consecutiveShiftType || consecutiveSection) && (
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+          <CardHeader className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-t-lg">
+            <CardTitle className="flex items-center gap-2 text-white">
               <Shuffle className="h-5 w-5" />
               Change-It-Up Recommendations
             </CardTitle>
@@ -411,8 +411,8 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
 
       {/* 5. Insights Feed */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+        <CardHeader className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-t-lg">
+          <CardTitle className="flex items-center gap-2 text-white">
             <Zap className="h-5 w-5" />
             Quick Tips
           </CardTitle>
