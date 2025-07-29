@@ -332,7 +332,7 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
           </div>
 
           {missedOpportunities.length > 0 && (
-            <div className="p-4">
+            <div className="p-2">
               <p className="text-sm font-medium text-white mb-2">Untapped opportunities:</p>
               <div className="grid grid-cols-2 gap-2">
                 {missedOpportunities.slice(0, 4).map(combo => {
@@ -362,7 +362,7 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
           </CardHeader>
           <CardContent className="space-y-3">
             {consecutiveShiftType && (
-              <div className="p-4">
+              <div className="p-2">
                 <p className="text-sm font-medium text-white">
                   🔄 You've worked {mostRecentShift?.shift} shifts recently
                 </p>
@@ -373,7 +373,7 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
             )}
             
             {consecutiveSection && (
-              <div className="p-4">
+              <div className="p-2">
                 <p className="text-sm font-medium text-white">
                   📍 You've been working Section {mostRecentShift?.section} frequently
                 </p>
@@ -384,7 +384,7 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
             )}
 
             {recentGuestCount > avgGuestCount * 1.2 && (
-              <div className="p-4">
+              <div className="p-2">
                 <p className="text-sm font-medium text-white">
                   👥 Recent guest counts have been high ({recentGuestCount} vs {avgGuestCount.toFixed(0)} avg)
                 </p>
