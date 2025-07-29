@@ -336,7 +336,7 @@ const Index = () => {
                             <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
                               <Users className="w-5 h-5 text-amber-600" />
                             </div>
-                            <span className="text-muted-foreground">Guest Count</span>
+                            <span className="text-muted-foreground">Guest</span>
                           </div>
                           <div className="text-2xl font-bold text-amber-600">
                             {selectedEntry.guestCount}
@@ -348,10 +348,10 @@ const Index = () => {
                             <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                               <Receipt className="w-5 h-5 text-blue-600" />
                             </div>
-                            <span className="text-muted-foreground">{selectedEntry.section}</span>
+                            <span className="text-muted-foreground">Section</span>
                           </div>
-                          <div className="text-lg font-semibold text-blue-600">
-                            Section
+                          <div className="text-2xl font-bold text-blue-600">
+                            {selectedEntry.section}
                           </div>
                         </div>
                       </div>
