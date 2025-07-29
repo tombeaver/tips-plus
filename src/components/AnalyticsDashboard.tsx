@@ -161,11 +161,13 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
     const sectionMap = new Map();
     
     filteredEntries.forEach(entry => {
+      const totalEarnings = entry.creditTips + entry.cashTips + (entry.hoursWorked * entry.hourlyRate);
       const existing = sectionMap.get(entry.section) || {
         section: entry.section,
         totalTips: 0,
         totalSales: 0,
         totalGuests: 0,
+        totalEarnings: 0,
         shifts: 0
       };
       
@@ -174,6 +176,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         totalTips: existing.totalTips + entry.creditTips + entry.cashTips,
         totalSales: existing.totalSales + entry.totalSales,
         totalGuests: existing.totalGuests + entry.guestCount,
+        totalEarnings: existing.totalEarnings + totalEarnings,
         shifts: existing.shifts + 1
       });
     });
@@ -182,8 +185,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       ...section,
       averageTipPercentage: section.totalSales > 0 ? (section.totalTips / section.totalSales) * 100 : 0,
       averagePerGuest: section.totalGuests > 0 ? section.totalTips / section.totalGuests : 0,
-      averageTipsPerShift: section.shifts > 0 ? section.totalTips / section.shifts : 0
-    })).sort((a, b) => b.totalTips - a.totalTips);
+      averageEarningsPerShift: section.shifts > 0 ? section.totalEarnings / section.shifts : 0
+    })).sort((a, b) => b.averageEarningsPerShift - a.averageEarningsPerShift);
   }, [filteredEntries]);
 
   const dayStats = useMemo(() => {
@@ -193,6 +196,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
     filteredEntries.forEach(entry => {
       const dayIndex = getDay(entry.date);
       const dayName = dayNames[dayIndex];
+      const totalEarnings = entry.creditTips + entry.cashTips + (entry.hoursWorked * entry.hourlyRate);
       
       const existing = dayMap.get(dayName) || {
         day: dayName,
@@ -200,6 +204,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         totalTips: 0,
         totalSales: 0,
         totalGuests: 0,
+        totalEarnings: 0,
         shifts: 0
       };
       
@@ -208,6 +213,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         totalTips: existing.totalTips + entry.creditTips + entry.cashTips,
         totalSales: existing.totalSales + entry.totalSales,
         totalGuests: existing.totalGuests + entry.guestCount,
+        totalEarnings: existing.totalEarnings + totalEarnings,
         shifts: existing.shifts + 1
       });
     });
@@ -216,8 +222,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       ...day,
       averageTipPercentage: day.totalSales > 0 ? (day.totalTips / day.totalSales) * 100 : 0,
       averagePerGuest: day.totalGuests > 0 ? day.totalTips / day.totalGuests : 0,
-      averageTipsPerShift: day.shifts > 0 ? day.totalTips / day.shifts : 0
-    })).sort((a, b) => b.averageTipsPerShift - a.averageTipsPerShift);
+      averageEarningsPerShift: day.shifts > 0 ? day.totalEarnings / day.shifts : 0
+    })).sort((a, b) => b.averageEarningsPerShift - a.averageEarningsPerShift);
   }, [filteredEntries]);
 
   const trendData = useMemo(() => {
@@ -443,7 +449,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-white/80 text-sm font-medium">Average Hourly Rate</p>
+                    <p className="text-white/80 text-sm font-medium">Avg Hourly Rate</p>
                     <p className="text-3xl font-bold text-white">${stats.earningsPerHour.toFixed(2)}</p>
                     <p className="text-white/70 text-xs mt-1">
                       Total earnings ÷ Hours worked
@@ -458,7 +464,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-white/80 text-sm font-medium">Average Daily Income</p>
+                    <p className="text-white/80 text-sm font-medium">Avg Daily Income</p>
                     <p className="text-3xl font-bold text-white">
                       ${stats.shiftsWorked > 0 ? (stats.totalEarnings / stats.shiftsWorked).toFixed(2) : '0.00'}
                     </p>
@@ -472,85 +478,80 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
             </Card>
           </div>
 
-          {/* Money & Income Metrics List */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <DollarSign className="h-5 w-5" />
-                Financial Metrics
-              </CardTitle>
-              <CardDescription>Detailed breakdown of your earnings and performance</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Total Tips</p>
-                        <p className="text-xl font-bold text-emerald-600">${stats.totalTips.toFixed(2)}</p>
-                      </div>
-                      <HandCoins className="h-6 w-6 text-emerald-600" />
-                    </div>
+          {/* Individual Metric Cards */}
+          <div className="grid grid-cols-2 gap-4">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Tips</p>
+                    <p className="text-xl font-bold text-emerald-600">${stats.totalTips.toFixed(2)}</p>
                   </div>
-                  
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Tips per Hour</p>
-                        <p className="text-xl font-bold text-blue-600">${stats.tipsPerHour.toFixed(2)}</p>
-                      </div>
-                      <Clock className="h-6 w-6 text-blue-600" />
-                    </div>
-                  </div>
+                  <HandCoins className="h-6 w-6 text-emerald-600" />
                 </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Average per Guest</p>
-                        <p className="text-xl font-bold text-orange-600">${stats.averagePerGuest.toFixed(2)}</p>
-                      </div>
-                      <Users className="h-6 w-6 text-orange-600" />
-                    </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Tips per Hour</p>
+                    <p className="text-xl font-bold text-blue-600">${stats.tipsPerHour.toFixed(2)}</p>
                   </div>
-                  
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Average Tip %</p>
-                        <p className="text-xl font-bold text-purple-600">{stats.averageTipPercentage.toFixed(1)}%</p>
-                      </div>
-                      <Percent className="h-6 w-6 text-purple-600" />
-                    </div>
-                  </div>
+                  <Clock className="h-6 w-6 text-blue-600" />
                 </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Total Shifts</p>
-                        <p className="text-xl font-bold text-slate-600">{stats.shiftsWorked}</p>
-                      </div>
-                      <Calendar className="h-6 w-6 text-slate-600" />
-                    </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Avg per Guest</p>
+                    <p className="text-xl font-bold text-orange-600">${stats.averagePerGuest.toFixed(2)}</p>
                   </div>
-                  
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Total Hours</p>
-                        <p className="text-xl font-bold text-indigo-600">{stats.totalHours.toFixed(1)}</p>
-                      </div>
-                      <Clock className="h-6 w-6 text-indigo-600" />
-                    </div>
-                  </div>
+                  <Users className="h-6 w-6 text-orange-600" />
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Avg Tip %</p>
+                    <p className="text-xl font-bold text-purple-600">{stats.averageTipPercentage.toFixed(1)}%</p>
+                  </div>
+                  <Percent className="h-6 w-6 text-purple-600" />
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Shifts</p>
+                    <p className="text-xl font-bold text-slate-600">{stats.shiftsWorked}</p>
+                  </div>
+                  <Calendar className="h-6 w-6 text-slate-600" />
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Hours</p>
+                    <p className="text-xl font-bold text-indigo-600">{stats.totalHours.toFixed(1)}</p>
+                  </div>
+                  <Clock className="h-6 w-6 text-indigo-600" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
           {/* Performance Analysis */}
           <Card>
@@ -581,13 +582,13 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                                 label={({ section, percent }) => `${section} ${(percent * 100).toFixed(0)}%`}
                                 outerRadius={80}
                                 fill="#8884d8"
-                                dataKey="averageTipsPerShift"
+                                dataKey="averageEarningsPerShift"
                               >
                                 {sectionStats.map((entry, index) => (
                                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                 ))}
                               </Pie>
-                              <Tooltip formatter={(value) => [`$${value}`, 'Avg Tips/Shift']} />
+                              <Tooltip formatter={(value) => [`$${value}`, 'Avg Earnings/Shift']} />
                             </PieChart>
                           </ResponsiveContainer>
                         </div>
@@ -609,13 +610,13 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                                 label={({ day, percent }) => `${day.slice(0, 3)} ${(percent * 100).toFixed(0)}%`}
                                 outerRadius={80}
                                 fill="#8884d8"
-                                dataKey="averageTipsPerShift"
+                                dataKey="averageEarningsPerShift"
                               >
                                 {dayStats.map((entry, index) => (
                                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                 ))}
                               </Pie>
-                              <Tooltip formatter={(value) => [`$${value}`, 'Avg Tips/Shift']} />
+                              <Tooltip formatter={(value) => [`$${value}`, 'Avg Earnings/Shift']} />
                             </PieChart>
                           </ResponsiveContainer>
                         </div>
@@ -631,7 +632,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                         <div className="flex items-center justify-between mb-2">
                           <h4 className="font-medium">Section {section.section}</h4>
                           <span className="text-lg font-bold text-green-600">
-                            ${section.totalTips.toFixed(2)}
+                            ${section.averageEarningsPerShift.toFixed(2)}/shift
                           </span>
                         </div>
                         <div className="grid grid-cols-3 gap-2 text-sm text-gray-600">
@@ -663,7 +664,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                             {day.day}
                           </h4>
                           <span className="text-lg font-bold text-green-600">
-                            ${day.averageTipsPerShift.toFixed(2)}/shift
+                            ${day.averageEarningsPerShift.toFixed(2)}/shift
                           </span>
                         </div>
                         <div className="grid grid-cols-3 gap-2 text-sm text-gray-600">
