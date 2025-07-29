@@ -281,34 +281,34 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
         </CardHeader>
         <CardContent className="space-y-3">
           {sectionStats.slice(0, 4).map((section, index) => (
-            <div key={section.section} className="flex justify-between items-center p-3 border rounded-lg">
+            <div key={section.section} className="flex justify-between items-center p-3 border border-white/20 rounded-lg">
               <div className="flex items-center gap-3">
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                  index === 0 ? 'bg-yellow-100 text-yellow-800' :
-                  index === 1 ? 'bg-gray-100 text-gray-800' :
-                  index === 2 ? 'bg-orange-100 text-orange-800' :
-                  'bg-blue-100 text-blue-800'
+                  index === 0 ? 'bg-yellow-400 text-yellow-900' :
+                  index === 1 ? 'bg-white text-emerald-600' :
+                  index === 2 ? 'bg-orange-300 text-orange-900' :
+                  'bg-blue-300 text-blue-900'
                 }`}>
                   {index + 1}
                 </div>
                 <div>
-                  <p className="font-medium">Section {section.section}</p>
-                  <p className="text-sm text-muted-foreground">{section.count} shifts worked</p>
+                  <p className="font-medium text-white">Section {section.section}</p>
+                  <p className="text-sm text-white/70">{section.count} shifts worked</p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="font-bold">${section.avgEarningsPerHour.toFixed(0)}/hr</p>
-                <p className="text-sm text-muted-foreground">{section.avgTipPercentage.toFixed(1)}% tip rate</p>
+                <p className="font-bold text-white">${section.avgEarningsPerHour.toFixed(0)}/hr</p>
+                <p className="text-sm text-white/70">{section.avgTipPercentage.toFixed(1)}% tip rate</p>
                 {section.avgMood && (
-                  <p className="text-xs text-muted-foreground">😊 {section.avgMood.toFixed(1)}/5</p>
+                  <p className="text-xs text-white/60">😊 {section.avgMood.toFixed(1)}/5</p>
                 )}
               </div>
             </div>
           ))}
           
           {sectionStats.length > 1 && (
-            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-sm font-medium text-blue-800">
+            <div className="p-3 border border-white/20 rounded-lg">
+              <p className="text-sm font-medium text-white">
                 💡 You earn {((sectionStats[0].avgEarningsPerHour / sectionStats[sectionStats.length - 1].avgEarningsPerHour - 1) * 100).toFixed(0)}% more per hour in Section {sectionStats[0].section} vs Section {sectionStats[sectionStats.length - 1].section}
               </p>
             </div>
@@ -326,33 +326,33 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
         <CardContent className="space-y-4">
           <div className="grid gap-3">
             {dayShiftStats.slice(0, 3).map((combo, index) => (
-              <div key={combo.key} className="flex justify-between items-center p-3 bg-green-50 border border-green-200 rounded-lg">
+              <div key={combo.key} className="flex justify-between items-center p-3 border border-white/20 rounded-lg">
                 <div>
-                  <p className="font-medium">{combo.dayName} {combo.shiftType}</p>
-                  <p className="text-sm text-muted-foreground">{combo.count} shifts worked</p>
+                  <p className="font-medium text-white">{combo.dayName} {combo.shiftType}</p>
+                  <p className="text-sm text-white/70">{combo.count} shifts worked</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-green-700">${combo.avgEarnings.toFixed(0)}</p>
-                  <p className="text-sm text-green-600">avg earnings</p>
+                  <p className="font-bold text-white">${combo.avgEarnings.toFixed(0)}</p>
+                  <p className="text-sm text-white/70">avg earnings</p>
                 </div>
               </div>
             ))}
           </div>
 
           {missedOpportunities.length > 0 && (
-            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-sm font-medium text-yellow-800 mb-2">Untapped opportunities:</p>
+            <div className="p-4 border border-white/20 rounded-lg">
+              <p className="text-sm font-medium text-white mb-2">Untapped opportunities:</p>
               <div className="grid grid-cols-2 gap-2">
                 {missedOpportunities.slice(0, 4).map(combo => {
                   const [day, shift] = combo.split('-');
                   return (
-                    <p key={combo} className="text-sm text-yellow-700">
+                    <p key={combo} className="text-sm text-white/80">
                       {day} {shift}
                     </p>
                   );
                 })}
               </div>
-              <p className="text-xs text-yellow-600 mt-2">
+              <p className="text-xs text-white/70 mt-2">
                 Try picking up one of these shift types to discover new earning potential
               </p>
             </div>
@@ -370,33 +370,33 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
           </CardHeader>
           <CardContent className="space-y-3">
             {consecutiveShiftType && (
-              <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                <p className="text-sm font-medium text-orange-800">
+              <div className="p-4 border border-white/20 rounded-lg">
+                <p className="text-sm font-medium text-white">
                   🔄 You've worked {mostRecentShift?.shift} shifts recently
                 </p>
-                <p className="text-sm text-orange-700 mt-1">
+                <p className="text-sm text-white/80 mt-1">
                   Consider trying a different shift type to reset and potentially discover new earning patterns
                 </p>
               </div>
             )}
             
             {consecutiveSection && (
-              <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                <p className="text-sm font-medium text-purple-800">
+              <div className="p-4 border border-white/20 rounded-lg">
+                <p className="text-sm font-medium text-white">
                   📍 You've been working Section {mostRecentShift?.section} frequently
                 </p>
-                <p className="text-sm text-purple-700 mt-1">
+                <p className="text-sm text-white/80 mt-1">
                   Try rotating to {sectionStats.find(s => s.section !== mostRecentShift?.section?.toString())?.section ? `Section ${sectionStats.find(s => s.section !== mostRecentShift?.section?.toString())?.section}` : 'a different section'} for variety
                 </p>
               </div>
             )}
 
             {recentGuestCount > avgGuestCount * 1.2 && (
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm font-medium text-blue-800">
+              <div className="p-4 border border-white/20 rounded-lg">
+                <p className="text-sm font-medium text-white">
                   👥 Recent guest counts have been high ({recentGuestCount} vs {avgGuestCount.toFixed(0)} avg)
                 </p>
-                <p className="text-sm text-blue-700 mt-1">
+                <p className="text-sm text-white/80 mt-1">
                   Consider requesting a slower section to focus on service quality
                 </p>
               </div>
@@ -414,31 +414,31 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
         </CardHeader>
         <CardContent className="space-y-3">
           {dayShiftStats[0] && (
-            <div className="p-3 bg-gradient-to-r from-green-50 to-blue-50 border rounded-lg">
-              <p className="text-sm font-medium">
+            <div className="p-3 border border-white/20 rounded-lg">
+              <p className="text-sm font-medium text-white">
                 🏆 {dayShiftStats[0].dayName} {dayShiftStats[0].shiftType} shifts are your top earners — try grabbing one this week!
               </p>
             </div>
           )}
           
           {sectionStats[0] && sectionStats[0].avgMood && sectionStats[0].avgMood > 4 && (
-            <div className="p-3 bg-gradient-to-r from-yellow-50 to-green-50 border rounded-lg">
-              <p className="text-sm font-medium">
+            <div className="p-3 border border-white/20 rounded-lg">
+              <p className="text-sm font-medium text-white">
                 😊 Section {sectionStats[0].section} correlates with higher mood ratings ({sectionStats[0].avgMood.toFixed(1)}/5)
               </p>
             </div>
           )}
           
           {sectionStats.length > 1 && (
-            <div className="p-3 bg-gradient-to-r from-orange-50 to-red-50 border rounded-lg">
-              <p className="text-sm font-medium">
+            <div className="p-3 border border-white/20 rounded-lg">
+              <p className="text-sm font-medium text-white">
                 📊 Section {sectionStats[sectionStats.length - 1].section} underperforms — consider switching when possible
               </p>
             </div>
           )}
 
-          <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 border rounded-lg">
-            <p className="text-sm font-medium">
+          <div className="p-3 border border-white/20 rounded-lg">
+            <p className="text-sm font-medium text-white">
               💡 Based on {last30Days.length} recent shifts, your earning patterns show clear optimization opportunities
             </p>
           </div>
