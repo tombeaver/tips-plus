@@ -167,260 +167,219 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({ goals, onAddGoal, on
         </CardHeader>
       </Card>
 
-      {/* Goals Tabs */}
-      <Tabs defaultValue="goals" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-card/50 backdrop-blur-sm border shadow-sm">
-          <TabsTrigger value="goals" className="flex items-center gap-1">
-            <Target className="h-4 w-4" />
-            Goals
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center gap-1">
-            <TrendingUp className="h-4 w-4" />
-            Analytics
-          </TabsTrigger>
-          <TabsTrigger value="tips" className="flex items-center gap-1">
-            <Clock className="h-4 w-4" />
-            Tips
-          </TabsTrigger>
-        </TabsList>
+      {/* Goal Management */}
+      <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+        <CardHeader>
+          <CardTitle className="text-white text-lg">
+            Goal Management
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {showForm && (
+            <div className="mb-6">
+              <GoalSettingsForm
+                editingGoal={editingGoal}
+                onSubmit={handleSubmitGoal}
+                onCancel={cancelForm}
+                availableGoalTypes={editingGoal ? [editingGoal.type] : availableGoalTypes}
+              />
+            </div>
+          )}
+          
+          {!showForm && goals.length === 0 && (
+            <div className="text-center py-8">
+              <Target className="h-12 w-12 mx-auto text-white/60 mb-4" />
+              <h3 className="text-lg font-medium mb-2 text-white">No goals set yet</h3>
+              <p className="text-white/80 mb-4">Start by setting your first earning goal</p>
+              <Button onClick={() => setShowForm(true)} variant="secondary">
+                <Plus className="h-4 w-4 mr-2" />
+                Set Your First Goal
+              </Button>
+            </div>
+          )}
 
-        {/* Goals Tab */}
-        <TabsContent value="goals" className="space-group">
-          <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
-            <CardHeader>
-              <CardTitle className="text-white text-lg">
-                Goal Management
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {showForm && (
-                <div className="mb-6">
-                  <GoalSettingsForm
-                    editingGoal={editingGoal}
-                    onSubmit={handleSubmitGoal}
-                    onCancel={cancelForm}
-                    availableGoalTypes={editingGoal ? [editingGoal.type] : availableGoalTypes}
-                  />
-                </div>
-              )}
-              
-              {!showForm && goals.length === 0 && (
-                <div className="text-center py-8">
-                  <Target className="h-12 w-12 mx-auto text-white/60 mb-4" />
-                  <h3 className="text-lg font-medium mb-2 text-white">No goals set yet</h3>
-                  <p className="text-white/80 mb-4">Start by setting your first earning goal</p>
-                  <Button onClick={() => setShowForm(true)} variant="secondary">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Set Your First Goal
-                  </Button>
-                </div>
-              )}
-              
-              {!showForm && goals.length > 0 && !allGoalTypesSet && (
-                <div className="mb-4">
-                  <Button onClick={() => setShowForm(true)} variant="secondary">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add New Goal
-                  </Button>
-                </div>
-              )}
-              
-              {!showForm && allGoalTypesSet && (
-                <div className="mb-4 p-3 bg-white/10 rounded-lg border border-white/20">
-                  <p className="text-sm text-white/80">
-                    All goal types are set! Edit or delete existing goals to add new ones.
-                  </p>
-                </div>
-              )}
+          {/* Goal Type Tabs */}
+          {!showForm && goals.length > 0 && (
+            <Tabs defaultValue="daily" className="w-full">
+              <TabsList className="grid w-full grid-cols-4 bg-white/10 backdrop-blur-sm border border-white/20">
+                <TabsTrigger value="daily" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">
+                  Daily
+                </TabsTrigger>
+                <TabsTrigger value="weekly" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">
+                  Weekly
+                </TabsTrigger>
+                <TabsTrigger value="monthly" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">
+                  Monthly
+                </TabsTrigger>
+                <TabsTrigger value="yearly" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">
+                  Yearly
+                </TabsTrigger>
+              </TabsList>
 
-              {/* Goal Type Tabs */}
-              {!showForm && (
-                <Tabs defaultValue="daily" className="w-full">
-                  <TabsList className="grid w-full grid-cols-4 bg-white/10 backdrop-blur-sm border border-white/20">
-                    <TabsTrigger value="daily" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">
-                      Daily
-                    </TabsTrigger>
-                    <TabsTrigger value="weekly" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">
-                      Weekly
-                    </TabsTrigger>
-                    <TabsTrigger value="monthly" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">
-                      Monthly
-                    </TabsTrigger>
-                    <TabsTrigger value="yearly" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">
-                      Yearly
-                    </TabsTrigger>
-                  </TabsList>
-
-                  {['daily', 'weekly', 'monthly', 'yearly'].map((type) => {
-                    const progress = goalProgress.find(p => p.type === type);
-                    
-                    return (
-                      <TabsContent key={type} value={type} className="mt-4">
-                        {progress ? (
-                          <div className="p-4 border border-white/20 rounded-lg bg-white/5">
-                            <div className="flex justify-between items-start mb-4">
-                              <div>
-                                <h4 className="text-lg font-semibold capitalize flex items-center gap-2 text-white">
-                                  {progress.type} Goal
-                                  {progress.percentage >= 100 && (
-                                    <span className="text-lg">🎉</span>
-                                  )}
-                                </h4>
-                                <p className="text-sm text-white/70">
-                                  Target: ${progress.amount.toFixed(2)}
-                                </p>
-                              </div>
-                              <div className="flex gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="secondary"
-                                  onClick={() => startEditing(progress)}
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="destructive"
-                                  onClick={() => onDeleteGoal(progress.id)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </div>
-                            
-                            <div className="space-y-3">
-                              <div className="flex justify-between text-sm font-medium text-white">
-                                <span>Progress</span>
-                                <span>${progress.achieved.toFixed(2)} / ${progress.amount.toFixed(2)}</span>
-                              </div>
-                              <Progress value={progress.percentage} className="h-3" />
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm text-white/70">
-                                  {progress.percentage.toFixed(1)}% complete
-                                </span>
-                                {progress.percentage >= 100 && (
-                                  <span className="text-sm text-green-300 font-semibold">Goal achieved!</span>
-                                )}
-                              </div>
-                              
-                              {progress.percentage < 100 && (
-                                <div className="text-xs text-white/60">
-                                  ${(progress.amount - progress.achieved).toFixed(2)} remaining to reach your goal
-                                </div>
+              {['daily', 'weekly', 'monthly', 'yearly'].map((type) => {
+                const progress = goalProgress.find(p => p.type === type);
+                
+                return (
+                  <TabsContent key={type} value={type} className="mt-4">
+                    {progress ? (
+                      <div className="p-4 border border-white/20 rounded-lg bg-white/5">
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <h4 className="text-lg font-semibold capitalize flex items-center gap-2 text-white">
+                              {progress.type} Goal
+                              {progress.percentage >= 100 && (
+                                <span className="text-lg">🎉</span>
                               )}
-                            </div>
+                            </h4>
+                            <p className="text-sm text-white/70">
+                              Target: ${progress.amount.toFixed(2)}
+                            </p>
                           </div>
-                        ) : (
-                          <div className="text-center py-8">
-                            <Target className="h-8 w-8 mx-auto text-white/40 mb-3" />
-                            <h4 className="text-md font-medium mb-2 text-white">No {type} goal set</h4>
-                            <p className="text-white/70 mb-4 text-sm">Set a {type} earning target to track progress</p>
-                            <Button 
-                              onClick={() => {
-                                setEditingGoal(null);
-                                setShowForm(true);
-                              }} 
-                              variant="secondary"
+                          <div className="flex gap-2">
+                            <Button
                               size="sm"
+                              variant="secondary"
+                              onClick={() => startEditing(progress)}
                             >
-                              <Plus className="h-4 w-4 mr-2" />
-                              Set {type} Goal
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => onDeleteGoal(progress.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
-                        )}
-                      </TabsContent>
-                    );
-                  })}
-                </Tabs>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div className="flex justify-between text-sm font-medium text-white">
+                            <span>Progress</span>
+                            <span>${progress.achieved.toFixed(2)} / ${progress.amount.toFixed(2)}</span>
+                          </div>
+                          <Progress value={progress.percentage} className="h-3" />
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-white/70">
+                              {progress.percentage.toFixed(1)}% complete
+                            </span>
+                            {progress.percentage >= 100 && (
+                              <span className="text-sm text-green-300 font-semibold">Goal achieved!</span>
+                            )}
+                          </div>
+                          
+                          {progress.percentage < 100 && (
+                            <div className="text-xs text-white/60">
+                              ${(progress.amount - progress.achieved).toFixed(2)} remaining to reach your goal
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <Target className="h-8 w-8 mx-auto text-white/40 mb-3" />
+                        <h4 className="text-md font-medium mb-2 text-white">No {type} goal set</h4>
+                        <p className="text-white/70 mb-4 text-sm">Set a {type} earning target to track progress</p>
+                        <Button 
+                          onClick={() => {
+                            setEditingGoal(null);
+                            setShowForm(true);
+                          }} 
+                          variant="secondary"
+                          size="sm"
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Set {type} Goal
+                        </Button>
+                      </div>
+                    )}
+                  </TabsContent>
+                );
+              })}
+            </Tabs>
+          )}
+        </CardContent>
+      </Card>
 
-        {/* Analytics Tab */}
-        <TabsContent value="analytics" className="space-group">
-          <Card className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white">
-            <CardHeader>
-              <CardTitle className="text-white text-lg">
-                Earnings Analytics
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 border border-white/20 rounded-lg bg-white/10">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                      <DollarSign className="w-5 h-5 text-white" />
-                    </div>
-                    <span className="text-white/80">Daily Average</span>
-                  </div>
-                  <div className="text-2xl font-bold text-white">
-                    ${projectedEarnings.averageDaily.toFixed(2)}
-                  </div>
+      {/* Analytics Section */}
+      <Card className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white">
+        <CardHeader>
+          <CardTitle className="text-white text-lg">
+            Earnings Analytics
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="p-4 border border-white/20 rounded-lg bg-white/10">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                  <DollarSign className="w-5 h-5 text-white" />
                 </div>
-                <div className="p-4 border border-white/20 rounded-lg bg-white/10">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                      <TrendingUp className="w-5 h-5 text-white" />
-                    </div>
-                    <span className="text-white/80">This Week</span>
-                  </div>
-                  <div className="text-2xl font-bold text-white">
-                    ${projectedEarnings.weekTotal.toFixed(2)}
-                  </div>
-                </div>
+                <span className="text-white/80">Daily Average</span>
               </div>
-              
-              <div className="p-4 border border-white/20 rounded-lg bg-white/10">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                    <Calendar className="w-5 h-5 text-white" />
-                  </div>
-                  <span className="text-white/80">This Month (Projected)</span>
-                </div>
-                <div className="text-2xl font-bold text-white">
-                  ${projectedEarnings.monthTotal.toFixed(2)}
-                </div>
+              <div className="text-2xl font-bold text-white">
+                ${projectedEarnings.averageDaily.toFixed(2)}
               </div>
-              
-              {tipEntries.some(entry => entry.isPlaceholder) && (
-                <div className="p-3 bg-white/10 rounded-lg border border-white/20">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Calendar className="h-4 w-4 text-white" />
-                    <p className="text-sm text-white font-medium">Planning Scenarios Included</p>
-                  </div>
-                  <p className="text-xs text-white/70">
-                    Projections include your planned shifts as placeholders
-                  </p>
+            </div>
+            <div className="p-4 border border-white/20 rounded-lg bg-white/10">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-white" />
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+                <span className="text-white/80">This Week</span>
+              </div>
+              <div className="text-2xl font-bold text-white">
+                ${projectedEarnings.weekTotal.toFixed(2)}
+              </div>
+            </div>
+          </div>
+          
+          <div className="p-4 border border-white/20 rounded-lg bg-white/10">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                <Calendar className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-white/80">This Month (Projected)</span>
+            </div>
+            <div className="text-2xl font-bold text-white">
+              ${projectedEarnings.monthTotal.toFixed(2)}
+            </div>
+          </div>
+          
+          {tipEntries.some(entry => entry.isPlaceholder) && (
+            <div className="p-3 bg-white/10 rounded-lg border border-white/20">
+              <div className="flex items-center gap-2 mb-1">
+                <Calendar className="h-4 w-4 text-white" />
+                <p className="text-sm text-white font-medium">Planning Scenarios Included</p>
+              </div>
+              <p className="text-xs text-white/70">
+                Projections include your planned shifts as placeholders
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-        {/* Tips Tab */}
-        <TabsContent value="tips" className="space-group">
-          <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-            <CardHeader>
-              <CardTitle className="text-white text-lg">Goal Setting Tips</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="p-3 border border-white/20 rounded-lg bg-white/5">
-                <p className="text-white text-sm">• Set realistic daily goals based on your average earnings</p>
-              </div>
-              <div className="p-3 border border-white/20 rounded-lg bg-white/5">
-                <p className="text-white text-sm">• Use weekly goals to plan for busier periods</p>
-              </div>
-              <div className="p-3 border border-white/20 rounded-lg bg-white/5">
-                <p className="text-white text-sm">• Monthly goals help with budgeting and financial planning</p>
-              </div>
-              <div className="p-3 border border-white/20 rounded-lg bg-white/5">
-                <p className="text-white text-sm">• Add planning scenarios to project future earnings</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      {/* Tips Section */}
+      <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+        <CardHeader>
+          <CardTitle className="text-white text-lg">Goal Setting Tips</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="p-3 border border-white/20 rounded-lg bg-white/5">
+            <p className="text-white text-sm">• Set realistic daily goals based on your average earnings</p>
+          </div>
+          <div className="p-3 border border-white/20 rounded-lg bg-white/5">
+            <p className="text-white text-sm">• Use weekly goals to plan for busier periods</p>
+          </div>
+          <div className="p-3 border border-white/20 rounded-lg bg-white/5">
+            <p className="text-white text-sm">• Monthly goals help with budgeting and financial planning</p>
+          </div>
+          <div className="p-3 border border-white/20 rounded-lg bg-white/5">
+            <p className="text-white text-sm">• Add planning scenarios to project future earnings</p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
