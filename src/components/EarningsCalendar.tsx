@@ -40,7 +40,7 @@ export function EarningsCalendar({
   return (
     <DayPicker
       showOutsideDays={true}
-      className={cn("p-4 border-0", className)}
+      className={cn("p-4", className)}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-3",
