@@ -40,7 +40,7 @@ export function EarningsCalendar({
   return (
     <DayPicker
       showOutsideDays={true}
-      className={cn("p-2 sm:p-4", className)}
+      className={cn("p-2 sm:p-3 md:p-4", className)}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-2 sm:space-y-3",
@@ -49,17 +49,17 @@ export function EarningsCalendar({
         nav: "space-x-1 flex items-center",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
-          "h-6 w-6 sm:h-7 sm:w-7 bg-transparent p-0 opacity-70 hover:opacity-100"
+          "h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 bg-transparent p-0 opacity-70 hover:opacity-100"
         ),
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
         table: "w-full border-collapse",
         head_row: "flex mb-1",
-        head_cell: "text-muted-foreground rounded-md w-8 sm:w-12 h-5 sm:h-6 font-medium text-[10px] sm:text-xs flex items-center justify-center",
+        head_cell: "text-muted-foreground rounded-md w-8 sm:w-10 md:w-12 h-5 sm:h-6 font-medium text-[10px] sm:text-xs flex items-center justify-center",
         row: "flex w-full mb-0.5 sm:mb-1",
         cell: "relative flex-1",
         day: cn(
-          "h-8 w-8 sm:h-12 sm:w-12 p-0.5 sm:p-1 font-medium text-xs flex flex-col items-center justify-center rounded-md border border-transparent transition-all duration-200 hover:border-primary/30 focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-1"
+          "h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 p-0.5 sm:p-1 font-medium text-xs flex flex-col items-center justify-center rounded-md border border-transparent transition-all duration-200 hover:border-primary/30 focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-1"
         ),
         day_range_end: "day-range-end",
         day_selected: "bg-primary text-primary-foreground border-primary hover:bg-primary hover:text-primary-foreground",
@@ -83,7 +83,7 @@ export function EarningsCalendar({
           return (
             <button
               className={cn(
-                "h-8 w-8 sm:h-12 sm:w-12 p-0.5 sm:p-1 font-medium text-xs flex flex-col items-center justify-center rounded-md border border-transparent transition-all duration-200 hover:border-primary/30 focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-1",
+                "h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 p-0.5 sm:p-1 font-medium text-xs flex flex-col items-center justify-center rounded-md border border-transparent transition-all duration-200 hover:border-primary/30 focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-1",
                 !isCurrentMonth && "text-muted-foreground/50 opacity-50",
                 todayDate && !hasEntry && "border-primary bg-primary/10 text-primary font-bold",
                 todayDate && hasEntry && "border-primary bg-primary text-primary-foreground font-bold",
@@ -93,10 +93,10 @@ export function EarningsCalendar({
               onClick={() => onSelect?.(date)}
               disabled={!isCurrentMonth}
             >
-              <span className={cn("text-[10px] sm:text-xs font-bold", hasEntry && "text-[8px] sm:text-[10px]")}>{dayNumber}</span>
+              <span className={cn("text-[10px] sm:text-xs font-bold", hasEntry && "text-[8px] sm:text-[10px] md:text-[10px]")}>{dayNumber}</span>
               {hasEntry && earnings > 0 && (
                 <span className={cn(
-                  "text-[8px] sm:text-[10px] font-semibold mt-0.5 leading-none",
+                  "text-[8px] sm:text-[9px] md:text-[10px] font-semibold mt-0.5 leading-none",
                   todayDate ? "text-primary-foreground" : "text-green-700"
                 )}>
                   ${earnings.toFixed(0)}
