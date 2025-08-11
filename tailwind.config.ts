@@ -168,6 +168,12 @@ export default {
 				'bounce-subtle': 'bounce 2s infinite',
 				'float': 'float 3s ease-in-out infinite',
 				'glow-pulse': 'glow-pulse 2s ease-in-out infinite alternate'
+			},
+			spacing: {
+				'safe-area-inset-top': 'env(safe-area-inset-top)',
+				'safe-area-inset-bottom': 'env(safe-area-inset-bottom)',
+				'safe-area-inset-left': 'env(safe-area-inset-left)',
+				'safe-area-inset-right': 'env(safe-area-inset-right)'
 			}
 		}
 	},

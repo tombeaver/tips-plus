@@ -157,12 +157,12 @@ const Index = () => {
     <div className="min-h-screen p-4">
       <div className="max-w-md mx-auto space-section">
         {/* Header */}
-        <div className="text-center py-6 relative">
+        <div className="text-center py-6 relative" style={{ paddingTop: 'max(1.5rem, env(safe-area-inset-top))' }}>
           <h1 className="heading-lg text-foreground mb-2">Tips+</h1>
           <p className="body-md text-muted-foreground">Track. Analyze. Level Up Your Income.</p>
           
           {/* User info and sign out */}
-          <div className="absolute top-6 left-4">
+          <div className="absolute left-4" style={{ top: 'max(1.5rem, calc(env(safe-area-inset-top) + 0.5rem))' }}>
             <Button
               variant="ghost"
               size="sm"
@@ -174,7 +174,7 @@ const Index = () => {
           </div>
           
           {/* Feedback Icon in top right */}
-          <div className="absolute top-6 right-4">
+          <div className="absolute right-4" style={{ top: 'max(1.5rem, calc(env(safe-area-inset-top) + 0.5rem))' }}>
             <Button
               variant="ghost"
               size="sm"
