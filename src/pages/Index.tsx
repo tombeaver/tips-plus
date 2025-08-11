@@ -209,8 +209,8 @@ const Index = () => {
 
           {/* Calendar Tab */}
           <TabsContent value="calendar" className="space-group">
-            <Card className="card-interactive">
-              <CardContent className="pt-6">
+            <Card className="border-0 shadow-none bg-transparent">
+              <CardContent className="pt-6 px-0">
                 <EarningsCalendar
                   selected={selectedDate}
                   onSelect={(date) => {
@@ -224,7 +224,7 @@ const Index = () => {
                   tipEntries={tipEntries}
                   getTotalEarnings={getTotalEarnings}
                   getEntryForDate={getEntryForDate}
-                  className="rounded-md border pointer-events-auto flex justify-center"
+                  className="pointer-events-auto flex justify-center"
                 />
               </CardContent>
             </Card>
