@@ -157,33 +157,33 @@ const Index = () => {
     <div className="min-h-screen p-4">
       <div className="max-w-md mx-auto space-section">
         {/* Header */}
-        <div className="text-center py-6 relative" style={{ paddingTop: 'max(4.5rem, calc(env(safe-area-inset-top) + 2rem))' }}>
-          <h1 className="heading-lg text-foreground mb-2">Tips+</h1>
-          <p className="body-md text-muted-foreground">Track. Analyze. Level Up Your Income.</p>
-          
-          {/* User info and sign out */}
-          <div className="absolute left-4" style={{ top: 'max(1.5rem, calc(env(safe-area-inset-top) + 0.5rem))' }}>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowSignOutConfirm(true)}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <LogOut className="h-4 w-4" />
-            </Button>
+        <div className="py-6" style={{ paddingTop: 'max(4.5rem, calc(env(safe-area-inset-top) + 2rem))' }}>
+          <div className="grid grid-cols-[auto_1fr_auto] items-center">
+            <div className="justify-self-start">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowSignOutConfirm(true)}
+                className="text-muted-foreground hover:text-foreground"
+                aria-label="Sign out"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
+            <h1 className="heading-lg text-foreground text-center">Tips+</h1>
+            <div className="justify-self-end">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowFeedbackModal(true)}
+                className="text-muted-foreground hover:text-foreground"
+                aria-label="Open feedback"
+              >
+                <MessageCircle className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-          
-          {/* Feedback Icon in top right */}
-          <div className="absolute right-4" style={{ top: 'max(1.5rem, calc(env(safe-area-inset-top) + 0.5rem))' }}>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowFeedbackModal(true)}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <MessageCircle className="h-4 w-4" />
-            </Button>
-          </div>
+          <p className="body-md text-muted-foreground text-center">Track. Analyze. Level Up Your Income.</p>
         </div>
 
         {/* Main Navigation */}
