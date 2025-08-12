@@ -157,7 +157,7 @@ const Index = () => {
     <div className="min-h-screen p-4">
       <div className="max-w-md mx-auto space-section">
         {/* Header */}
-        <div className="text-center py-6 relative" style={{ paddingTop: 'max(1.5rem, env(safe-area-inset-top))' }}>
+        <div className="text-center py-6 relative" style={{ paddingTop: 'max(4.5rem, calc(env(safe-area-inset-top) + 2rem))' }}>
           <h1 className="heading-lg text-foreground mb-2">Tips+</h1>
           <p className="body-md text-muted-foreground">Track. Analyze. Level Up Your Income.</p>
           
