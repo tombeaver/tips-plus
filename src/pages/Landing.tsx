@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +16,7 @@ import {
   FileCode
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { PrivacyPolicy } from '@/components/PrivacyPolicy';
 
 const Landing = () => {
   const features = [
@@ -63,6 +64,8 @@ const Landing = () => {
     { number: "25%", label: "Average Increase" },
     { number: "4.9", label: "User Rating" }
   ];
+
+  const [isPrivacyOpen, setPrivacyOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-prism-ethereal">
@@ -297,9 +300,19 @@ const Landing = () => {
             <p className="text-sm text-muted-foreground">
               © 2024 TipTracker. All rights reserved.
             </p>
+            <div className="flex justify-center gap-6 text-sm">
+              <button
+                onClick={() => setPrivacyOpen(true)}
+                className="text-muted-foreground hover:text-foreground underline underline-offset-4"
+                aria-label="Open Privacy Policy"
+              >
+                Privacy Policy
+              </button>
+            </div>
           </div>
         </div>
       </footer>
+      <PrivacyPolicy isOpen={isPrivacyOpen} onClose={() => setPrivacyOpen(false)} />
     </div>
   );
 };
