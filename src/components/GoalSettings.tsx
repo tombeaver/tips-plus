@@ -3,14 +3,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Target, TrendingUp, Calendar, Edit, Trash2, Plus, Clock, DollarSign, Wallet } from 'lucide-react';
+import { Target, TrendingUp, Calendar, Edit, Trash2, Plus, Clock } from 'lucide-react';
 import { Goal, FinancialData } from '@/hooks/useGoals';
 import { TipEntry } from '@/hooks/useTipEntries';
 import { GoalSettingsForm } from '@/components/GoalSettingsForm';
-import { FinancialHealthScore } from '@/components/FinancialHealthScore';
-import { IncomeExpenseChart } from '@/components/IncomeExpenseChart';
-import { BudgetInput } from '@/components/BudgetInput';
-import { ShiftRecommendations } from '@/components/ShiftRecommendations';
 import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, isWithinInterval, differenceInDays } from 'date-fns';
 
 interface GoalSettingsProps {
@@ -19,7 +15,6 @@ interface GoalSettingsProps {
   onAddGoal: (goal: Omit<Goal, 'id'>) => Promise<void>;
   onUpdateGoal: (goalId: string, goal: Omit<Goal, 'id'>) => Promise<void>;
   onDeleteGoal: (goalId: string) => Promise<void>;
-  onUpdateFinancialData: (data: FinancialData) => Promise<void>;
   tipEntries: TipEntry[];
 }
 
@@ -29,7 +24,6 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
   onAddGoal, 
   onUpdateGoal, 
   onDeleteGoal,
-  onUpdateFinancialData,
   tipEntries 
 }) => {
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
@@ -179,48 +173,14 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Wallet className="h-6 w-6" />
-            Financial Dashboard
+            <Target className="h-6 w-6" />
+            Goal Tracking
           </CardTitle>
           <p className="body-md text-muted-foreground">
-            Track income, expenses, savings, and reach your financial goals
+            Set and track your income goals across different time periods
           </p>
         </CardHeader>
       </Card>
-
-      {/* Budget Input */}
-      <BudgetInput
-        monthlyExpenses={financialData.monthlyExpenses}
-        monthlySavingsGoal={financialData.monthlySavingsGoal}
-        monthlySpendingLimit={financialData.monthlySpendingLimit}
-        onSave={onUpdateFinancialData}
-      />
-
-      {/* Financial Health Score */}
-      <FinancialHealthScore
-        monthlyIncome={financialMetrics.monthlyIncome}
-        monthlyExpenses={financialData.monthlyExpenses}
-        monthlySavings={financialMetrics.currentSavings}
-        savingsGoal={financialData.monthlySavingsGoal}
-      />
-
-      {/* Shift Recommendations */}
-      <ShiftRecommendations
-        monthlyIncome={financialMetrics.monthlyIncome}
-        monthlyExpenses={financialData.monthlyExpenses}
-        monthlySavingsGoal={financialData.monthlySavingsGoal}
-        averagePerShift={financialMetrics.averagePerShift}
-        shiftsWorkedThisMonth={financialMetrics.shiftsWorkedThisMonth}
-        daysLeftInMonth={financialMetrics.daysLeftInMonth}
-      />
-
-      {/* Income vs Expense Chart */}
-      <IncomeExpenseChart
-        monthlyIncome={financialMetrics.monthlyIncome}
-        monthlyExpenses={financialData.monthlyExpenses}
-        monthlySavings={financialMetrics.currentSavings}
-        projectedIncome={financialMetrics.projectedMonthlyIncome}
-      />
 
       {/* Annual Income Goal with Breakdown */}
       <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
@@ -405,27 +365,6 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
             </div>
           )}
 
-        </CardContent>
-      </Card>
-
-      {/* Tips Section */}
-      <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-        <CardHeader>
-          <CardTitle className="text-white text-lg">Financial Planning Tips</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="p-3 border border-white/20 rounded-lg bg-white/5">
-            <p className="text-white text-sm">• Track all expenses to identify areas to save</p>
-          </div>
-          <div className="p-3 border border-white/20 rounded-lg bg-white/5">
-            <p className="text-white text-sm">• Aim to save at least 20% of your income</p>
-          </div>
-          <div className="p-3 border border-white/20 rounded-lg bg-white/5">
-            <p className="text-white text-sm">• Set aside money for irregular expenses (car maintenance, gifts)</p>
-          </div>
-          <div className="p-3 border border-white/20 rounded-lg bg-white/5">
-            <p className="text-white text-sm">• Review your budget monthly and adjust as needed</p>
-          </div>
         </CardContent>
       </Card>
     </div>

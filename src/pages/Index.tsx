@@ -8,12 +8,12 @@ import { TipEntryForm } from '@/components/TipEntryForm';
 import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
 import { GoalSettings } from '@/components/GoalSettings';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
-import { Insights } from '@/components/Insights';
+import { FinanceStrategy } from '@/components/FinanceStrategy';
 
 import { FeedbackModal } from '@/components/FeedbackModal';
 import { EarningsCalendar } from '@/components/EarningsCalendar';
 import { PrivacyPolicy } from '@/components/PrivacyPolicy';
-import { CalendarDays, TrendingUp, Target, Plus, Lightbulb, LogOut, MessageCircle, Frown, Meh, Smile, Laugh, Zap, DollarSign, CreditCard, Clock, Receipt, Users } from 'lucide-react';
+import { CalendarDays, TrendingUp, Target, Plus, Wallet, LogOut, MessageCircle, Frown, Meh, Smile, Laugh, Zap, DollarSign, CreditCard, Clock, Receipt, Users } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
 import { useTipEntries, type TipEntry } from '@/hooks/useTipEntries';
 import { useGoals, type Goal } from '@/hooks/useGoals';
@@ -197,9 +197,9 @@ const Index = () => {
               <TrendingUp className="h-4 w-4" />
               <span className="hidden sm:inline">Analytics</span>
             </TabsTrigger>
-            <TabsTrigger value="tips" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
-              <Lightbulb className="h-4 w-4" />
-              <span className="hidden sm:inline">Tips</span>
+            <TabsTrigger value="finance" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
+              <Wallet className="h-4 w-4" />
+              <span className="hidden sm:inline">Finance</span>
             </TabsTrigger>
             <TabsTrigger value="goals" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
               <Target className="h-4 w-4" />
@@ -378,16 +378,19 @@ const Index = () => {
             </Card>
           </TabsContent>
 
-          {/* Tips Tab */}
-          <TabsContent value="tips">
-            <Insights tipEntries={tipEntries} selectedDate={selectedDate} />
-          </TabsContent>
-
           {/* Analytics Tab */}
           <TabsContent value="analytics">
             <AnalyticsDashboard tipEntries={tipEntries} />
           </TabsContent>
 
+          {/* Finance Strategy Tab */}
+          <TabsContent value="finance">
+            <FinanceStrategy 
+              financialData={financialData}
+              onUpdateFinancialData={updateFinancialData}
+              tipEntries={tipEntries}
+            />
+          </TabsContent>
 
           {/* Goals Tab */}
           <TabsContent value="goals">
@@ -397,7 +400,6 @@ const Index = () => {
               onAddGoal={async (goal) => { await addGoal(goal); }}
               onUpdateGoal={async (goalId, goal) => { await updateGoal(goalId, goal); }}
               onDeleteGoal={deleteGoal}
-              onUpdateFinancialData={updateFinancialData}
               tipEntries={tipEntries}
             />
           </TabsContent>
