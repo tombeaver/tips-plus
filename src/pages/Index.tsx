@@ -40,6 +40,7 @@ const Index = () => {
   // Swipe detection state
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
   const [touchEnd, setTouchEnd] = useState<{ x: number; y: number } | null>(null);
+  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   
   const { tipEntries, loading: tipEntriesLoading, addTipEntry, updateTipEntry, deleteTipEntry } = useTipEntries();
   const { goals, financialData, loading: goalsLoading, addGoal, updateGoal, deleteGoal, updateFinancialData } = useGoals();
@@ -172,12 +173,16 @@ const Index = () => {
       if (distanceX > 0) {
         // Swiped left (next tab)
         if (currentIndex < tabs.length - 1) {
+          setSwipeDirection('left');
           setActiveTab(tabs[currentIndex + 1]);
+          setTimeout(() => setSwipeDirection(null), 300);
         }
       } else {
         // Swiped right (previous tab)
         if (currentIndex > 0) {
+          setSwipeDirection('right');
           setActiveTab(tabs[currentIndex - 1]);
+          setTimeout(() => setSwipeDirection(null), 300);
         }
       }
     }
@@ -255,7 +260,13 @@ const Index = () => {
           </TabsList>
 
           {/* Calendar Tab */}
-          <TabsContent value="calendar" className="space-group" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
+          <TabsContent 
+            value="calendar" 
+            className={`space-group ${swipeDirection === 'left' ? 'slide-enter-left' : swipeDirection === 'right' ? 'slide-enter-right' : ''}`}
+            onTouchStart={onTouchStart} 
+            onTouchMove={onTouchMove} 
+            onTouchEnd={onTouchEnd}
+          >
             <Card className="card-interactive">
               <CardContent className="pt-6">
                 <EarningsCalendar
@@ -426,12 +437,24 @@ const Index = () => {
           </TabsContent>
 
           {/* Analytics Tab */}
-          <TabsContent value="analytics" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
+          <TabsContent 
+            value="analytics" 
+            className={swipeDirection === 'left' ? 'slide-enter-left' : swipeDirection === 'right' ? 'slide-enter-right' : ''}
+            onTouchStart={onTouchStart} 
+            onTouchMove={onTouchMove} 
+            onTouchEnd={onTouchEnd}
+          >
             <AnalyticsDashboard tipEntries={tipEntries} />
           </TabsContent>
 
           {/* Finance Strategy Tab */}
-          <TabsContent value="finance" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
+          <TabsContent 
+            value="finance" 
+            className={swipeDirection === 'left' ? 'slide-enter-left' : swipeDirection === 'right' ? 'slide-enter-right' : ''}
+            onTouchStart={onTouchStart} 
+            onTouchMove={onTouchMove} 
+            onTouchEnd={onTouchEnd}
+          >
             <FinanceStrategy 
               financialData={financialData}
               onUpdateFinancialData={updateFinancialData}
@@ -440,7 +463,13 @@ const Index = () => {
           </TabsContent>
 
           {/* Goals Tab */}
-          <TabsContent value="goals" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
+          <TabsContent 
+            value="goals" 
+            className={swipeDirection === 'left' ? 'slide-enter-left' : swipeDirection === 'right' ? 'slide-enter-right' : ''}
+            onTouchStart={onTouchStart} 
+            onTouchMove={onTouchMove} 
+            onTouchEnd={onTouchEnd}
+          >
             <GoalSettings 
               goals={goals}
               financialData={financialData}
