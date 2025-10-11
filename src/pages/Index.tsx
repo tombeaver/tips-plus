@@ -40,6 +40,8 @@ const Index = () => {
   // Swipe detection state
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
   const [touchEnd, setTouchEnd] = useState<{ x: number; y: number } | null>(null);
+  const [isSticky, setIsSticky] = useState(false);
+  const tabsRef = React.useRef<HTMLDivElement>(null);
   
   const { tipEntries, loading: tipEntriesLoading, addTipEntry, updateTipEntry, deleteTipEntry } = useTipEntries();
   const { goals, financialData, loading: goalsLoading, addGoal, updateGoal, deleteGoal, updateFinancialData } = useGoals();
@@ -80,6 +82,19 @@ const Index = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  // Sticky tabs scroll listener
+  useEffect(() => {
+    const handleScroll = () => {
+      if (tabsRef.current) {
+        const rect = tabsRef.current.getBoundingClientRect();
+        setIsSticky(rect.top <= 0);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -235,7 +250,21 @@ const Index = () => {
 
         {/* Main Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-card/50 backdrop-blur-sm border shadow-sm" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
+          <div 
+            ref={tabsRef}
+            className={`sticky top-0 z-10 transition-all duration-200 ${isSticky ? 'shadow-md' : ''}`}
+            style={{ 
+              marginLeft: '-1rem', 
+              marginRight: '-1rem',
+              paddingLeft: '1rem',
+              paddingRight: '1rem',
+              paddingTop: isSticky ? '0.5rem' : '0',
+              paddingBottom: '0.5rem',
+              background: isSticky ? 'hsl(var(--background) / 0.95)' : 'transparent',
+              backdropFilter: isSticky ? 'blur(12px)' : 'none'
+            }}
+          >
+            <TabsList className="grid w-full grid-cols-4 bg-card/50 backdrop-blur-sm border shadow-sm" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
             <TabsTrigger value="calendar" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
               <CalendarDays className="h-4 w-4" />
               <span className="hidden sm:inline">Calendar</span>
@@ -253,6 +282,7 @@ const Index = () => {
               <span className="hidden sm:inline">Goals</span>
             </TabsTrigger>
           </TabsList>
+          </div>
 
           {/* Calendar Tab */}
           <TabsContent value="calendar" className="space-group" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
