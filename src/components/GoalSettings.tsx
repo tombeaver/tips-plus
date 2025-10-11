@@ -357,18 +357,39 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
                   </div>
                 </div>
 
-                {/* Progress Summary */}
+                {/* Shift Recommendations */}
                 <div className="p-4 border border-white/20 rounded-lg bg-white/5">
-                  <h5 className="font-semibold text-white mb-3">💡 Progress Summary</h5>
-                  <div className="space-y-2 text-sm text-white/80">
-                    <p>
-                      <span className="font-semibold text-white">This Week:</span> You've earned ${currentWeekEarnings.toLocaleString(undefined, { maximumFractionDigits: 0 })} of your ${weeklyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })} weekly target
-                      {weeklyNeeded > 0 && <span className="text-green-300"> • ${weeklyNeeded.toLocaleString(undefined, { maximumFractionDigits: 0 })} more needed</span>}
-                    </p>
-                    <p>
-                      <span className="font-semibold text-white">This Month:</span> You've earned ${currentMonthEarnings.toLocaleString(undefined, { maximumFractionDigits: 0 })} of your ${monthlyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })} monthly target
-                      {monthlyNeeded > 0 && <span className="text-green-300"> • ${monthlyNeeded.toLocaleString(undefined, { maximumFractionDigits: 0 })} more needed</span>}
-                    </p>
+                  <h5 className="font-semibold text-white mb-3">💡 Shift Strategy</h5>
+                  <div className="space-y-3 text-sm text-white/80">
+                    {financialMetrics.averagePerShift > 0 ? (
+                      <>
+                        <div className="p-3 border border-white/10 rounded-lg bg-white/5">
+                          <p className="font-semibold text-white mb-1">This Week:</p>
+                          <p>
+                            {weeklyNeeded > 0 ? (
+                              <>Work approximately <span className="font-bold text-green-300">{Math.ceil(weeklyNeeded / financialMetrics.averagePerShift)} more {Math.ceil(weeklyNeeded / financialMetrics.averagePerShift) === 1 ? 'shift' : 'shifts'}</span> to meet your weekly target of ${weeklyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })}</>
+                            ) : (
+                              <span className="text-green-300 font-semibold">✓ Weekly target reached! Great job!</span>
+                            )}
+                          </p>
+                        </div>
+                        <div className="p-3 border border-white/10 rounded-lg bg-white/5">
+                          <p className="font-semibold text-white mb-1">This Month:</p>
+                          <p>
+                            {monthlyNeeded > 0 ? (
+                              <>Work approximately <span className="font-bold text-green-300">{Math.ceil(monthlyNeeded / financialMetrics.averagePerShift)} more {Math.ceil(monthlyNeeded / financialMetrics.averagePerShift) === 1 ? 'shift' : 'shifts'}</span> to meet your monthly target of ${monthlyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })}</>
+                            ) : (
+                              <span className="text-green-300 font-semibold">✓ Monthly target reached! Excellent work!</span>
+                            )}
+                          </p>
+                        </div>
+                        <p className="text-xs text-white/60 italic">
+                          Based on your average of ${financialMetrics.averagePerShift.toLocaleString(undefined, { maximumFractionDigits: 0 })} per shift
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-white/60">Log more shifts to see personalized recommendations</p>
+                    )}
                   </div>
                 </div>
               </div>
