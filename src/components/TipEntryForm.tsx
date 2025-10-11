@@ -80,6 +80,7 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('Form submitting with shift:', shift, 'Type:', typeof shift);
     console.log('Form submitting with selectedDate:', selectedDate);
     console.log('selectedDate details:', {
       toString: selectedDate.toString(),

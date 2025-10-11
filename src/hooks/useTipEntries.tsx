@@ -84,6 +84,7 @@ export const useTipEntries = () => {
         toLocaleDateString: entry.date.toLocaleDateString(),
         getTimezoneOffset: entry.date.getTimezoneOffset()
       });
+      console.log('Shift value being saved:', entry.shift, 'Type:', typeof entry.shift);
 
       const { data, error } = await supabase
         .from('tip_entries')
