@@ -271,8 +271,16 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       // Weekly trend for selected month
       const weeks = new Map();
       filteredEntries.forEach(entry => {
-        const weekStart = startOfWeek(entry.date);
+        // Use Sunday as start of week, stay in local time
+        const weekStart = startOfWeek(entry.date, { weekStartsOn: 0 });
         const weekKey = format(weekStart, 'MMM d');
+        console.log('Week calculation:', {
+          entryDate: entry.date.toString(),
+          entryDateLocal: `${entry.date.getFullYear()}-${entry.date.getMonth()+1}-${entry.date.getDate()}`,
+          weekStart: weekStart.toString(),
+          weekStartLocal: `${weekStart.getFullYear()}-${weekStart.getMonth()+1}-${weekStart.getDate()}`,
+          weekKey
+        });
         const existing = weeks.get(weekKey) || { period: weekKey, tips: 0, wages: 0, sales: 0, guests: 0, hours: 0, date: weekStart };
         const entryWages = entry.hoursWorked * entry.hourlyRate;
         weeks.set(weekKey, {
