@@ -222,34 +222,161 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
         projectedIncome={financialMetrics.projectedMonthlyIncome}
       />
 
-      {/* Goal Management */}
+      {/* Annual Income Goal with Breakdown */}
       <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
         <CardHeader>
-          <CardTitle className="text-white text-lg">
-            Goal Management
+          <CardTitle className="text-white text-lg flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Annual Income Goal
           </CardTitle>
+          <p className="text-white/80 text-sm">Set your yearly target and track weekly progress</p>
         </CardHeader>
         <CardContent>
+          {(() => {
+            const yearlyGoal = goals.find(g => g.type === 'yearly');
+            const yearlyProgress = goalProgress.find(p => p.type === 'yearly');
+            const now = new Date();
+            const yearStart = startOfYear(now);
+            const yearEnd = endOfYear(now);
+            const weeksInYear = 52;
+            const weeksPassed = Math.floor(differenceInDays(now, yearStart) / 7);
+            const weeksRemaining = Math.max(0, weeksInYear - weeksPassed);
+            
+            if (!yearlyGoal || !yearlyProgress) {
+              return (
+                <div className="text-center py-8">
+                  <Target className="h-12 w-12 mx-auto text-white/60 mb-4" />
+                  <h3 className="text-lg font-medium mb-2 text-white">Set Your Annual Income Goal</h3>
+                  <p className="text-white/80 mb-4">We'll break it down into monthly and weekly targets</p>
+                  <Button onClick={() => {
+                    setEditingGoal(null);
+                    setShowForm(true);
+                  }} variant="secondary">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Set Annual Goal
+                  </Button>
+                </div>
+              );
+            }
+
+            const monthlyTarget = yearlyGoal.amount / 12;
+            const weeklyTarget = yearlyGoal.amount / weeksInYear;
+            const weeklyNeeded = weeksRemaining > 0 ? 
+              Math.max(0, (yearlyGoal.amount - yearlyProgress.achieved) / weeksRemaining) : 0;
+
+            return (
+              <div className="space-y-6">
+                {/* Main Annual Goal */}
+                <div className="p-4 border border-white/20 rounded-lg bg-white/5">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h4 className="text-2xl font-bold text-white">
+                        ${yearlyGoal.amount.toLocaleString()}
+                      </h4>
+                      <p className="text-sm text-white/70">Annual Income Target</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => {
+                          setEditingGoal(yearlyGoal);
+                          setShowForm(true);
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => onDeleteGoal(yearlyGoal.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm font-medium text-white">
+                      <span>Year Progress</span>
+                      <span>${yearlyProgress.achieved.toLocaleString()} / ${yearlyGoal.amount.toLocaleString()}</span>
+                    </div>
+                    <Progress value={yearlyProgress.percentage} className="h-3" />
+                    <div className="text-sm text-white/70">
+                      {yearlyProgress.percentage.toFixed(1)}% complete • {weeksRemaining} weeks remaining
+                    </div>
+                  </div>
+                </div>
+
+                {/* Breakdown Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Monthly Target */}
+                  <div className="p-4 border border-white/20 rounded-lg bg-white/10">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Calendar className="h-4 w-4 text-white/70" />
+                      <span className="text-xs text-white/70 uppercase">Monthly Target</span>
+                    </div>
+                    <div className="text-xl font-bold text-white">
+                      ${monthlyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                    </div>
+                    <p className="text-xs text-white/60 mt-1">Goal ÷ 12 months</p>
+                  </div>
+
+                  {/* Weekly Target */}
+                  <div className="p-4 border border-white/20 rounded-lg bg-white/10">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Clock className="h-4 w-4 text-white/70" />
+                      <span className="text-xs text-white/70 uppercase">Weekly Target</span>
+                    </div>
+                    <div className="text-xl font-bold text-white">
+                      ${weeklyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                    </div>
+                    <p className="text-xs text-white/60 mt-1">Goal ÷ 52 weeks</p>
+                  </div>
+
+                  {/* Needed Per Week */}
+                  <div className="p-4 border border-green-300/30 rounded-lg bg-green-500/20">
+                    <div className="flex items-center gap-2 mb-2">
+                      <DollarSign className="h-4 w-4 text-green-200" />
+                      <span className="text-xs text-green-200 uppercase">Need Per Week</span>
+                    </div>
+                    <div className="text-xl font-bold text-white">
+                      ${weeklyNeeded.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                    </div>
+                    <p className="text-xs text-green-200 mt-1">
+                      {weeklyNeeded > weeklyTarget ? 
+                        `${(((weeklyNeeded - weeklyTarget) / weeklyTarget) * 100).toFixed(0)}% more than target` :
+                        'On track!'
+                      }
+                    </p>
+                  </div>
+                </div>
+
+                {/* Weekly Recommendation */}
+                {weeklyNeeded > 0 && (
+                  <div className="p-4 border border-white/20 rounded-lg bg-white/5">
+                    <h5 className="font-semibold text-white mb-2">💡 Weekly Strategy</h5>
+                    <p className="text-sm text-white/80">
+                      {weeklyNeeded > weeklyTarget ? (
+                        <>You need to earn <span className="font-bold text-green-300">${(weeklyNeeded - weeklyTarget).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span> more per week than your target to reach your annual goal. Consider picking up {Math.ceil((weeklyNeeded - weeklyTarget) / (financialMetrics.averagePerShift || 100))} extra shifts per week.</>
+                      ) : (
+                        <>You're on track! Keep earning <span className="font-bold text-green-300">${weeklyNeeded.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span> per week to hit your annual goal.</>
+                      )}
+                    </p>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
           {showForm && (
-            <div className="mb-6">
+            <div className="mt-6 p-4 bg-white rounded-lg">
               <GoalSettingsForm
                 editingGoal={editingGoal}
                 onSubmit={handleSubmitGoal}
                 onCancel={cancelForm}
-                availableGoalTypes={editingGoal ? [editingGoal.type] : availableGoalTypes}
+                availableGoalTypes={editingGoal ? [editingGoal.type] : ['yearly']}
               />
-            </div>
-          )}
-          
-          {!showForm && goals.length === 0 && (
-            <div className="text-center py-8">
-              <Target className="h-12 w-12 mx-auto text-white/60 mb-4" />
-              <h3 className="text-lg font-medium mb-2 text-white">No goals set yet</h3>
-              <p className="text-white/80 mb-4">Start by setting your first earning goal</p>
-              <Button onClick={() => setShowForm(true)} variant="secondary">
-                <Plus className="h-4 w-4 mr-2" />
-                Set Your First Goal
-              </Button>
             </div>
           )}
 
