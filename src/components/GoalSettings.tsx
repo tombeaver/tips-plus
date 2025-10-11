@@ -325,18 +325,19 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
                 </div>
 
                 {/* Breakdown Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Monthly Target */}
                   <div className="p-4 border border-green-300/30 rounded-lg bg-green-500/20">
                     <div className="flex items-center gap-2 mb-2">
                       <Calendar className="h-4 w-4 text-green-200" />
                       <span className="text-xs text-green-200 uppercase">Monthly Target</span>
                     </div>
-                    <div className="text-xl font-bold text-white">
-                      ${currentMonthEarnings.toLocaleString(undefined, { maximumFractionDigits: 0 })} / ${monthlyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                    <div className="text-3xl font-bold text-white mb-1">
+                      ${monthlyNeeded.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                     </div>
-                    <p className="text-xs text-green-200 mt-1">
-                      ${monthlyNeeded.toLocaleString(undefined, { maximumFractionDigits: 0 })} remaining
+                    <p className="text-xs text-green-200">remaining this month</p>
+                    <p className="text-sm text-white/70 mt-2">
+                      ${currentMonthEarnings.toLocaleString(undefined, { maximumFractionDigits: 0 })} / ${monthlyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })} earned
                     </p>
                   </div>
 
@@ -346,28 +347,12 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
                       <Clock className="h-4 w-4 text-green-200" />
                       <span className="text-xs text-green-200 uppercase">Weekly Target</span>
                     </div>
-                    <div className="text-xl font-bold text-white">
-                      ${currentWeekEarnings.toLocaleString(undefined, { maximumFractionDigits: 0 })} / ${weeklyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                    </div>
-                    <p className="text-xs text-green-200 mt-1">
-                      ${weeklyNeeded.toLocaleString(undefined, { maximumFractionDigits: 0 })} remaining
-                    </p>
-                  </div>
-
-                  {/* Needed This Week */}
-                  <div className="p-4 border border-green-300/30 rounded-lg bg-green-500/20">
-                    <div className="flex items-center gap-2 mb-2">
-                      <DollarSign className="h-4 w-4 text-green-200" />
-                      <span className="text-xs text-green-200 uppercase">Need This Week</span>
-                    </div>
-                    <div className="text-xl font-bold text-white">
+                    <div className="text-3xl font-bold text-white mb-1">
                       ${weeklyNeeded.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                     </div>
-                    <p className="text-xs text-green-200 mt-1">
-                      {currentWeekEarnings > 0 ? 
-                        `$${currentWeekEarnings.toLocaleString(undefined, { maximumFractionDigits: 0 })} earned so far` :
-                        'To reach weekly target'
-                      }
+                    <p className="text-xs text-green-200">remaining this week</p>
+                    <p className="text-sm text-white/70 mt-2">
+                      ${currentWeekEarnings.toLocaleString(undefined, { maximumFractionDigits: 0 })} / ${weeklyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })} earned
                     </p>
                   </div>
                 </div>
