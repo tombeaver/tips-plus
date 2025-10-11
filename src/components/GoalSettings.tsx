@@ -3,21 +3,35 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Target, TrendingUp, Calendar, Edit, Trash2, Plus, Clock, DollarSign } from 'lucide-react';
-import { Goal } from '@/hooks/useGoals';
+import { Target, TrendingUp, Calendar, Edit, Trash2, Plus, Clock, DollarSign, Wallet } from 'lucide-react';
+import { Goal, FinancialData } from '@/hooks/useGoals';
 import { TipEntry } from '@/hooks/useTipEntries';
 import { GoalSettingsForm } from '@/components/GoalSettingsForm';
-import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, isWithinInterval } from 'date-fns';
+import { FinancialHealthScore } from '@/components/FinancialHealthScore';
+import { IncomeExpenseChart } from '@/components/IncomeExpenseChart';
+import { BudgetInput } from '@/components/BudgetInput';
+import { ShiftRecommendations } from '@/components/ShiftRecommendations';
+import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, isWithinInterval, differenceInDays } from 'date-fns';
 
 interface GoalSettingsProps {
   goals: Goal[];
+  financialData: FinancialData;
   onAddGoal: (goal: Omit<Goal, 'id'>) => Promise<void>;
   onUpdateGoal: (goalId: string, goal: Omit<Goal, 'id'>) => Promise<void>;
   onDeleteGoal: (goalId: string) => Promise<void>;
+  onUpdateFinancialData: (data: FinancialData) => Promise<void>;
   tipEntries: TipEntry[];
 }
 
-export const GoalSettings: React.FC<GoalSettingsProps> = ({ goals, onAddGoal, onUpdateGoal, onDeleteGoal, tipEntries }) => {
+export const GoalSettings: React.FC<GoalSettingsProps> = ({ 
+  goals, 
+  financialData,
+  onAddGoal, 
+  onUpdateGoal, 
+  onDeleteGoal,
+  onUpdateFinancialData,
+  tipEntries 
+}) => {
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [showForm, setShowForm] = useState(false);
 
@@ -117,7 +131,7 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({ goals, onAddGoal, on
     .filter(type => !existingGoalTypes.includes(type));
   const allGoalTypesSet = availableGoalTypes.length === 0;
 
-  const projectedEarnings = useMemo(() => {
+  const financialMetrics = useMemo(() => {
     const now = new Date();
     const allEntries = [...realEntries, ...tipEntries.filter(entry => entry.isPlaceholder)];
     
@@ -128,29 +142,36 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({ goals, onAddGoal, on
       return tips + wages;
     };
     
-    // Calculate average daily earnings from real entries
-    const averageDaily = realEntries.length > 0 ? 
+    // Calculate average per shift from real entries
+    const averagePerShift = realEntries.length > 0 ? 
       realEntries.reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0) / realEntries.length : 
       0;
     
-    // Project weekly earnings including placeholders
-    const weekStart = startOfWeek(now);
-    const weekEnd = endOfWeek(now);
-    const weekEntries = allEntries.filter(entry => isWithinInterval(entry.date, { start: weekStart, end: weekEnd }));
-    const weekTotal = weekEntries.reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
-    
-    // Project monthly earnings
+    // Calculate monthly metrics
     const monthStart = startOfMonth(now);
     const monthEnd = endOfMonth(now);
-    const monthEntries = allEntries.filter(entry => isWithinInterval(entry.date, { start: monthStart, end: monthEnd }));
+    const monthEntries = realEntries.filter(entry => isWithinInterval(entry.date, { start: monthStart, end: monthEnd }));
     const monthTotal = monthEntries.reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
     
+    // Projected monthly with placeholders
+    const allMonthEntries = allEntries.filter(entry => isWithinInterval(entry.date, { start: monthStart, end: monthEnd }));
+    const projectedMonthTotal = allMonthEntries.reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
+    
+    // Calculate days left in month
+    const daysLeftInMonth = Math.max(0, differenceInDays(monthEnd, now));
+    
+    // Calculate current savings (income - expenses)
+    const currentSavings = Math.max(0, monthTotal - financialData.monthlyExpenses);
+    
     return {
-      averageDaily,
-      weekTotal,
-      monthTotal
+      averagePerShift,
+      monthlyIncome: monthTotal,
+      projectedMonthlyIncome: projectedMonthTotal,
+      shiftsWorkedThisMonth: monthEntries.length,
+      daysLeftInMonth,
+      currentSavings,
     };
-  }, [realEntries, tipEntries]);
+  }, [realEntries, tipEntries, financialData.monthlyExpenses]);
 
   return (
     <div className="space-y-4">
@@ -158,14 +179,48 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({ goals, onAddGoal, on
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Target className="h-6 w-6" />
-            Goals
+            <Wallet className="h-6 w-6" />
+            Financial Dashboard
           </CardTitle>
           <p className="body-md text-muted-foreground">
-            Track your progress and stay motivated
+            Track income, expenses, savings, and reach your financial goals
           </p>
         </CardHeader>
       </Card>
+
+      {/* Budget Input */}
+      <BudgetInput
+        monthlyExpenses={financialData.monthlyExpenses}
+        monthlySavingsGoal={financialData.monthlySavingsGoal}
+        monthlySpendingLimit={financialData.monthlySpendingLimit}
+        onSave={onUpdateFinancialData}
+      />
+
+      {/* Financial Health Score */}
+      <FinancialHealthScore
+        monthlyIncome={financialMetrics.monthlyIncome}
+        monthlyExpenses={financialData.monthlyExpenses}
+        monthlySavings={financialMetrics.currentSavings}
+        savingsGoal={financialData.monthlySavingsGoal}
+      />
+
+      {/* Shift Recommendations */}
+      <ShiftRecommendations
+        monthlyIncome={financialMetrics.monthlyIncome}
+        monthlyExpenses={financialData.monthlyExpenses}
+        monthlySavingsGoal={financialData.monthlySavingsGoal}
+        averagePerShift={financialMetrics.averagePerShift}
+        shiftsWorkedThisMonth={financialMetrics.shiftsWorkedThisMonth}
+        daysLeftInMonth={financialMetrics.daysLeftInMonth}
+      />
+
+      {/* Income vs Expense Chart */}
+      <IncomeExpenseChart
+        monthlyIncome={financialMetrics.monthlyIncome}
+        monthlyExpenses={financialData.monthlyExpenses}
+        monthlySavings={financialMetrics.currentSavings}
+        projectedIncome={financialMetrics.projectedMonthlyIncome}
+      />
 
       {/* Goal Management */}
       <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
@@ -301,82 +356,23 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({ goals, onAddGoal, on
         </CardContent>
       </Card>
 
-      {/* Analytics Section */}
-      <Card className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white">
-        <CardHeader>
-          <CardTitle className="text-white text-lg">
-            Earnings Analytics
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 border border-white/20 rounded-lg bg-white/10">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                  <DollarSign className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-white/80">Daily Average</span>
-              </div>
-              <div className="text-2xl font-bold text-white">
-                ${projectedEarnings.averageDaily.toFixed(2)}
-              </div>
-            </div>
-            <div className="p-4 border border-white/20 rounded-lg bg-white/10">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-white/80">This Week</span>
-              </div>
-              <div className="text-2xl font-bold text-white">
-                ${projectedEarnings.weekTotal.toFixed(2)}
-              </div>
-            </div>
-          </div>
-          
-          <div className="p-4 border border-white/20 rounded-lg bg-white/10">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                <Calendar className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-white/80">This Month (Projected)</span>
-            </div>
-            <div className="text-2xl font-bold text-white">
-              ${projectedEarnings.monthTotal.toFixed(2)}
-            </div>
-          </div>
-          
-          {tipEntries.some(entry => entry.isPlaceholder) && (
-            <div className="p-3 bg-white/10 rounded-lg border border-white/20">
-              <div className="flex items-center gap-2 mb-1">
-                <Calendar className="h-4 w-4 text-white" />
-                <p className="text-sm text-white font-medium">Planning Scenarios Included</p>
-              </div>
-              <p className="text-xs text-white/70">
-                Projections include your planned shifts as placeholders
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
       {/* Tips Section */}
       <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
         <CardHeader>
-          <CardTitle className="text-white text-lg">Goal Setting Tips</CardTitle>
+          <CardTitle className="text-white text-lg">Financial Planning Tips</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="p-3 border border-white/20 rounded-lg bg-white/5">
-            <p className="text-white text-sm">• Set realistic daily goals based on your average earnings</p>
+            <p className="text-white text-sm">• Track all expenses to identify areas to save</p>
           </div>
           <div className="p-3 border border-white/20 rounded-lg bg-white/5">
-            <p className="text-white text-sm">• Use weekly goals to plan for busier periods</p>
+            <p className="text-white text-sm">• Aim to save at least 20% of your income</p>
           </div>
           <div className="p-3 border border-white/20 rounded-lg bg-white/5">
-            <p className="text-white text-sm">• Monthly goals help with budgeting and financial planning</p>
+            <p className="text-white text-sm">• Set aside money for irregular expenses (car maintenance, gifts)</p>
           </div>
           <div className="p-3 border border-white/20 rounded-lg bg-white/5">
-            <p className="text-white text-sm">• Add planning scenarios to project future earnings</p>
+            <p className="text-white text-sm">• Review your budget monthly and adjust as needed</p>
           </div>
         </CardContent>
       </Card>

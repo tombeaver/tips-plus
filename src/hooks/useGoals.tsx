@@ -9,8 +9,19 @@ export interface Goal {
   period: string;
 }
 
+export interface FinancialData {
+  monthlyExpenses: number;
+  monthlySavingsGoal: number;
+  monthlySpendingLimit: number;
+}
+
 export const useGoals = () => {
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [financialData, setFinancialData] = useState<FinancialData>({
+    monthlyExpenses: 0,
+    monthlySavingsGoal: 0,
+    monthlySpendingLimit: 0,
+  });
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -31,8 +42,20 @@ export const useGoals = () => {
       if (error) throw error;
 
       const formattedGoals: Goal[] = [];
+      let latestFinancialData: FinancialData = {
+        monthlyExpenses: 0,
+        monthlySavingsGoal: 0,
+        monthlySpendingLimit: 0,
+      };
       
       (data || []).forEach(goal => {
+        // Store financial data from the most recent goal row
+        latestFinancialData = {
+          monthlyExpenses: Number(goal.monthly_expenses) || 0,
+          monthlySavingsGoal: Number(goal.monthly_savings_goal) || 0,
+          monthlySpendingLimit: Number(goal.monthly_spending_limit) || 0,
+        };
+
         if (goal.daily_goal > 0) {
           formattedGoals.push({
             id: goal.id,
@@ -68,6 +91,7 @@ export const useGoals = () => {
       });
 
       setGoals(formattedGoals);
+      setFinancialData(latestFinancialData);
     } catch (error) {
       console.error('Error fetching goals:', error);
       toast({
@@ -254,12 +278,82 @@ export const useGoals = () => {
     fetchGoals();
   }, []);
 
+  const updateFinancialData = async (data: FinancialData) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
+      // Get or create a goal row to store financial data
+      let goalId: string;
+      const { data: existingGoals } = await supabase
+        .from('goals')
+        .select('id')
+        .eq('user_id', user.id)
+        .limit(1);
+
+      if (existingGoals && existingGoals.length > 0) {
+        goalId = existingGoals[0].id;
+      } else {
+        // Create a new goal row if none exists
+        const { data: newGoal, error: insertError } = await supabase
+          .from('goals')
+          .insert([{
+            user_id: user.id,
+            daily_goal: 0,
+            weekly_goal: 0,
+            monthly_goal: 0,
+            yearly_goal: 0,
+            monthly_expenses: data.monthlyExpenses,
+            monthly_savings_goal: data.monthlySavingsGoal,
+            monthly_spending_limit: data.monthlySpendingLimit,
+          }])
+          .select()
+          .single();
+
+        if (insertError) throw insertError;
+        goalId = newGoal.id;
+      }
+
+      // Update financial data
+      const { error } = await supabase
+        .from('goals')
+        .update({
+          monthly_expenses: data.monthlyExpenses,
+          monthly_savings_goal: data.monthlySavingsGoal,
+          monthly_spending_limit: data.monthlySpendingLimit,
+        })
+        .eq('id', goalId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setFinancialData(data);
+      
+      toast({
+        title: "Success",
+        description: "Budget updated successfully!",
+      });
+    } catch (error) {
+      console.error('Error updating financial data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update budget. Please try again.",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
   return {
     goals,
+    financialData,
     loading,
     addGoal: addOrUpdateGoal,
     updateGoal,
     deleteGoal,
+    updateFinancialData,
     refetch: fetchGoals,
   };
 };

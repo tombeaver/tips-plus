@@ -19,7 +19,10 @@ export type Database = {
           created_at: string
           daily_goal: number
           id: string
+          monthly_expenses: number
           monthly_goal: number
+          monthly_savings_goal: number
+          monthly_spending_limit: number
           updated_at: string
           user_id: string
           weekly_goal: number
@@ -29,7 +32,10 @@ export type Database = {
           created_at?: string
           daily_goal?: number
           id?: string
+          monthly_expenses?: number
           monthly_goal?: number
+          monthly_savings_goal?: number
+          monthly_spending_limit?: number
           updated_at?: string
           user_id: string
           weekly_goal?: number
@@ -39,7 +45,10 @@ export type Database = {
           created_at?: string
           daily_goal?: number
           id?: string
+          monthly_expenses?: number
           monthly_goal?: number
+          monthly_savings_goal?: number
+          monthly_spending_limit?: number
           updated_at?: string
           user_id?: string
           weekly_goal?: number

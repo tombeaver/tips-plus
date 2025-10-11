@@ -38,7 +38,7 @@ const Index = () => {
   const navigate = useNavigate();
   
   const { tipEntries, loading: tipEntriesLoading, addTipEntry, updateTipEntry, deleteTipEntry } = useTipEntries();
-  const { goals, loading: goalsLoading, addGoal, updateGoal, deleteGoal } = useGoals();
+  const { goals, financialData, loading: goalsLoading, addGoal, updateGoal, deleteGoal, updateFinancialData } = useGoals();
   const [showEntryForm, setShowEntryForm] = useState(false);
   const [activeTab, setActiveTab] = useState("calendar");
   const [sections, setSections] = useState<{ [key: string]: string }>(createDefaultSections());
@@ -392,10 +392,12 @@ const Index = () => {
           {/* Goals Tab */}
           <TabsContent value="goals">
             <GoalSettings 
-              goals={goals} 
+              goals={goals}
+              financialData={financialData}
               onAddGoal={async (goal) => { await addGoal(goal); }}
               onUpdateGoal={async (goalId, goal) => { await updateGoal(goalId, goal); }}
               onDeleteGoal={deleteGoal}
+              onUpdateFinancialData={updateFinancialData}
               tipEntries={tipEntries}
             />
           </TabsContent>
