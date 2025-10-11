@@ -83,20 +83,20 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
         </CardHeader>
       </Card>
 
-      {/* Budget Input */}
-      <BudgetInput
-        monthlyExpenses={financialData.monthlyExpenses}
-        monthlySavingsGoal={financialData.monthlySavingsGoal}
-        monthlySpendingLimit={financialData.monthlySpendingLimit}
-        onSave={onUpdateFinancialData}
-      />
-
       {/* Financial Health Score */}
       <FinancialHealthScore
         monthlyIncome={financialMetrics.monthlyIncome}
         monthlyExpenses={financialMetrics.totalExpenses}
         monthlySavings={financialMetrics.currentSavings}
         savingsGoal={financialData.monthlySavingsGoal}
+      />
+
+      {/* Budget Input */}
+      <BudgetInput
+        monthlyExpenses={financialData.monthlyExpenses}
+        monthlySavingsGoal={financialData.monthlySavingsGoal}
+        monthlySpendingLimit={financialData.monthlySpendingLimit}
+        onSave={onUpdateFinancialData}
       />
 
       {/* Shift Recommendations */}
