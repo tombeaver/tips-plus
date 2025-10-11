@@ -360,11 +360,11 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
                 {/* Shift Recommendations */}
                 <div className="p-4 border border-white/20 rounded-lg bg-white/5">
                   <h5 className="font-semibold text-white mb-3">💡 Shift Strategy</h5>
-                  <div className="space-y-3 text-sm text-white/80">
+                  <div className="text-sm text-white/80">
                     {financialMetrics.averagePerShift > 0 ? (
                       <>
-                        <p className="font-semibold text-white mb-1">This Week:</p>
-                        <p>
+                        <p className="font-semibold text-white mb-0.5">This Week:</p>
+                        <p className="mb-4">
                           {weeklyNeeded > 0 ? (
                             <>Work approximately <span className="font-bold text-green-300">{Math.ceil(weeklyNeeded / financialMetrics.averagePerShift)} more {Math.ceil(weeklyNeeded / financialMetrics.averagePerShift) === 1 ? 'shift' : 'shifts'}</span> to meet your weekly target of ${weeklyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })}</>
                           ) : (
@@ -372,8 +372,8 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
                           )}
                         </p>
                         
-                        <p className="font-semibold text-white mt-4 mb-1">This Month:</p>
-                        <p>
+                        <p className="font-semibold text-white mb-0.5">This Month:</p>
+                        <p className="mb-4">
                           {monthlyNeeded > 0 ? (
                             <>Work approximately <span className="font-bold text-green-300">{Math.ceil(monthlyNeeded / financialMetrics.averagePerShift)} more {Math.ceil(monthlyNeeded / financialMetrics.averagePerShift) === 1 ? 'shift' : 'shifts'}</span> to meet your monthly target of ${monthlyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })}</>
                           ) : (
@@ -381,7 +381,7 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
                           )}
                         </p>
                         
-                        <p className="text-xs text-white/60 italic mt-4">
+                        <p className="text-xs text-white/60 italic">
                           Based on your average of ${financialMetrics.averagePerShift.toLocaleString(undefined, { maximumFractionDigits: 0 })} per shift
                         </p>
                       </>
