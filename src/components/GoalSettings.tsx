@@ -327,29 +327,29 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
                 {/* Breakdown Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Monthly Target */}
-                  <div className="p-4 border border-white/20 rounded-lg bg-white/10">
+                  <div className="p-4 border border-green-300/30 rounded-lg bg-green-500/20">
                     <div className="flex items-center gap-2 mb-2">
-                      <Calendar className="h-4 w-4 text-white/70" />
-                      <span className="text-xs text-white/70 uppercase">Monthly Target</span>
+                      <Calendar className="h-4 w-4 text-green-200" />
+                      <span className="text-xs text-green-200 uppercase">Monthly Target</span>
                     </div>
                     <div className="text-xl font-bold text-white">
                       ${currentMonthEarnings.toLocaleString(undefined, { maximumFractionDigits: 0 })} / ${monthlyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                     </div>
-                    <p className="text-xs text-white/60 mt-1">
+                    <p className="text-xs text-green-200 mt-1">
                       ${monthlyNeeded.toLocaleString(undefined, { maximumFractionDigits: 0 })} remaining
                     </p>
                   </div>
 
                   {/* Weekly Target */}
-                  <div className="p-4 border border-white/20 rounded-lg bg-white/10">
+                  <div className="p-4 border border-green-300/30 rounded-lg bg-green-500/20">
                     <div className="flex items-center gap-2 mb-2">
-                      <Clock className="h-4 w-4 text-white/70" />
-                      <span className="text-xs text-white/70 uppercase">Weekly Target</span>
+                      <Clock className="h-4 w-4 text-green-200" />
+                      <span className="text-xs text-green-200 uppercase">Weekly Target</span>
                     </div>
                     <div className="text-xl font-bold text-white">
                       ${currentWeekEarnings.toLocaleString(undefined, { maximumFractionDigits: 0 })} / ${weeklyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                     </div>
-                    <p className="text-xs text-white/60 mt-1">
+                    <p className="text-xs text-green-200 mt-1">
                       ${weeklyNeeded.toLocaleString(undefined, { maximumFractionDigits: 0 })} remaining
                     </p>
                   </div>
