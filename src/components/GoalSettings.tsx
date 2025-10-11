@@ -363,27 +363,25 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
                   <div className="space-y-3 text-sm text-white/80">
                     {financialMetrics.averagePerShift > 0 ? (
                       <>
-                        <div className="p-3 border border-white/10 rounded-lg bg-white/5">
-                          <p className="font-semibold text-white mb-1">This Week:</p>
-                          <p>
-                            {weeklyNeeded > 0 ? (
-                              <>Work approximately <span className="font-bold text-green-300">{Math.ceil(weeklyNeeded / financialMetrics.averagePerShift)} more {Math.ceil(weeklyNeeded / financialMetrics.averagePerShift) === 1 ? 'shift' : 'shifts'}</span> to meet your weekly target of ${weeklyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })}</>
-                            ) : (
-                              <span className="text-green-300 font-semibold">✓ Weekly target reached! Great job!</span>
-                            )}
-                          </p>
-                        </div>
-                        <div className="p-3 border border-white/10 rounded-lg bg-white/5">
-                          <p className="font-semibold text-white mb-1">This Month:</p>
-                          <p>
-                            {monthlyNeeded > 0 ? (
-                              <>Work approximately <span className="font-bold text-green-300">{Math.ceil(monthlyNeeded / financialMetrics.averagePerShift)} more {Math.ceil(monthlyNeeded / financialMetrics.averagePerShift) === 1 ? 'shift' : 'shifts'}</span> to meet your monthly target of ${monthlyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })}</>
-                            ) : (
-                              <span className="text-green-300 font-semibold">✓ Monthly target reached! Excellent work!</span>
-                            )}
-                          </p>
-                        </div>
-                        <p className="text-xs text-white/60 italic">
+                        <p className="font-semibold text-white">This Week:</p>
+                        <p>
+                          {weeklyNeeded > 0 ? (
+                            <>Work approximately <span className="font-bold text-green-300">{Math.ceil(weeklyNeeded / financialMetrics.averagePerShift)} more {Math.ceil(weeklyNeeded / financialMetrics.averagePerShift) === 1 ? 'shift' : 'shifts'}</span> to meet your weekly target of ${weeklyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })}</>
+                          ) : (
+                            <span className="text-green-300 font-semibold">✓ Weekly target reached! Great job!</span>
+                          )}
+                        </p>
+                        
+                        <p className="font-semibold text-white mt-4">This Month:</p>
+                        <p>
+                          {monthlyNeeded > 0 ? (
+                            <>Work approximately <span className="font-bold text-green-300">{Math.ceil(monthlyNeeded / financialMetrics.averagePerShift)} more {Math.ceil(monthlyNeeded / financialMetrics.averagePerShift) === 1 ? 'shift' : 'shifts'}</span> to meet your monthly target of ${monthlyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })}</>
+                          ) : (
+                            <span className="text-green-300 font-semibold">✓ Monthly target reached! Excellent work!</span>
+                          )}
+                        </p>
+                        
+                        <p className="text-xs text-white/60 italic mt-4">
                           Based on your average of ${financialMetrics.averagePerShift.toLocaleString(undefined, { maximumFractionDigits: 0 })} per shift
                         </p>
                       </>
