@@ -104,9 +104,17 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       return realEntries.filter(entry => getSundayWeek(entry.date) === weekNumber);
     } else if (periodType === 'month') {
       const [year, month] = selectedPeriod.split('-');
-      return realEntries.filter(entry => 
-        format(entry.date, 'yyyy-MM') === selectedPeriod
-      );
+      const filtered = realEntries.filter(entry => {
+        const entryMonth = format(entry.date, 'yyyy-MM');
+        console.log('Filtering:', { 
+          entryDate: entry.date.toISOString(), 
+          entryMonth, 
+          selectedPeriod,
+          matches: entryMonth === selectedPeriod 
+        });
+        return entryMonth === selectedPeriod;
+      });
+      return filtered;
     } else {
       const year = parseInt(selectedPeriod);
       return realEntries.filter(entry => getYear(entry.date) === year);
