@@ -41,9 +41,9 @@ export const useTipEntries = () => {
       if (error) throw error;
 
       const formattedEntries = (data || []).map(entry => {
-        // Parse date with explicit timezone handling to prevent month shifting
+        // Parse date at midnight local time to prevent timezone shifting
         const [year, month, day] = entry.date.split('-').map(Number);
-        const date = new Date(year, month - 1, day, 12, 0, 0);
+        const date = new Date(year, month - 1, day);
         
         return {
           id: entry.id,
@@ -112,9 +112,9 @@ export const useTipEntries = () => {
 
       if (error) throw error;
 
-      // Parse date with explicit timezone handling
+      // Parse date at midnight local time
       const [year, month, day] = data.date.split('-').map(Number);
-      const dateObj = new Date(year, month - 1, day, 12, 0, 0);
+      const dateObj = new Date(year, month - 1, day);
       
       const newEntry: TipEntry = {
         id: data.id,
