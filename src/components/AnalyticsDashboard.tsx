@@ -99,22 +99,19 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
   const filteredEntries = useMemo(() => {
     if (periodType === 'all' || !selectedPeriod) return realEntries;
     
-    console.log('Filtering with:', { periodType, selectedPeriod });
-    
     if (periodType === 'week') {
       const weekNumber = parseInt(selectedPeriod);
       return realEntries.filter(entry => getSundayWeek(entry.date) === weekNumber);
     } else if (periodType === 'month') {
+      // Extract year and month from selectedPeriod (format: "yyyy-MM" like "2025-08")
+      const [selectedYear, selectedMonth] = selectedPeriod.split('-').map(Number);
+      
       return realEntries.filter(entry => {
-        const entryMonth = format(entry.date, 'yyyy-MM');
-        const matches = entryMonth === selectedPeriod;
-        console.log('Month filter:', { 
-          entryDate: entry.date.toString(),
-          entryMonth,
-          selectedPeriod,
-          matches
-        });
-        return matches;
+        // getMonth() returns 0-11, so add 1 to get 1-12
+        const entryMonth = entry.date.getMonth() + 1;
+        const entryYear = entry.date.getFullYear();
+        
+        return entryYear === selectedYear && entryMonth === selectedMonth;
       });
     } else {
       const year = parseInt(selectedPeriod);
