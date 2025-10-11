@@ -333,9 +333,11 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
                       <span className="text-xs text-white/70 uppercase">Monthly Target</span>
                     </div>
                     <div className="text-xl font-bold text-white">
-                      ${monthlyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      ${currentMonthEarnings.toLocaleString(undefined, { maximumFractionDigits: 0 })} / ${monthlyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                     </div>
-                    <p className="text-xs text-white/60 mt-1">Goal ÷ 12 months</p>
+                    <p className="text-xs text-white/60 mt-1">
+                      ${monthlyNeeded.toLocaleString(undefined, { maximumFractionDigits: 0 })} remaining
+                    </p>
                   </div>
 
                   {/* Weekly Target */}
@@ -345,9 +347,11 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
                       <span className="text-xs text-white/70 uppercase">Weekly Target</span>
                     </div>
                     <div className="text-xl font-bold text-white">
-                      ${weeklyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      ${currentWeekEarnings.toLocaleString(undefined, { maximumFractionDigits: 0 })} / ${weeklyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                     </div>
-                    <p className="text-xs text-white/60 mt-1">Goal ÷ 52 weeks</p>
+                    <p className="text-xs text-white/60 mt-1">
+                      ${weeklyNeeded.toLocaleString(undefined, { maximumFractionDigits: 0 })} remaining
+                    </p>
                   </div>
 
                   {/* Needed This Week */}
