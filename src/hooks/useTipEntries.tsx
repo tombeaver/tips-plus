@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 
 export interface TipEntry {
   id: string;
@@ -40,19 +40,25 @@ export const useTipEntries = () => {
 
       if (error) throw error;
 
-      const formattedEntries = (data || []).map(entry => ({
-        id: entry.id,
-        date: new Date(entry.date + 'T12:00:00'), // Add noon time to avoid timezone issues
-        totalSales: Number(entry.sales) || 0,
-        creditTips: Number(entry.tips) || 0,
-        cashTips: Number(entry.cash_tips) || 0,
-        guestCount: Number(entry.guest_count) || 0,
-        section: `Section ${entry.section}`,
-        shift: entry.shift as 'AM' | 'PM' | 'Double' || 'PM',
-        hoursWorked: Number(entry.hours_worked) || 8,
-        hourlyRate: Number(entry.hourly_rate) || 15,
-        moodRating: entry.mood_rating ? Number(entry.mood_rating) : undefined,
-      }));
+      const formattedEntries = (data || []).map(entry => {
+        // Parse date with explicit timezone handling to prevent month shifting
+        const [year, month, day] = entry.date.split('-').map(Number);
+        const date = new Date(year, month - 1, day, 12, 0, 0);
+        
+        return {
+          id: entry.id,
+          date,
+          totalSales: Number(entry.sales) || 0,
+          creditTips: Number(entry.tips) || 0,
+          cashTips: Number(entry.cash_tips) || 0,
+          guestCount: Number(entry.guest_count) || 0,
+          section: `Section ${entry.section}`,
+          shift: entry.shift as 'AM' | 'PM' | 'Double' || 'PM',
+          hoursWorked: Number(entry.hours_worked) || 8,
+          hourlyRate: Number(entry.hourly_rate) || 15,
+          moodRating: entry.mood_rating ? Number(entry.mood_rating) : undefined,
+        };
+      });
 
       setTipEntries(formattedEntries);
     } catch (error) {
@@ -106,9 +112,13 @@ export const useTipEntries = () => {
 
       if (error) throw error;
 
+      // Parse date with explicit timezone handling
+      const [year, month, day] = data.date.split('-').map(Number);
+      const dateObj = new Date(year, month - 1, day, 12, 0, 0);
+      
       const newEntry: TipEntry = {
         id: data.id,
-        date: new Date(data.date + 'T12:00:00'), // Add noon time to avoid timezone issues
+        date: dateObj,
         totalSales: Number(data.sales),
         creditTips: Number(data.tips),
         cashTips: Number(data.cash_tips),
