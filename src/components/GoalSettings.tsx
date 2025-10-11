@@ -363,7 +363,7 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
                   <div className="space-y-3 text-sm text-white/80">
                     {financialMetrics.averagePerShift > 0 ? (
                       <>
-                        <p className="font-semibold text-white">This Week:</p>
+                        <p className="font-semibold text-white mb-1">This Week:</p>
                         <p>
                           {weeklyNeeded > 0 ? (
                             <>Work approximately <span className="font-bold text-green-300">{Math.ceil(weeklyNeeded / financialMetrics.averagePerShift)} more {Math.ceil(weeklyNeeded / financialMetrics.averagePerShift) === 1 ? 'shift' : 'shifts'}</span> to meet your weekly target of ${weeklyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })}</>
@@ -372,7 +372,7 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
                           )}
                         </p>
                         
-                        <p className="font-semibold text-white mt-4">This Month:</p>
+                        <p className="font-semibold text-white mt-4 mb-1">This Month:</p>
                         <p>
                           {monthlyNeeded > 0 ? (
                             <>Work approximately <span className="font-bold text-green-300">{Math.ceil(monthlyNeeded / financialMetrics.averagePerShift)} more {Math.ceil(monthlyNeeded / financialMetrics.averagePerShift) === 1 ? 'shift' : 'shifts'}</span> to meet your monthly target of ${monthlyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })}</>
