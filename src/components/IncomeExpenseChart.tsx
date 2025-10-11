@@ -6,27 +6,19 @@ interface IncomeExpenseChartProps {
   monthlyIncome: number;
   monthlyExpenses: number;
   monthlySavings: number;
-  projectedIncome: number;
 }
 
 export const IncomeExpenseChart: React.FC<IncomeExpenseChartProps> = ({
   monthlyIncome,
   monthlyExpenses,
   monthlySavings,
-  projectedIncome,
 }) => {
   const data = [
     {
-      name: 'Current',
+      name: 'Month',
       Income: monthlyIncome,
       Expenses: monthlyExpenses,
       Savings: monthlySavings,
-    },
-    {
-      name: 'Projected',
-      Income: projectedIncome,
-      Expenses: monthlyExpenses,
-      Savings: Math.max(0, projectedIncome - monthlyExpenses),
     },
   ];
 

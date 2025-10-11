@@ -114,7 +114,6 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
         monthlyIncome={financialMetrics.monthlyIncome}
         monthlyExpenses={financialMetrics.totalExpenses}
         monthlySavings={financialMetrics.currentSavings}
-        projectedIncome={financialMetrics.projectedMonthlyIncome}
       />
 
       {/* Tips Section */}
