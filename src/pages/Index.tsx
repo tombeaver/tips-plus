@@ -37,6 +37,10 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   
+  // Swipe detection state
+  const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
+  const [touchEnd, setTouchEnd] = useState<{ x: number; y: number } | null>(null);
+  
   const { tipEntries, loading: tipEntriesLoading, addTipEntry, updateTipEntry, deleteTipEntry } = useTipEntries();
   const { goals, financialData, loading: goalsLoading, addGoal, updateGoal, deleteGoal, updateFinancialData } = useGoals();
   const [showEntryForm, setShowEntryForm] = useState(false);
@@ -136,6 +140,49 @@ const Index = () => {
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
   };
 
+  // Swipe handlers
+  const tabs = ["calendar", "analytics", "finance", "goals"];
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart({
+      x: e.targetTouches[0].clientX,
+      y: e.targetTouches[0].clientY
+    });
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd({
+      x: e.targetTouches[0].clientX,
+      y: e.targetTouches[0].clientY
+    });
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distanceX = touchStart.x - touchEnd.x;
+    const distanceY = touchStart.y - touchEnd.y;
+    const isHorizontalSwipe = Math.abs(distanceX) > Math.abs(distanceY);
+    
+    if (isHorizontalSwipe && Math.abs(distanceX) > minSwipeDistance) {
+      const currentIndex = tabs.indexOf(activeTab);
+      
+      if (distanceX > 0) {
+        // Swiped left (next tab)
+        if (currentIndex < tabs.length - 1) {
+          setActiveTab(tabs[currentIndex + 1]);
+        }
+      } else {
+        // Swiped right (previous tab)
+        if (currentIndex > 0) {
+          setActiveTab(tabs[currentIndex - 1]);
+        }
+      }
+    }
+  };
+
   const selectedEntry = getEntryForDate(selectedDate);
 
   if (loading) {
@@ -188,7 +235,7 @@ const Index = () => {
 
         {/* Main Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-card/50 backdrop-blur-sm border shadow-sm">
+          <TabsList className="grid w-full grid-cols-4 bg-card/50 backdrop-blur-sm border shadow-sm" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
             <TabsTrigger value="calendar" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
               <CalendarDays className="h-4 w-4" />
               <span className="hidden sm:inline">Calendar</span>
@@ -208,7 +255,7 @@ const Index = () => {
           </TabsList>
 
           {/* Calendar Tab */}
-          <TabsContent value="calendar" className="space-group">
+          <TabsContent value="calendar" className="space-group" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
             <Card className="card-interactive">
               <CardContent className="pt-6">
                 <EarningsCalendar
@@ -379,12 +426,12 @@ const Index = () => {
           </TabsContent>
 
           {/* Analytics Tab */}
-          <TabsContent value="analytics">
+          <TabsContent value="analytics" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
             <AnalyticsDashboard tipEntries={tipEntries} />
           </TabsContent>
 
           {/* Finance Strategy Tab */}
-          <TabsContent value="finance">
+          <TabsContent value="finance" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
             <FinanceStrategy 
               financialData={financialData}
               onUpdateFinancialData={updateFinancialData}
@@ -393,7 +440,7 @@ const Index = () => {
           </TabsContent>
 
           {/* Goals Tab */}
-          <TabsContent value="goals">
+          <TabsContent value="goals" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
             <GoalSettings 
               goals={goals}
               financialData={financialData}
