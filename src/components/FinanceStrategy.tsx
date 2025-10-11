@@ -83,13 +83,15 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
         </CardHeader>
       </Card>
 
-      {/* Financial Health Score */}
-      <FinancialHealthScore
-        monthlyIncome={financialMetrics.monthlyIncome}
-        monthlyExpenses={financialMetrics.totalExpenses}
-        monthlySavings={financialMetrics.currentSavings}
-        savingsGoal={financialData.monthlySavingsGoal}
-      />
+      {/* Financial Health Score - only show if budget is set */}
+      {financialMetrics.totalExpenses > 0 && (
+        <FinancialHealthScore
+          monthlyIncome={financialMetrics.monthlyIncome}
+          monthlyExpenses={financialMetrics.totalExpenses}
+          monthlySavings={financialMetrics.currentSavings}
+          savingsGoal={financialData.monthlySavingsGoal}
+        />
+      )}
 
       {/* Budget Input */}
       <BudgetInput
