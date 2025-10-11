@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { format } from 'date-fns';
 
 interface FinancialHealthScoreProps {
   monthlyIncome: number;
@@ -36,6 +37,7 @@ export const FinancialHealthScore: React.FC<FinancialHealthScoreProps> = ({
 
   const score = calculateScore();
   const netIncome = monthlyIncome - monthlyExpenses;
+  const currentMonth = format(new Date(), 'MMMM');
   
   const getScoreColor = () => {
     if (score >= 80) return 'text-green-600';
@@ -60,7 +62,7 @@ export const FinancialHealthScore: React.FC<FinancialHealthScoreProps> = ({
     <Card className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span>Financial Health Score</span>
+          <span>{currentMonth} Health Score</span>
           {getTrendIcon()}
         </CardTitle>
       </CardHeader>
