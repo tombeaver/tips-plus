@@ -51,8 +51,11 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
     // Calculate days left in month
     const daysLeftInMonth = Math.max(0, differenceInDays(monthEnd, now));
     
-    // Calculate current savings (income - expenses)
-    const currentSavings = Math.max(0, monthTotal - financialData.monthlyExpenses);
+    // Calculate total expenses (monthly expenses + additional expenses)
+    const totalExpenses = financialData.monthlyExpenses + financialData.monthlySpendingLimit;
+    
+    // Calculate current savings (income - total expenses)
+    const currentSavings = Math.max(0, monthTotal - totalExpenses);
     
     return {
       averagePerShift,
@@ -61,8 +64,9 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
       shiftsWorkedThisMonth: monthEntries.length,
       daysLeftInMonth,
       currentSavings,
+      totalExpenses,
     };
-  }, [realEntries, tipEntries, financialData.monthlyExpenses]);
+  }, [realEntries, tipEntries, financialData.monthlyExpenses, financialData.monthlySpendingLimit]);
 
   return (
     <div className="space-y-4">
@@ -90,7 +94,7 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
       {/* Financial Health Score */}
       <FinancialHealthScore
         monthlyIncome={financialMetrics.monthlyIncome}
-        monthlyExpenses={financialData.monthlyExpenses}
+        monthlyExpenses={financialMetrics.totalExpenses}
         monthlySavings={financialMetrics.currentSavings}
         savingsGoal={financialData.monthlySavingsGoal}
       />
@@ -98,7 +102,7 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
       {/* Shift Recommendations */}
       <ShiftRecommendations
         monthlyIncome={financialMetrics.monthlyIncome}
-        monthlyExpenses={financialData.monthlyExpenses}
+        monthlyExpenses={financialMetrics.totalExpenses}
         monthlySavingsGoal={financialData.monthlySavingsGoal}
         averagePerShift={financialMetrics.averagePerShift}
         shiftsWorkedThisMonth={financialMetrics.shiftsWorkedThisMonth}
@@ -108,7 +112,7 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
       {/* Income vs Expense Chart */}
       <IncomeExpenseChart
         monthlyIncome={financialMetrics.monthlyIncome}
-        monthlyExpenses={financialData.monthlyExpenses}
+        monthlyExpenses={financialMetrics.totalExpenses}
         monthlySavings={financialMetrics.currentSavings}
         projectedIncome={financialMetrics.projectedMonthlyIncome}
       />

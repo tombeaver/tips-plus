@@ -96,18 +96,18 @@ export const BudgetInput: React.FC<BudgetInputProps> = ({
         <div className="space-y-2">
           <Label htmlFor="spendingLimit" className="flex items-center gap-2">
             <ShoppingBag className="h-4 w-4" />
-            Discretionary Spending Limit
+            Additional Expenses
           </Label>
           <Input
             id="spendingLimit"
             type="number"
             step="0.01"
-            placeholder="Max leisure/fun spending"
+            placeholder="Enter additional expenses"
             value={spendingLimit}
             onChange={(e) => setSpendingLimit(e.target.value)}
           />
           <p className="text-xs text-muted-foreground">
-            Optional limit for entertainment, dining out, shopping
+            Entertainment, dining out, shopping, etc.
           </p>
         </div>
 
