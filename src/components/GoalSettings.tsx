@@ -260,7 +260,8 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
             }
 
             const monthlyTarget = yearlyGoal.amount / 12;
-            const weeklyTarget = yearlyGoal.amount / weeksInYear;
+            const weeksPerMonth = 52 / 12; // ~4.33 weeks per month
+            const weeklyTarget = monthlyTarget / weeksPerMonth;
             const weeklyNeeded = weeksRemaining > 0 ? 
               Math.max(0, (yearlyGoal.amount - yearlyProgress.achieved) / weeksRemaining) : 0;
 
