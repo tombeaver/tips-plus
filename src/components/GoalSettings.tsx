@@ -262,8 +262,23 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
             const monthlyTarget = yearlyGoal.amount / 12;
             const weeksPerMonth = 52 / 12; // ~4.33 weeks per month
             const weeklyTarget = monthlyTarget / weeksPerMonth;
-            const weeklyNeeded = weeksRemaining > 0 ? 
-              Math.max(0, (yearlyGoal.amount - yearlyProgress.achieved) / weeksRemaining) : 0;
+            
+            // Calculate current period earnings
+            const weekStart = startOfWeek(now);
+            const weekEnd = endOfWeek(now);
+            const monthStart = startOfMonth(now);
+            const monthEnd = endOfMonth(now);
+            
+            const currentWeekEarnings = realEntries
+              .filter(entry => isWithinInterval(entry.date, { start: weekStart, end: weekEnd }))
+              .reduce((sum, entry) => sum + entry.creditTips + entry.cashTips, 0);
+            
+            const currentMonthEarnings = realEntries
+              .filter(entry => isWithinInterval(entry.date, { start: monthStart, end: monthEnd }))
+              .reduce((sum, entry) => sum + entry.creditTips + entry.cashTips, 0);
+            
+            const weeklyNeeded = Math.max(0, weeklyTarget - currentWeekEarnings);
+            const monthlyNeeded = Math.max(0, monthlyTarget - currentMonthEarnings);
 
             return (
               <div className="space-y-6">
@@ -335,37 +350,38 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
                     <p className="text-xs text-white/60 mt-1">Goal ÷ 52 weeks</p>
                   </div>
 
-                  {/* Needed Per Week */}
+                  {/* Needed This Week */}
                   <div className="p-4 border border-green-300/30 rounded-lg bg-green-500/20">
                     <div className="flex items-center gap-2 mb-2">
                       <DollarSign className="h-4 w-4 text-green-200" />
-                      <span className="text-xs text-green-200 uppercase">Need Per Week</span>
+                      <span className="text-xs text-green-200 uppercase">Need This Week</span>
                     </div>
                     <div className="text-xl font-bold text-white">
                       ${weeklyNeeded.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                     </div>
                     <p className="text-xs text-green-200 mt-1">
-                      {weeklyNeeded > weeklyTarget ? 
-                        `${(((weeklyNeeded - weeklyTarget) / weeklyTarget) * 100).toFixed(0)}% more than target` :
-                        'On track!'
+                      {currentWeekEarnings > 0 ? 
+                        `$${currentWeekEarnings.toLocaleString(undefined, { maximumFractionDigits: 0 })} earned so far` :
+                        'To reach weekly target'
                       }
                     </p>
                   </div>
                 </div>
 
-                {/* Weekly Recommendation */}
-                {weeklyNeeded > 0 && (
-                  <div className="p-4 border border-white/20 rounded-lg bg-white/5">
-                    <h5 className="font-semibold text-white mb-2">💡 Weekly Strategy</h5>
-                    <p className="text-sm text-white/80">
-                      {weeklyNeeded > weeklyTarget ? (
-                        <>You need to earn <span className="font-bold text-green-300">${(weeklyNeeded - weeklyTarget).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span> more per week than your target to reach your annual goal. Consider picking up {Math.ceil((weeklyNeeded - weeklyTarget) / (financialMetrics.averagePerShift || 100))} extra shifts per week.</>
-                      ) : (
-                        <>You're on track! Keep earning <span className="font-bold text-green-300">${weeklyNeeded.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span> per week to hit your annual goal.</>
-                      )}
+                {/* Progress Summary */}
+                <div className="p-4 border border-white/20 rounded-lg bg-white/5">
+                  <h5 className="font-semibold text-white mb-3">💡 Progress Summary</h5>
+                  <div className="space-y-2 text-sm text-white/80">
+                    <p>
+                      <span className="font-semibold text-white">This Week:</span> You've earned ${currentWeekEarnings.toLocaleString(undefined, { maximumFractionDigits: 0 })} of your ${weeklyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })} weekly target
+                      {weeklyNeeded > 0 && <span className="text-green-300"> • ${weeklyNeeded.toLocaleString(undefined, { maximumFractionDigits: 0 })} more needed</span>}
+                    </p>
+                    <p>
+                      <span className="font-semibold text-white">This Month:</span> You've earned ${currentMonthEarnings.toLocaleString(undefined, { maximumFractionDigits: 0 })} of your ${monthlyTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })} monthly target
+                      {monthlyNeeded > 0 && <span className="text-green-300"> • ${monthlyNeeded.toLocaleString(undefined, { maximumFractionDigits: 0 })} more needed</span>}
                     </p>
                   </div>
-                )}
+                </div>
               </div>
             );
           })()}
