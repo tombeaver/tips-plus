@@ -171,20 +171,10 @@ export function AchievementsGallery() {
 
   return (
     <div className="space-y-6">
-      {/* Navigation Tabs */}
       <Tabs defaultValue="all" className="w-full" onValueChange={(value) => setSelectedCategory(value as BadgeCategory | "all")}>
-        <div 
-          className="sticky top-0 z-10 shadow-md bg-background"
-          style={{ 
-            marginTop: '-1.5rem',
-            marginLeft: '-1.5rem', 
-            marginRight: '-1.5rem',
-            paddingLeft: '1.5rem',
-            paddingRight: '1.5rem',
-            paddingBottom: '1rem',
-          }}
-        >
-          <TabsList className="grid w-full grid-cols-5 bg-card/50 border shadow-sm">
+        {/* Sticky Tab Navigation */}
+        <div className="sticky top-20 z-10 bg-background shadow-md px-6 py-3">
+          <TabsList className="grid w-full grid-cols-5 bg-card/50 border shadow-sm h-12">
             <TabsTrigger value="all" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary hover:bg-muted/50">
               <LayoutGrid className="h-4 w-4" />
               <span className="hidden sm:inline">All</span>
@@ -208,6 +198,8 @@ export function AchievementsGallery() {
           </TabsList>
         </div>
 
+        {/* Content with proper spacing */}
+        <div className="px-6 pb-6">
           {(["all", "earnings", "consistency", "milestone", "special"] as const).map((category) => (
             <TabsContent key={category} value={category} className="space-y-6 mt-12">
               {/* Category Title */}
@@ -243,7 +235,8 @@ export function AchievementsGallery() {
               )}
             </TabsContent>
           ))}
-        </Tabs>
-      </div>
-    );
-  }
+        </div>
+      </Tabs>
+    </div>
+  );
+}

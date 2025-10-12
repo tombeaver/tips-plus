@@ -11,9 +11,9 @@ interface AchievementsModalProps {
 export function AchievementsModal({ isOpen, onClose }: AchievementsModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-screen h-screen max-w-none p-0 gap-0 border-0">
-        {/* Fixed Header */}
-        <div className="sticky top-0 z-10 bg-gradient-to-r from-purple-600 via-purple-500 to-purple-600 px-6 flex items-center justify-between h-20">
+      <DialogContent className="w-screen h-screen max-w-none p-0 gap-0 border-0 flex flex-col">
+        {/* Sticky Header Section - Purple Header ONLY */}
+        <div className="sticky top-0 z-10 h-20 bg-gradient-to-r from-purple-600 via-purple-500 to-purple-600 px-6 flex items-center justify-between">
           <DialogTitle className="text-2xl font-semibold text-white">
             Your Achievements
           </DialogTitle>
@@ -28,7 +28,7 @@ export function AchievementsModal({ isOpen, onClose }: AchievementsModalProps) {
         </div>
 
         {/* Scrollable Content */}
-        <div className="overflow-y-auto flex-1 bg-background p-6">
+        <div className="overflow-y-auto flex-1 bg-background">
           <AchievementsGallery />
         </div>
       </DialogContent>
