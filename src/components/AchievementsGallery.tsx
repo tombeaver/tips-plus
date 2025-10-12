@@ -183,11 +183,20 @@ export function AchievementsGallery() {
             paddingLeft: '1.5rem',
             paddingRight: '1.5rem',
             paddingTop: '0',
-            paddingBottom: '0.5rem',
-            background: 'hsl(var(--background) / 0.95)',
-            backdropFilter: 'blur(12px)'
+            paddingBottom: '1rem',
+            background: 'hsl(var(--background))',
           }}
         >
+          {/* Category Title */}
+          <div className="pt-4 pb-3 text-center bg-background">
+            <h3 className="text-xl font-semibold text-foreground">
+              {categoryInfo[selectedCategory].title}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {categoryInfo[selectedCategory].description}
+            </p>
+          </div>
+
           <TabsList className="grid w-full grid-cols-5 bg-card/50 backdrop-blur-sm border shadow-sm">
             <TabsTrigger value="all" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary hover:bg-muted/50">
               <LayoutGrid className="h-4 w-4" />
@@ -212,18 +221,8 @@ export function AchievementsGallery() {
           </TabsList>
         </div>
 
-          {/* Dynamic Subhead */}
-          <div className="mb-6 text-center">
-            <h3 className="text-xl font-semibold text-foreground">
-              {categoryInfo[selectedCategory].title}
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {categoryInfo[selectedCategory].description}
-            </p>
-          </div>
-
           {(["all", "earnings", "consistency", "milestone", "special"] as const).map((category) => (
-            <TabsContent key={category} value={category} className="space-y-4">
+            <TabsContent key={category} value={category} className="space-y-4 mt-6">
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 {filterByCategory(category === "all" ? "all" : category).map((achievement) => (
                   <AchievementBadge
