@@ -103,15 +103,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       const weekNumber = parseInt(selectedPeriod);
       return realEntries.filter(entry => getSundayWeek(entry.date) === weekNumber);
     } else if (periodType === 'month') {
-      // Extract year and month from selectedPeriod (format: "yyyy-MM" like "2025-08")
-      const [selectedYear, selectedMonth] = selectedPeriod.split('-').map(Number);
-      
+      // Format entry dates as "yyyy-MM" and compare directly to avoid timezone issues
       return realEntries.filter(entry => {
-        // getMonth() returns 0-11, so add 1 to get 1-12
-        const entryMonth = entry.date.getMonth() + 1;
-        const entryYear = entry.date.getFullYear();
-        
-        return entryYear === selectedYear && entryMonth === selectedMonth;
+        const entryYearMonth = format(entry.date, 'yyyy-MM');
+        return entryYearMonth === selectedPeriod;
       });
     } else {
       const year = parseInt(selectedPeriod);
