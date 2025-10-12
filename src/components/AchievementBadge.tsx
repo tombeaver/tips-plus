@@ -18,25 +18,32 @@ interface AchievementBadgeProps {
   className?: string;
 }
 
-const overlayGradients: Record<BadgeRarity, string> = {
-  common: "from-secondary via-secondary/90 to-secondary/80",
-  rare: "from-primary via-primary/90 to-primary/80",
-  epic: "from-purple-600 via-purple-500 to-purple-600",
-  legendary: "from-amber-500 via-amber-400 to-amber-500",
+const rarityStyles: Record<BadgeRarity, string> = {
+  common: "from-cyan-500/20 to-emerald-500/10 border-cyan-500/30",
+  rare: "from-primary/20 to-primary/10 border-primary/30",
+  epic: "from-purple-500/20 to-purple-500/10 border-purple-500/30",
+  legendary: "from-amber-500/20 to-amber-500/10 border-amber-500/30",
 };
 
 const rarityGlow: Record<BadgeRarity, string> = {
-  common: "shadow-secondary/20",
+  common: "shadow-cyan-500/20",
   rare: "shadow-primary/30",
   epic: "shadow-purple-500/40",
   legendary: "shadow-amber-500/50 animate-pulse",
 };
 
 const rarityIcon: Record<BadgeRarity, string> = {
-  common: "text-secondary",
+  common: "text-cyan-600",
   rare: "text-primary",
   epic: "text-purple-500",
   legendary: "text-amber-500",
+};
+
+const overlayGradients: Record<BadgeRarity, string> = {
+  common: "from-cyan-600 via-emerald-500 to-cyan-600",
+  rare: "from-primary via-primary/90 to-primary/80",
+  epic: "from-purple-600 via-purple-500 to-purple-600",
+  legendary: "from-amber-500 via-amber-400 to-amber-500",
 };
 
 export function AchievementBadge({
@@ -64,7 +71,8 @@ export function AchievementBadge({
       <div
         className={cn(
           "relative w-full h-full",
-          "rounded-xl border-2 bg-gradient-to-br from-muted/10 to-muted/5 border-muted/20 p-4",
+          "rounded-xl border-2 bg-gradient-to-br p-4",
+          unlocked ? rarityStyles[rarity] : "from-muted/10 to-muted/5 border-muted/20",
           unlocked && rarityGlow[rarity],
           !unlocked && "opacity-50 grayscale"
         )}
