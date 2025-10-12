@@ -174,20 +174,17 @@ export function AchievementsGallery() {
       {/* Navigation Tabs */}
       <Tabs defaultValue="all" className="w-full" onValueChange={(value) => setSelectedCategory(value as BadgeCategory | "all")}>
         <div 
-          className="sticky z-10 transition-all duration-200 shadow-md"
+          className="sticky top-0 z-10 shadow-md bg-background"
           style={{ 
-            top: '0',
             marginTop: '-1.5rem',
             marginLeft: '-1.5rem', 
             marginRight: '-1.5rem',
             paddingLeft: '1.5rem',
             paddingRight: '1.5rem',
-            paddingTop: '0',
             paddingBottom: '1rem',
-            background: 'hsl(var(--background))',
           }}
         >
-          <TabsList className="grid w-full grid-cols-5 bg-card/50 backdrop-blur-sm border shadow-sm">
+          <TabsList className="grid w-full grid-cols-5 bg-card/50 border shadow-sm">
             <TabsTrigger value="all" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary hover:bg-muted/50">
               <LayoutGrid className="h-4 w-4" />
               <span className="hidden sm:inline">All</span>
@@ -212,13 +209,13 @@ export function AchievementsGallery() {
         </div>
 
           {(["all", "earnings", "consistency", "milestone", "special"] as const).map((category) => (
-            <TabsContent key={category} value={category} className="space-y-4 mt-6">
+            <TabsContent key={category} value={category} className="space-y-6 mt-8">
               {/* Category Title */}
-              <div className="text-center mb-6">
-                <h3 className="text-xl font-semibold text-foreground">
+              <div className="text-center">
+                <h3 className="text-2xl font-bold text-foreground mb-2">
                   {categoryInfo[category === "all" ? "all" : category].title}
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground">
                   {categoryInfo[category === "all" ? "all" : category].description}
                 </p>
               </div>
