@@ -13,7 +13,8 @@ import { FinanceStrategy } from '@/components/FinanceStrategy';
 import { FeedbackModal } from '@/components/FeedbackModal';
 import { EarningsCalendar } from '@/components/EarningsCalendar';
 import { PrivacyPolicy } from '@/components/PrivacyPolicy';
-import { CalendarDays, TrendingUp, Target, Plus, Wallet, LogOut, MessageCircle, Frown, Meh, Smile, Laugh, Zap, DollarSign, CreditCard, Clock, Receipt, Users } from 'lucide-react';
+import { AchievementsGallery } from '@/components/AchievementsGallery';
+import { CalendarDays, TrendingUp, Target, Plus, Wallet, LogOut, MessageCircle, Frown, Meh, Smile, Laugh, Zap, DollarSign, CreditCard, Clock, Receipt, Users, Trophy } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
 import { useTipEntries, type TipEntry } from '@/hooks/useTipEntries';
 import { useGoals, type Goal } from '@/hooks/useGoals';
@@ -218,7 +219,7 @@ const Index = () => {
               backdropFilter: isSticky ? 'blur(12px)' : 'none'
             }}
           >
-            <TabsList className="grid w-full grid-cols-4 bg-card/50 backdrop-blur-sm border shadow-sm">
+            <TabsList className="grid w-full grid-cols-5 bg-card/50 backdrop-blur-sm border shadow-sm">
             <TabsTrigger value="calendar" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
               <CalendarDays className="h-4 w-4" />
               <span className="hidden sm:inline">Calendar</span>
@@ -234,6 +235,10 @@ const Index = () => {
             <TabsTrigger value="goals" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
               <Target className="h-4 w-4" />
               <span className="hidden sm:inline">Goals</span>
+            </TabsTrigger>
+            <TabsTrigger value="achievements" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
+              <Trophy className="h-4 w-4" />
+              <span className="hidden sm:inline">Achievements</span>
             </TabsTrigger>
           </TabsList>
           </div>
@@ -433,6 +438,11 @@ const Index = () => {
               onDeleteGoal={deleteGoal}
               tipEntries={tipEntries}
             />
+          </TabsContent>
+
+          {/* Achievements Tab */}
+          <TabsContent value="achievements">
+            <AchievementsGallery />
           </TabsContent>
         </Tabs>
 
