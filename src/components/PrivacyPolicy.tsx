@@ -15,11 +15,17 @@ interface PrivacyPolicyProps {
 export const PrivacyPolicy = ({ isOpen, onClose }: PrivacyPolicyProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Privacy Policy</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4 text-sm text-muted-foreground">
+      <DialogContent className="w-screen h-screen max-w-none p-0 gap-0 border-0">
+        {/* Fixed Header */}
+        <div className="sticky top-0 z-10 bg-gradient-to-r from-purple-600 via-purple-500 to-purple-600 px-6 py-4">
+          <DialogTitle className="text-2xl font-semibold text-white">
+            Privacy Policy
+          </DialogTitle>
+        </div>
+
+        {/* Scrollable Content */}
+        <div className="overflow-y-auto flex-1 bg-background p-6">
+          <div className="space-y-4 text-sm text-muted-foreground">
           <div>
             <h3 className="font-semibold text-foreground mb-2">Information We Collect</h3>
             <p>
@@ -73,6 +79,7 @@ export const PrivacyPolicy = ({ isOpen, onClose }: PrivacyPolicyProps) => {
             <p className="text-xs">
               Last updated: {new Date().toLocaleDateString()}
             </p>
+          </div>
           </div>
         </div>
       </DialogContent>
