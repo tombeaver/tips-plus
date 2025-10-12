@@ -201,9 +201,9 @@ export function AchievementsGallery() {
         {/* Content with proper spacing */}
         <div className="px-6 pb-6">
           {(["all", "earnings", "consistency", "milestone", "special"] as const).map((category) => (
-            <TabsContent key={category} value={category} className="space-y-6 mt-12">
+            <TabsContent key={category} value={category} className="mt-0">
               {/* Category Title */}
-              <div className="text-center pb-6">
+              <div className="text-center pt-8 pb-6">
                 <h3 className="text-2xl font-bold text-foreground mb-2">
                   {categoryInfo[category === "all" ? "all" : category].title}
                 </h3>
