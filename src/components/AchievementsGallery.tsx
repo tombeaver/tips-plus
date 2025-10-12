@@ -187,16 +187,6 @@ export function AchievementsGallery() {
             background: 'hsl(var(--background))',
           }}
         >
-          {/* Category Title */}
-          <div className="pt-4 pb-3 text-center bg-background">
-            <h3 className="text-xl font-semibold text-foreground">
-              {categoryInfo[selectedCategory].title}
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {categoryInfo[selectedCategory].description}
-            </p>
-          </div>
-
           <TabsList className="grid w-full grid-cols-5 bg-card/50 backdrop-blur-sm border shadow-sm">
             <TabsTrigger value="all" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary hover:bg-muted/50">
               <LayoutGrid className="h-4 w-4" />
@@ -223,6 +213,16 @@ export function AchievementsGallery() {
 
           {(["all", "earnings", "consistency", "milestone", "special"] as const).map((category) => (
             <TabsContent key={category} value={category} className="space-y-4 mt-6">
+              {/* Category Title */}
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-semibold text-foreground">
+                  {categoryInfo[category === "all" ? "all" : category].title}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {categoryInfo[category === "all" ? "all" : category].description}
+                </p>
+              </div>
+
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 {filterByCategory(category === "all" ? "all" : category).map((achievement) => (
                   <AchievementBadge
