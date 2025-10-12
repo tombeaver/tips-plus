@@ -13,7 +13,7 @@ export function AchievementsModal({ isOpen, onClose }: AchievementsModalProps) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-screen h-screen max-w-none p-0 gap-0 border-0">
         {/* Fixed Header */}
-        <div className="sticky top-0 z-10 bg-gradient-to-r from-purple-600 via-purple-500 to-purple-600 px-6 py-4 flex items-center justify-between">
+        <div className="sticky top-0 z-10 bg-gradient-to-r from-purple-600 via-purple-500 to-purple-600 px-6 flex items-center justify-between h-20">
           <DialogTitle className="text-2xl font-semibold text-white">
             Your Achievements
           </DialogTitle>
