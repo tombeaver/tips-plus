@@ -14,6 +14,7 @@ import { FeedbackModal } from '@/components/FeedbackModal';
 import { EarningsCalendar } from '@/components/EarningsCalendar';
 import { PrivacyPolicy } from '@/components/PrivacyPolicy';
 import { AchievementsGallery } from '@/components/AchievementsGallery';
+import { AchievementsModal } from '@/components/AchievementsModal';
 import { CalendarDays, TrendingUp, Target, Plus, Wallet, LogOut, MessageCircle, Frown, Meh, Smile, Laugh, Zap, DollarSign, CreditCard, Clock, Receipt, Users, Trophy } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
 import { useTipEntries, type TipEntry } from '@/hooks/useTipEntries';
@@ -520,18 +521,10 @@ const Index = () => {
         />
 
         {/* Achievements Modal */}
-        {showAchievements && (
-          <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-              <AchievementsGallery />
-              <div className="mt-4 flex justify-center">
-                <Button onClick={() => setShowAchievements(false)} variant="outline">
-                  Close
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+        <AchievementsModal
+          isOpen={showAchievements}
+          onClose={() => setShowAchievements(false)}
+        />
       </div>
     </div>
   );

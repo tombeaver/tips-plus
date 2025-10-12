@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Trophy, Target, TrendingUp, Star, Zap, Award, Crown, Flame, Heart, DollarSign, Calendar, Gift, LayoutGrid, Coins, Sparkles } from "lucide-react";
 import { AchievementBadge, BadgeRarity, BadgeCategory } from "./AchievementBadge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Sample achievements data structure
@@ -175,27 +174,18 @@ export function AchievementsGallery() {
   };
 
   return (
-    <Card className="card-enhanced">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="heading-lg flex items-center gap-2">
-              <Trophy className="h-6 w-6 text-primary" />
-              Achievements
-            </CardTitle>
-            <CardDescription>
-              Unlock badges and milestones as you progress
-            </CardDescription>
-          </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-primary">{unlockedCount}/{totalCount}</div>
-            <div className="text-xs text-muted-foreground">{completionPercentage}% Complete</div>
-          </div>
+    <div className="space-y-6">
+      {/* Progress Overview */}
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="text-2xl font-bold text-primary">{unlockedCount}/{totalCount}</div>
+          <div className="text-xs text-muted-foreground">{completionPercentage}% Complete</div>
         </div>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="all" className="w-full" onValueChange={(value) => setSelectedCategory(value as BadgeCategory | "all")}>
-          <TabsList className="grid w-full grid-cols-5 mb-6 bg-card/50 backdrop-blur-sm border shadow-sm">
+      </div>
+
+      {/* Navigation Tabs */}
+      <Tabs defaultValue="all" className="w-full" onValueChange={(value) => setSelectedCategory(value as BadgeCategory | "all")}>
+        <TabsList className="grid w-full grid-cols-5 mb-6 bg-card/50 backdrop-blur-sm border shadow-sm">
             <TabsTrigger value="all" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
               <LayoutGrid className="h-4 w-4" />
               <span className="hidden sm:inline">All</span>
@@ -254,7 +244,6 @@ export function AchievementsGallery() {
             </TabsContent>
           ))}
         </Tabs>
-      </CardContent>
-    </Card>
-  );
-}
+      </div>
+    );
+  }

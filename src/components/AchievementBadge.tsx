@@ -164,18 +164,9 @@ export function AchievementBadge({
           }}
         >
           <div className="space-y-3 text-center">
-            <div className="flex justify-center">
-              <Icon className={cn("h-8 w-8", unlocked ? rarityIcon[rarity] : "text-muted-foreground")} />
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-1 text-sm">{title}</h4>
-              <Badge variant={unlocked ? "default" : "outline"} className="text-xs capitalize mb-2">
-                {rarity}
-              </Badge>
-            </div>
+            <h4 className="font-semibold text-sm">{title}</h4>
 
-            <p className="text-xs leading-relaxed">{description}</p>
+            <p className="text-xs leading-relaxed px-2">{description}</p>
 
             {unlocked && unlockedDate && (
               <div className="pt-2 border-t border-border/30">
@@ -193,6 +184,14 @@ export function AchievementBadge({
               <div className="pt-2 border-t border-border/30">
                 <p className="text-xs text-muted-foreground">
                   {progress}% complete
+                </p>
+              </div>
+            )}
+
+            {!unlocked && progress === undefined && (
+              <div className="pt-2 border-t border-border/30">
+                <p className="text-xs text-muted-foreground">
+                  Keep working to unlock!
                 </p>
               </div>
             )}
