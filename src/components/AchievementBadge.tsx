@@ -18,11 +18,11 @@ interface AchievementBadgeProps {
   className?: string;
 }
 
-const rarityStyles: Record<BadgeRarity, string> = {
-  common: "from-secondary/20 to-secondary/10 border-secondary/30",
-  rare: "from-primary/20 to-primary/10 border-primary/30",
-  epic: "from-purple-500/20 to-purple-500/10 border-purple-500/30",
-  legendary: "from-amber-500/20 to-amber-500/10 border-amber-500/30",
+const overlayGradients: Record<BadgeRarity, string> = {
+  common: "from-secondary via-secondary/90 to-secondary/80",
+  rare: "from-primary via-primary/90 to-primary/80",
+  epic: "from-purple-600 via-purple-500 to-purple-600",
+  legendary: "from-amber-500 via-amber-400 to-amber-500",
 };
 
 const rarityGlow: Record<BadgeRarity, string> = {
@@ -64,8 +64,7 @@ export function AchievementBadge({
       <div
         className={cn(
           "relative w-full h-full",
-          "rounded-xl border-2 bg-gradient-to-br p-4",
-          unlocked ? rarityStyles[rarity] : "from-muted/10 to-muted/5 border-muted/20",
+          "rounded-xl border-2 bg-gradient-to-br from-muted/10 to-muted/5 border-muted/20 p-4",
           unlocked && rarityGlow[rarity],
           !unlocked && "opacity-50 grayscale"
         )}
@@ -137,7 +136,8 @@ export function AchievementBadge({
         {showOverlay && (
           <div 
             className={cn(
-              "absolute inset-0 rounded-xl bg-gradient-to-br from-primary to-primary/80",
+              "absolute inset-0 rounded-xl bg-gradient-to-br",
+              overlayGradients[rarity],
               "flex flex-col justify-center items-center p-4",
               "animate-in fade-in duration-200"
             )}
