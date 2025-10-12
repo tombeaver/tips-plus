@@ -152,8 +152,10 @@ export function AchievementBadge({
         <div
           className={cn(
             "absolute inset-0 backface-hidden",
-            "rounded-xl border-2 bg-background p-4",
+            "rounded-xl border-2 p-4",
             "flex flex-col justify-center items-center",
+            "before:absolute before:inset-0 before:rounded-xl before:bg-background before:-z-10",
+            "bg-gradient-to-br",
             unlocked ? rarityStyles[rarity] : "from-muted/10 to-muted/5 border-muted/20",
             unlocked && rarityGlow[rarity],
             !unlocked && "opacity-50"
