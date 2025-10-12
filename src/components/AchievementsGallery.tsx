@@ -173,7 +173,7 @@ export function AchievementsGallery() {
     <div className="space-y-6">
       <Tabs defaultValue="all" className="w-full" onValueChange={(value) => setSelectedCategory(value as BadgeCategory | "all")}>
         {/* Sticky Tab Navigation */}
-        <div className="sticky top-20 z-10 bg-background shadow-md px-6 py-2">
+        <div className="sticky top-20 z-10 bg-background shadow-md px-6">
           <TabsList className="grid w-full grid-cols-5 bg-card/50 border shadow-sm h-12">
             <TabsTrigger value="all" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary hover:bg-muted/50">
               <LayoutGrid className="h-4 w-4" />
@@ -203,7 +203,7 @@ export function AchievementsGallery() {
           {(["all", "earnings", "consistency", "milestone", "special"] as const).map((category) => (
             <TabsContent key={category} value={category} className="mt-0">
               {/* Category Title */}
-              <div className="text-center pt-8 pb-6">
+              <div className="text-center pt-4 pb-6">
                 <h3 className="text-2xl font-bold text-foreground mb-2">
                   {categoryInfo[category === "all" ? "all" : category].title}
                 </h3>
