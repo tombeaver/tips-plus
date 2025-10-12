@@ -199,7 +199,7 @@ export function AchievementsGallery() {
         </div>
 
         {/* Content with proper spacing */}
-        <div className="px-6 pb-6">
+        <div className="px-6 pb-6 mt-[50px]">
           {(["all", "earnings", "consistency", "milestone", "special"] as const).map((category) => (
             <TabsContent key={category} value={category} className="mt-0">
               {/* Category Title */}
