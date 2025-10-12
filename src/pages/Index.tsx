@@ -221,19 +221,19 @@ const Index = () => {
             }}
           >
             <TabsList className="grid w-full grid-cols-4 bg-card/50 backdrop-blur-sm border shadow-sm">
-            <TabsTrigger value="calendar" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
+            <TabsTrigger value="calendar" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary hover:bg-muted/50">
               <CalendarDays className="h-4 w-4" />
               <span className="hidden sm:inline">Calendar</span>
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
+            <TabsTrigger value="analytics" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary hover:bg-muted/50">
               <TrendingUp className="h-4 w-4" />
               <span className="hidden sm:inline">Analytics</span>
             </TabsTrigger>
-            <TabsTrigger value="finance" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
+            <TabsTrigger value="finance" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary hover:bg-muted/50">
               <Wallet className="h-4 w-4" />
               <span className="hidden sm:inline">Finance</span>
             </TabsTrigger>
-            <TabsTrigger value="goals" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
+            <TabsTrigger value="goals" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary hover:bg-muted/50">
               <Target className="h-4 w-4" />
               <span className="hidden sm:inline">Goals</span>
             </TabsTrigger>

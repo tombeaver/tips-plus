@@ -1,8 +1,8 @@
+import * as React from "react";
 import { Trophy, Target, TrendingUp, Star, Zap, Award, Crown, Flame, Heart, DollarSign, Calendar, Gift, LayoutGrid, Coins, Sparkles } from "lucide-react";
 import { AchievementBadge, BadgeRarity, BadgeCategory } from "./AchievementBadge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 // Sample achievements data structure
 interface Achievement {
@@ -138,7 +138,32 @@ const sampleAchievements: Achievement[] = [
   },
 ];
 
+const categoryInfo: Record<BadgeCategory | "all", { title: string; description: string }> = {
+  all: {
+    title: "All Achievements",
+    description: "Every badge, milestone, and achievement you can unlock"
+  },
+  earnings: {
+    title: "Earnings Achievements",
+    description: "Badges earned through exceptional tip performance"
+  },
+  consistency: {
+    title: "Consistency Achievements",
+    description: "Rewards for dedication and regular performance"
+  },
+  milestone: {
+    title: "Milestone Achievements",
+    description: "Major accomplishments and career progress markers"
+  },
+  special: {
+    title: "Special Achievements",
+    description: "Unique badges for exceptional moments"
+  }
+};
+
 export function AchievementsGallery() {
+  const [selectedCategory, setSelectedCategory] = React.useState<BadgeCategory | "all">("all");
+  
   const unlockedCount = sampleAchievements.filter(a => a.unlocked).length;
   const totalCount = sampleAchievements.length;
   const completionPercentage = Math.round((unlockedCount / totalCount) * 100);
@@ -169,65 +194,39 @@ export function AchievementsGallery() {
         </div>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="all" className="w-full">
-          <TooltipProvider>
-            <TabsList className="grid w-full grid-cols-5 mb-6">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <TabsTrigger value="all" className="flex items-center justify-center">
-                    <LayoutGrid className="h-4 w-4" />
-                  </TabsTrigger>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>All</p>
-                </TooltipContent>
-              </Tooltip>
+        <Tabs defaultValue="all" className="w-full" onValueChange={(value) => setSelectedCategory(value as BadgeCategory | "all")}>
+          <TabsList className="grid w-full grid-cols-5 mb-6 bg-card/50 backdrop-blur-sm border shadow-sm">
+            <TabsTrigger value="all" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
+              <LayoutGrid className="h-4 w-4" />
+              <span className="hidden sm:inline">All</span>
+            </TabsTrigger>
+            <TabsTrigger value="earnings" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
+              <Coins className="h-4 w-4" />
+              <span className="hidden sm:inline">Earnings</span>
+            </TabsTrigger>
+            <TabsTrigger value="consistency" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
+              <Flame className="h-4 w-4" />
+              <span className="hidden sm:inline">Consistency</span>
+            </TabsTrigger>
+            <TabsTrigger value="milestone" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
+              <Target className="h-4 w-4" />
+              <span className="hidden sm:inline">Milestones</span>
+            </TabsTrigger>
+            <TabsTrigger value="special" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
+              <Sparkles className="h-4 w-4" />
+              <span className="hidden sm:inline">Special</span>
+            </TabsTrigger>
+          </TabsList>
 
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <TabsTrigger value="earnings" className="flex items-center justify-center">
-                    <Coins className="h-4 w-4" />
-                  </TabsTrigger>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Earnings</p>
-                </TooltipContent>
-              </Tooltip>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <TabsTrigger value="consistency" className="flex items-center justify-center">
-                    <Flame className="h-4 w-4" />
-                  </TabsTrigger>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Consistency</p>
-                </TooltipContent>
-              </Tooltip>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <TabsTrigger value="milestone" className="flex items-center justify-center">
-                    <Target className="h-4 w-4" />
-                  </TabsTrigger>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Milestones</p>
-                </TooltipContent>
-              </Tooltip>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <TabsTrigger value="special" className="flex items-center justify-center">
-                    <Sparkles className="h-4 w-4" />
-                  </TabsTrigger>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Special</p>
-                </TooltipContent>
-              </Tooltip>
-            </TabsList>
-          </TooltipProvider>
+          {/* Dynamic Subhead */}
+          <div className="mb-6 text-center">
+            <h3 className="text-xl font-semibold text-foreground">
+              {categoryInfo[selectedCategory].title}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {categoryInfo[selectedCategory].description}
+            </p>
+          </div>
 
           {(["all", "earnings", "consistency", "milestone", "special"] as const).map((category) => (
             <TabsContent key={category} value={category} className="space-y-4">
