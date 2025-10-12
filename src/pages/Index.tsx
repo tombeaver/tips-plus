@@ -50,6 +50,7 @@ const Index = () => {
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [showAchievements, setShowAchievements] = useState(false);
   const [entryToDelete, setEntryToDelete] = useState<string>('');
 
   useEffect(() => {
@@ -192,11 +193,11 @@ const Index = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setShowFeedbackModal(true)}
+                onClick={() => setShowAchievements(true)}
                 className="text-muted-foreground hover:text-foreground"
-                aria-label="Open feedback"
+                aria-label="View achievements"
               >
-                <MessageCircle className="h-4 w-4" />
+                <Trophy className="h-4 w-4" />
               </Button>
             </div>
           </div>
@@ -219,7 +220,7 @@ const Index = () => {
               backdropFilter: isSticky ? 'blur(12px)' : 'none'
             }}
           >
-            <TabsList className="grid w-full grid-cols-5 bg-card/50 backdrop-blur-sm border shadow-sm">
+            <TabsList className="grid w-full grid-cols-4 bg-card/50 backdrop-blur-sm border shadow-sm">
             <TabsTrigger value="calendar" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
               <CalendarDays className="h-4 w-4" />
               <span className="hidden sm:inline">Calendar</span>
@@ -235,10 +236,6 @@ const Index = () => {
             <TabsTrigger value="goals" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
               <Target className="h-4 w-4" />
               <span className="hidden sm:inline">Goals</span>
-            </TabsTrigger>
-            <TabsTrigger value="achievements" className="flex items-center gap-1 transition-all duration-200 hover:bg-primary/10">
-              <Trophy className="h-4 w-4" />
-              <span className="hidden sm:inline">Achievements</span>
             </TabsTrigger>
           </TabsList>
           </div>
@@ -439,11 +436,6 @@ const Index = () => {
               tipEntries={tipEntries}
             />
           </TabsContent>
-
-          {/* Achievements Tab */}
-          <TabsContent value="achievements">
-            <AchievementsGallery />
-          </TabsContent>
         </Tabs>
 
         {/* Tip Entry Modal/Form */}
@@ -498,13 +490,20 @@ const Index = () => {
           confirmText="Sign Out"
         />
 
-        {/* Privacy Policy Link */}
-        <div className="text-center py-4">
+        {/* Footer Links */}
+        <div className="text-center py-4 flex items-center justify-center gap-4">
           <button
             onClick={() => setShowPrivacyPolicy(true)}
             className="text-sm text-muted-foreground hover:text-foreground underline"
           >
             Privacy Policy
+          </button>
+          <span className="text-muted-foreground">•</span>
+          <button
+            onClick={() => setShowFeedbackModal(true)}
+            className="text-sm text-muted-foreground hover:text-foreground underline"
+          >
+            Feedback
           </button>
         </div>
 
@@ -519,6 +518,20 @@ const Index = () => {
           isOpen={showFeedbackModal} 
           onClose={() => setShowFeedbackModal(false)} 
         />
+
+        {/* Achievements Modal */}
+        {showAchievements && (
+          <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+              <AchievementsGallery />
+              <div className="mt-4 flex justify-center">
+                <Button onClick={() => setShowAchievements(false)} variant="outline">
+                  Close
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
