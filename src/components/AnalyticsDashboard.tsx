@@ -50,11 +50,18 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         label: `Week ${week}`
       }));
     } else if (periodType === 'month') {
-      const months = new Set(realEntries.map(entry => format(entry.date, 'yyyy-MM')));
-      return Array.from(months).sort((a, b) => b.localeCompare(a)).map(month => ({
-        value: month,
-        label: format(new Date(month + '-01'), 'MMMM yyyy')
+      const months = new Set(realEntries.map(entry => {
+        const formatted = format(entry.date, 'yyyy-MM');
+        console.log('Building month options - Entry date:', entry.date, 'Formatted as:', formatted);
+        return formatted;
       }));
+      return Array.from(months).sort((a, b) => b.localeCompare(a)).map(month => {
+        console.log('Creating label for month:', month);
+        return {
+          value: month,
+          label: format(new Date(month + '-01'), 'MMMM yyyy')
+        };
+      });
     } else {
       const years = new Set(realEntries.map(entry => getYear(entry.date)));
       return Array.from(years).sort((a, b) => b - a).map(year => ({
@@ -106,6 +113,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       // Format entry dates as "yyyy-MM" and compare directly to avoid timezone issues
       return realEntries.filter(entry => {
         const entryYearMonth = format(entry.date, 'yyyy-MM');
+        console.log('Month filtering - Entry date:', entry.date, 'Formatted:', entryYearMonth, 'Selected period:', selectedPeriod, 'Match:', entryYearMonth === selectedPeriod);
         return entryYearMonth === selectedPeriod;
       });
     } else {
