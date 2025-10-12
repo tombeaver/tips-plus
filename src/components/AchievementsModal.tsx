@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Trophy, X } from "lucide-react";
+import { X } from "lucide-react";
 import { AchievementsGallery } from "./AchievementsGallery";
 import { Button } from "@/components/ui/button";
 
@@ -14,19 +14,9 @@ export function AchievementsModal({ isOpen, onClose }: AchievementsModalProps) {
       <DialogContent className="w-screen h-screen max-w-none p-0 gap-0 border-0">
         {/* Fixed Header */}
         <div className="sticky top-0 z-10 bg-gradient-to-r from-purple-600 via-purple-500 to-purple-600 px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-              <Trophy className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <DialogTitle className="text-2xl font-semibold text-white">
-                Your Achievements
-              </DialogTitle>
-              <p className="text-white/80 text-sm mt-0.5">
-                Unlock badges and milestones as you progress in your journey
-              </p>
-            </div>
-          </div>
+          <DialogTitle className="text-2xl font-semibold text-white">
+            Your Achievements
+          </DialogTitle>
           <Button
             variant="ghost"
             size="icon"
