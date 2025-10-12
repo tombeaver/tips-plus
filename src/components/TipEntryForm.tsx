@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Trash2, Save, X, Edit2, Plus, Frown, Meh, Smile, Laugh, Zap } from 'lucide-react';
 import { TipEntry } from '@/hooks/useTipEntries';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
+import { PurpleModalHeader } from '@/components/PurpleModalHeader';
 
 interface TipEntryFormProps {
   selectedDate: Date;
@@ -116,24 +116,17 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
   const totalEarnings = totalTips + ((parseFloat(hoursWorked) || 0) * (parseFloat(hourlyRate) || 0));
 
   return (
-    <div className="fixed inset-0 h-screen w-screen bg-black/50 flex items-center justify-center p-4 z-50" style={{ top: 0, left: 0, right: 0, bottom: 0, margin: 0, padding: '1rem' }}>
-      <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>
-                {existingEntry ? 'Edit Tip Entry' : 'Add Tip Entry'}
-              </CardTitle>
-              <CardDescription>
-                {selectedDate.toLocaleDateString()}
-              </CardDescription>
-            </div>
-            <Button variant="ghost" size="icon" onClick={onCancel}>
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
+    <Dialog open={true} onOpenChange={onCancel}>
+      <DialogContent className="w-screen h-screen max-w-none p-0 gap-0 border-0 flex flex-col">
+        <PurpleModalHeader 
+          title={existingEntry ? 'Edit Tip Entry' : 'Add Tip Entry'} 
+          onClose={onCancel} 
+        />
+        
+        <div className="overflow-y-auto flex-1 bg-background p-6">
+          <p className="text-sm text-muted-foreground mb-6">
+            {selectedDate.toLocaleDateString()}
+          </p>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="totalSales">Total Sales ($)</Label>
@@ -444,8 +437,8 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
               </Button>
             </div>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </DialogContent>
 
       <ConfirmationModal
         isOpen={showDeleteConfirm}
@@ -470,6 +463,6 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
         description={`Are you sure you want to delete the section "${sections[sectionToDelete]}"? This action cannot be undone.`}
         confirmText="Delete Section"
       />
-    </div>
+    </Dialog>
   );
 };
