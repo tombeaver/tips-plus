@@ -1,7 +1,8 @@
-import { Trophy, Target, TrendingUp, Star, Zap, Award, Crown, Flame, Heart, DollarSign, Calendar, Gift } from "lucide-react";
+import { Trophy, Target, TrendingUp, Star, Zap, Award, Crown, Flame, Heart, DollarSign, Calendar, Gift, LayoutGrid, Coins, Sparkles } from "lucide-react";
 import { AchievementBadge, BadgeRarity, BadgeCategory } from "./AchievementBadge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 // Sample achievements data structure
 interface Achievement {
@@ -169,13 +170,64 @@ export function AchievementsGallery() {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="all" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-6">
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="earnings">Earnings</TabsTrigger>
-            <TabsTrigger value="consistency">Consistency</TabsTrigger>
-            <TabsTrigger value="milestone">Milestones</TabsTrigger>
-            <TabsTrigger value="special">Special</TabsTrigger>
-          </TabsList>
+          <TooltipProvider>
+            <TabsList className="grid w-full grid-cols-5 mb-6">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <TabsTrigger value="all" className="flex items-center justify-center">
+                    <LayoutGrid className="h-4 w-4" />
+                  </TabsTrigger>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>All</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <TabsTrigger value="earnings" className="flex items-center justify-center">
+                    <Coins className="h-4 w-4" />
+                  </TabsTrigger>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Earnings</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <TabsTrigger value="consistency" className="flex items-center justify-center">
+                    <Flame className="h-4 w-4" />
+                  </TabsTrigger>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Consistency</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <TabsTrigger value="milestone" className="flex items-center justify-center">
+                    <Target className="h-4 w-4" />
+                  </TabsTrigger>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Milestones</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <TabsTrigger value="special" className="flex items-center justify-center">
+                    <Sparkles className="h-4 w-4" />
+                  </TabsTrigger>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Special</p>
+                </TooltipContent>
+              </Tooltip>
+            </TabsList>
+          </TooltipProvider>
 
           {(["all", "earnings", "consistency", "milestone", "special"] as const).map((category) => (
             <TabsContent key={category} value={category} className="space-y-4">
