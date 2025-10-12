@@ -162,10 +162,6 @@ const categoryInfo: Record<BadgeCategory | "all", { title: string; description: 
 
 export function AchievementsGallery() {
   const [selectedCategory, setSelectedCategory] = React.useState<BadgeCategory | "all">("all");
-  
-  const unlockedCount = sampleAchievements.filter(a => a.unlocked).length;
-  const totalCount = sampleAchievements.length;
-  const completionPercentage = Math.round((unlockedCount / totalCount) * 100);
 
   const filterByCategory = (category: BadgeCategory | "all") => {
     return category === "all" 
@@ -175,17 +171,9 @@ export function AchievementsGallery() {
 
   return (
     <div className="space-y-6">
-      {/* Progress Overview */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-2xl font-bold text-primary">{unlockedCount}/{totalCount}</div>
-          <div className="text-xs text-muted-foreground">{completionPercentage}% Complete</div>
-        </div>
-      </div>
-
       {/* Navigation Tabs */}
       <Tabs defaultValue="all" className="w-full" onValueChange={(value) => setSelectedCategory(value as BadgeCategory | "all")}>
-        <TabsList className="grid w-full grid-cols-5 mb-6 bg-card/50 backdrop-blur-sm border shadow-sm">
+        <TabsList className="sticky top-[73px] z-10 grid w-full grid-cols-5 mb-6 bg-background/95 backdrop-blur-sm border shadow-sm">
             <TabsTrigger value="all" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
               <LayoutGrid className="h-4 w-4" />
               <span className="hidden sm:inline">All</span>
