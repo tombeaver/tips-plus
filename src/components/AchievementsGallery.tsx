@@ -176,7 +176,7 @@ export function AchievementsGallery() {
         <div 
           className="sticky z-10 transition-all duration-200 shadow-md"
           style={{ 
-            top: '73px',
+            top: '0',
             marginLeft: '-1.5rem', 
             marginRight: '-1.5rem',
             paddingLeft: '1.5rem',
