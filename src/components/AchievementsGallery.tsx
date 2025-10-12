@@ -170,7 +170,7 @@ export function AchievementsGallery() {
   };
 
   return (
-    <div className="space-y-6">
+    <div>
       <Tabs defaultValue="all" className="w-full" onValueChange={(value) => setSelectedCategory(value as BadgeCategory | "all")}>
         {/* Sticky Tab Navigation */}
         <div className="sticky top-20 z-10 bg-background shadow-md px-6">
