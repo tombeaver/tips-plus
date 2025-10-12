@@ -50,40 +50,26 @@ export function AchievementBadge({
   progress,
   className,
 }: AchievementBadgeProps) {
-  const [isFlipped, setIsFlipped] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(false);
 
   return (
     <div
       className={cn(
-        "relative cursor-pointer transition-all duration-500 h-[200px]",
-        "preserve-3d",
+        "relative cursor-pointer transition-all duration-300 h-[200px]",
+        "hover:shadow-lg",
         className
       )}
-      style={{ perspective: "1000px" }}
-      onClick={() => setIsFlipped(!isFlipped)}
+      onClick={() => setShowOverlay(!showOverlay)}
     >
       <div
         className={cn(
-          "relative w-full h-full transition-transform duration-500",
-          "preserve-3d"
+          "relative w-full h-full",
+          "rounded-xl border-2 bg-gradient-to-br p-4",
+          unlocked ? rarityStyles[rarity] : "from-muted/10 to-muted/5 border-muted/20",
+          unlocked && rarityGlow[rarity],
+          !unlocked && "opacity-50 grayscale"
         )}
-        style={{
-          transformStyle: "preserve-3d",
-          transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
-        }}
       >
-        {/* Front of Card */}
-        <div
-          className={cn(
-            "absolute inset-0 backface-hidden",
-            "rounded-xl border-2 bg-gradient-to-br p-4",
-            "transition-all duration-300 hover:shadow-lg",
-            unlocked ? rarityStyles[rarity] : "from-muted/10 to-muted/5 border-muted/20",
-            unlocked && rarityGlow[rarity],
-            !unlocked && "opacity-50 grayscale"
-          )}
-          style={{ backfaceVisibility: "hidden" }}
-        >
           {/* Badge Icon */}
           <div className="flex flex-col items-center gap-2">
             <div
@@ -140,63 +126,57 @@ export function AchievementBadge({
             </Badge>
           </div>
 
-          {/* Sparkle Effect for Legendary */}
-          {unlocked && rarity === "legendary" && (
-            <div className="absolute -top-1 -right-1">
-              <span className="text-2xl animate-pulse">✨</span>
-            </div>
-          )}
-        </div>
-
-        {/* Back of Card */}
-        <div
-          className={cn(
-            "absolute inset-0",
-            "rounded-xl border-2 p-4 bg-background",
-            "flex flex-col justify-center items-center",
-            unlocked ? "border-primary/30" : "border-muted/20",
-            unlocked && rarityGlow[rarity],
-            !unlocked && "opacity-50"
-          )}
-          style={{
-            backfaceVisibility: "hidden",
-            transform: "rotateY(180deg)",
-          }}
-        >
-          <div className="space-y-3 text-center">
-            <h4 className="font-semibold text-sm">{title}</h4>
-
-            <p className="text-xs leading-relaxed px-2">{description}</p>
-
-            {unlocked && unlockedDate && (
-              <div className="pt-2 border-t border-border/30">
-                <p className="text-xs text-muted-foreground">
-                  Unlocked {unlockedDate.toLocaleDateString('en-US', { 
-                    month: 'short', 
-                    day: 'numeric',
-                    year: 'numeric'
-                  })}
-                </p>
-              </div>
-            )}
-
-            {!unlocked && progress !== undefined && (
-              <div className="pt-2 border-t border-border/30">
-                <p className="text-xs text-muted-foreground">
-                  {progress}% complete
-                </p>
-              </div>
-            )}
-
-            {!unlocked && progress === undefined && (
-              <div className="pt-2 border-t border-border/30">
-                <p className="text-xs text-muted-foreground">
-                  Keep working to unlock!
-                </p>
-              </div>
-            )}
+        {/* Sparkle Effect for Legendary */}
+        {unlocked && rarity === "legendary" && (
+          <div className="absolute -top-1 -right-1">
+            <span className="text-2xl animate-pulse">✨</span>
           </div>
-        </div>
+        )}
+
+        {/* Overlay */}
+        {showOverlay && (
+          <div 
+            className={cn(
+              "absolute inset-0 rounded-xl bg-gradient-to-br from-primary to-primary/80",
+              "flex flex-col justify-center items-center p-4",
+              "animate-in fade-in duration-200"
+            )}
+          >
+            <div className="space-y-3 text-center">
+              <h4 className="font-semibold text-sm text-white">{title}</h4>
+
+              <p className="text-xs leading-relaxed px-2 text-white">{description}</p>
+
+              {unlocked && unlockedDate && (
+                <div className="pt-2 border-t border-white/30">
+                  <p className="text-xs text-white/90">
+                    Unlocked {unlockedDate.toLocaleDateString('en-US', { 
+                      month: 'short', 
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </p>
+                </div>
+              )}
+
+              {!unlocked && progress !== undefined && (
+                <div className="pt-2 border-t border-white/30">
+                  <p className="text-xs text-white/90">
+                    {progress}% complete
+                  </p>
+                </div>
+              )}
+
+              {!unlocked && progress === undefined && (
+                <div className="pt-2 border-t border-white/30">
+                  <p className="text-xs text-white/90">
+                    Keep working to unlock!
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
