@@ -1,12 +1,8 @@
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { PurpleModalHeader } from "./PurpleModalHeader";
 
 interface PrivacyPolicyProps {
   isOpen: boolean;
@@ -16,21 +12,8 @@ interface PrivacyPolicyProps {
 export const PrivacyPolicy = ({ isOpen, onClose }: PrivacyPolicyProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-screen h-screen max-w-none p-0 gap-0 border-0">
-        {/* Fixed Header */}
-        <div className="sticky top-0 z-10 h-[130px] bg-gradient-to-r from-purple-600 via-purple-500 to-purple-600 px-6 pt-[50px] flex items-center justify-between">
-          <DialogTitle className="text-2xl font-semibold text-white">
-            Privacy Policy
-          </DialogTitle>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
-            className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 text-white"
-          >
-            <X className="h-5 w-5" />
-          </Button>
-        </div>
+      <DialogContent className="w-screen h-screen max-w-none p-0 gap-0 border-0 flex flex-col">
+        <PurpleModalHeader title="Privacy Policy" onClose={onClose} />
 
         {/* Scrollable Content */}
         <div className="overflow-y-auto flex-1 bg-background p-6">
