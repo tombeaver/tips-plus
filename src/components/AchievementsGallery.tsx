@@ -173,28 +173,43 @@ export function AchievementsGallery() {
     <div className="space-y-6">
       {/* Navigation Tabs */}
       <Tabs defaultValue="all" className="w-full" onValueChange={(value) => setSelectedCategory(value as BadgeCategory | "all")}>
-        <TabsList className="sticky top-[73px] z-10 grid w-full grid-cols-5 mb-6 bg-background/95 backdrop-blur-sm border shadow-sm">
-            <TabsTrigger value="all" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
+        <div 
+          className="sticky z-10 transition-all duration-200 shadow-md"
+          style={{ 
+            top: '73px',
+            marginLeft: '-1.5rem', 
+            marginRight: '-1.5rem',
+            paddingLeft: '1.5rem',
+            paddingRight: '1.5rem',
+            paddingTop: '0.5rem',
+            paddingBottom: '0.5rem',
+            background: 'hsl(var(--background) / 0.95)',
+            backdropFilter: 'blur(12px)'
+          }}
+        >
+          <TabsList className="grid w-full grid-cols-5 bg-card/50 backdrop-blur-sm border shadow-sm">
+            <TabsTrigger value="all" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary hover:bg-muted/50">
               <LayoutGrid className="h-4 w-4" />
               <span className="hidden sm:inline">All</span>
             </TabsTrigger>
-            <TabsTrigger value="earnings" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
+            <TabsTrigger value="earnings" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary hover:bg-muted/50">
               <Coins className="h-4 w-4" />
               <span className="hidden sm:inline">Earnings</span>
             </TabsTrigger>
-            <TabsTrigger value="consistency" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
+            <TabsTrigger value="consistency" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary hover:bg-muted/50">
               <Flame className="h-4 w-4" />
               <span className="hidden sm:inline">Consistency</span>
             </TabsTrigger>
-            <TabsTrigger value="milestone" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
+            <TabsTrigger value="milestone" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary hover:bg-muted/50">
               <Target className="h-4 w-4" />
               <span className="hidden sm:inline">Milestones</span>
             </TabsTrigger>
-            <TabsTrigger value="special" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
+            <TabsTrigger value="special" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary hover:bg-muted/50">
               <Sparkles className="h-4 w-4" />
               <span className="hidden sm:inline">Special</span>
             </TabsTrigger>
           </TabsList>
+        </div>
 
           {/* Dynamic Subhead */}
           <div className="mb-6 text-center">
