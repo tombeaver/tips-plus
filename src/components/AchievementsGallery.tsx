@@ -177,12 +177,12 @@ export function AchievementsGallery() {
           className="sticky z-10 transition-all duration-200 shadow-md"
           style={{ 
             top: '0',
-            marginTop: '-0.5rem',
+            marginTop: '-1.5rem',
             marginLeft: '-1.5rem', 
             marginRight: '-1.5rem',
             paddingLeft: '1.5rem',
             paddingRight: '1.5rem',
-            paddingTop: '0.25rem',
+            paddingTop: '0',
             paddingBottom: '0.5rem',
             background: 'hsl(var(--background) / 0.95)',
             backdropFilter: 'blur(12px)'
