@@ -6,6 +6,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 interface PrivacyPolicyProps {
   isOpen: boolean;
@@ -17,10 +18,18 @@ export const PrivacyPolicy = ({ isOpen, onClose }: PrivacyPolicyProps) => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-screen h-screen max-w-none p-0 gap-0 border-0">
         {/* Fixed Header */}
-        <div className="sticky top-0 z-10 bg-gradient-to-r from-purple-600 via-purple-500 to-purple-600 px-6 py-4">
+        <div className="sticky top-0 z-10 bg-gradient-to-r from-purple-600 via-purple-500 to-purple-600 px-6 py-4 flex items-center justify-between">
           <DialogTitle className="text-2xl font-semibold text-white">
             Privacy Policy
           </DialogTitle>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 text-white"
+          >
+            <X className="h-5 w-5" />
+          </Button>
         </div>
 
         {/* Scrollable Content */}

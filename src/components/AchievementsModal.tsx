@@ -1,6 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Trophy } from "lucide-react";
+import { Trophy, X } from "lucide-react";
 import { AchievementsGallery } from "./AchievementsGallery";
+import { Button } from "@/components/ui/button";
 
 interface AchievementsModalProps {
   isOpen: boolean;
@@ -26,6 +27,14 @@ export function AchievementsModal({ isOpen, onClose }: AchievementsModalProps) {
               </p>
             </div>
           </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 text-white"
+          >
+            <X className="h-5 w-5" />
+          </Button>
         </div>
 
         {/* Scrollable Content */}
