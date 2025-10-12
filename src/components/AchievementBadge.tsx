@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { useState } from "react";
 
 export type BadgeRarity = "common" | "rare" | "epic" | "legendary";
 export type BadgeCategory = "earnings" | "consistency" | "milestone" | "special";
@@ -50,19 +50,39 @@ export function AchievementBadge({
   progress,
   className,
 }: AchievementBadgeProps) {
+  const [isFlipped, setIsFlipped] = useState(false);
+
   return (
-    <HoverCard>
-      <HoverCardTrigger asChild>
+    <div
+      className={cn(
+        "relative cursor-pointer transition-all duration-500 h-[200px]",
+        "preserve-3d",
+        className
+      )}
+      style={{ perspective: "1000px" }}
+      onClick={() => setIsFlipped(!isFlipped)}
+    >
+      <div
+        className={cn(
+          "relative w-full h-full transition-transform duration-500",
+          "preserve-3d"
+        )}
+        style={{
+          transformStyle: "preserve-3d",
+          transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
+        }}
+      >
+        {/* Front of Card */}
         <div
           className={cn(
-            "relative group cursor-pointer transition-all duration-300",
+            "absolute inset-0 backface-hidden",
             "rounded-xl border-2 bg-gradient-to-br p-4",
-            "hover:scale-105 hover:shadow-lg",
+            "transition-all duration-300 hover:shadow-lg",
             unlocked ? rarityStyles[rarity] : "from-muted/10 to-muted/5 border-muted/20",
             unlocked && rarityGlow[rarity],
-            !unlocked && "opacity-50 grayscale",
-            className
+            !unlocked && "opacity-50 grayscale"
           )}
+          style={{ backfaceVisibility: "hidden" }}
         >
           {/* Badge Icon */}
           <div className="flex flex-col items-center gap-2">
@@ -70,7 +90,6 @@ export function AchievementBadge({
               className={cn(
                 "relative rounded-full p-4 transition-all duration-300",
                 "bg-background/50 backdrop-blur-sm",
-                "group-hover:scale-110",
                 unlocked ? "shadow-lg" : "shadow-sm"
               )}
             >
@@ -128,51 +147,58 @@ export function AchievementBadge({
             </div>
           )}
         </div>
-      </HoverCardTrigger>
 
-      <HoverCardContent className="w-80" side="top">
-        <div className="space-y-3">
-          <div className="flex items-start justify-between gap-2">
+        {/* Back of Card */}
+        <div
+          className={cn(
+            "absolute inset-0 backface-hidden",
+            "rounded-xl border-2 bg-gradient-to-br p-4",
+            "flex flex-col justify-center items-center",
+            unlocked ? rarityStyles[rarity] : "from-muted/10 to-muted/5 border-muted/20",
+            unlocked && rarityGlow[rarity],
+            !unlocked && "opacity-50"
+          )}
+          style={{
+            backfaceVisibility: "hidden",
+            transform: "rotateY(180deg)",
+          }}
+        >
+          <div className="space-y-3 text-center">
+            <div className="flex justify-center">
+              <Icon className={cn("h-8 w-8", unlocked ? rarityIcon[rarity] : "text-muted-foreground")} />
+            </div>
+            
             <div>
-              <h4 className="font-semibold">{title}</h4>
-              <p className="text-sm text-muted-foreground capitalize">
-                {category} • {rarity}
-              </p>
+              <h4 className="font-semibold mb-1 text-sm">{title}</h4>
+              <Badge variant={unlocked ? "default" : "outline"} className="text-xs capitalize mb-2">
+                {rarity}
+              </Badge>
             </div>
-            <Icon className={cn("h-6 w-6", unlocked ? rarityIcon[rarity] : "text-muted-foreground")} />
+
+            <p className="text-xs leading-relaxed">{description}</p>
+
+            {unlocked && unlockedDate && (
+              <div className="pt-2 border-t border-border/30">
+                <p className="text-xs text-muted-foreground">
+                  Unlocked {unlockedDate.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    year: 'numeric'
+                  })}
+                </p>
+              </div>
+            )}
+
+            {!unlocked && progress !== undefined && (
+              <div className="pt-2 border-t border-border/30">
+                <p className="text-xs text-muted-foreground">
+                  {progress}% complete
+                </p>
+              </div>
+            )}
           </div>
-
-          <p className="text-sm">{description}</p>
-
-          {unlocked && unlockedDate && (
-            <div className="pt-2 border-t">
-              <p className="text-xs text-muted-foreground">
-                Unlocked on {unlockedDate.toLocaleDateString('en-US', { 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}
-              </p>
-            </div>
-          )}
-
-          {!unlocked && progress !== undefined && (
-            <div className="pt-2 border-t">
-              <p className="text-xs text-muted-foreground">
-                Keep going! You're {progress}% of the way there.
-              </p>
-            </div>
-          )}
-
-          {!unlocked && progress === undefined && (
-            <div className="pt-2 border-t">
-              <p className="text-xs text-muted-foreground">
-                This achievement is locked. Keep working to unlock it!
-              </p>
-            </div>
-          )}
         </div>
-      </HoverCardContent>
-    </HoverCard>
+      </div>
+    </div>
   );
 }
