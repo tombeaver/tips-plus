@@ -173,7 +173,7 @@ export function AchievementsGallery() {
     <div className="space-y-6">
       <Tabs defaultValue="all" className="w-full" onValueChange={(value) => setSelectedCategory(value as BadgeCategory | "all")}>
         {/* Sticky Tab Navigation */}
-        <div className="sticky top-20 z-10 bg-background shadow-md px-6 py-3">
+        <div className="sticky top-20 z-10 bg-background shadow-md px-6 py-2">
           <TabsList className="grid w-full grid-cols-5 bg-card/50 border shadow-sm h-12">
             <TabsTrigger value="all" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary hover:bg-muted/50">
               <LayoutGrid className="h-4 w-4" />
