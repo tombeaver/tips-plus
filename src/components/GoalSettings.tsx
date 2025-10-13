@@ -43,6 +43,13 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
   const goalProgress = useMemo(() => {
     const now = new Date();
     
+    // Helper to calculate total earnings (tips + wages)
+    const calculateTotalEarnings = (entry: TipEntry) => {
+      const tips = entry.creditTips + entry.cashTips;
+      const wages = entry.hoursWorked * entry.hourlyRate;
+      return tips + wages;
+    };
+    
     return goals.map(goal => {
       let period: { start: Date; end: Date };
       let achieved = 0;
@@ -53,7 +60,7 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
           const todayEntries = realEntries.filter(entry => 
             entry.date.toDateString() === now.toDateString()
           );
-          achieved = todayEntries.reduce((sum, entry) => sum + entry.creditTips + entry.cashTips, 0);
+          achieved = todayEntries.reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
           period = { start: now, end: now };
           break;
           
@@ -61,21 +68,21 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
           period = { start: startOfWeek(now), end: endOfWeek(now) };
           achieved = realEntries
             .filter(entry => isWithinInterval(entry.date, period))
-            .reduce((sum, entry) => sum + entry.creditTips + entry.cashTips, 0);
+            .reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
           break;
           
         case 'monthly':
           period = { start: startOfMonth(now), end: endOfMonth(now) };
           achieved = realEntries
             .filter(entry => isWithinInterval(entry.date, period))
-            .reduce((sum, entry) => sum + entry.creditTips + entry.cashTips, 0);
+            .reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
           break;
           
         case 'yearly':
           period = { start: startOfYear(now), end: endOfYear(now) };
           achieved = realEntries
             .filter(entry => isWithinInterval(entry.date, period))
-            .reduce((sum, entry) => sum + entry.creditTips + entry.cashTips, 0);
+            .reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
           break;
       }
       
@@ -229,13 +236,20 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
             const monthStart = startOfMonth(now);
             const monthEnd = endOfMonth(now);
             
+            // Helper to calculate total earnings (tips + wages)
+            const calculateTotalEarnings = (entry: TipEntry) => {
+              const tips = entry.creditTips + entry.cashTips;
+              const wages = entry.hoursWorked * entry.hourlyRate;
+              return tips + wages;
+            };
+            
             const currentWeekEarnings = realEntries
               .filter(entry => isWithinInterval(entry.date, { start: weekStart, end: weekEnd }))
-              .reduce((sum, entry) => sum + entry.creditTips + entry.cashTips, 0);
+              .reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
             
             const currentMonthEarnings = realEntries
               .filter(entry => isWithinInterval(entry.date, { start: monthStart, end: monthEnd }))
-              .reduce((sum, entry) => sum + entry.creditTips + entry.cashTips, 0);
+              .reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
             
             const weeklyNeeded = Math.max(0, weeklyTarget - currentWeekEarnings);
             const monthlyNeeded = Math.max(0, monthlyTarget - currentMonthEarnings);
