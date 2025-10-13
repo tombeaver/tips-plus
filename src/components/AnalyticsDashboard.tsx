@@ -24,17 +24,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
   
   const realEntries = tipEntries.filter(entry => !entry.isPlaceholder);
   
-  // Helper function to get week starting on Sunday
+  // Helper function to get week number starting on Sunday (US convention)
   const getSundayWeek = (date: Date) => {
-    const startOfYear = new Date(date.getFullYear(), 0, 1);
-    const firstSunday = new Date(startOfYear);
-    const dayOfWeek = startOfYear.getDay();
-    if (dayOfWeek !== 0) {
-      firstSunday.setDate(startOfYear.getDate() + (7 - dayOfWeek));
-    }
-    const diffTime = date.getTime() - firstSunday.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    return Math.floor(diffDays / 7) + 1;
+    return getWeek(date, { weekStartsOn: 0, firstWeekContainsDate: 1 });
   };
 
   // Get available options based on period type
