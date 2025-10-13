@@ -50,18 +50,15 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         label: `Week ${week}`
       }));
     } else if (periodType === 'month') {
+      // Months should be based on the Sunday that starts each entry's week
       const months = new Set(realEntries.map(entry => {
-        const formatted = format(entry.date, 'yyyy-MM');
-        console.log('Building month options - Entry date:', entry.date, 'Formatted as:', formatted);
-        return formatted;
+        const weekSunday = startOfWeek(entry.date, { weekStartsOn: 0 });
+        return format(weekSunday, 'yyyy-MM');
       }));
-      return Array.from(months).sort((a, b) => b.localeCompare(a)).map(month => {
-        console.log('Creating label for month:', month);
-        return {
-          value: month,
-          label: format(new Date(month + '-01'), 'MMMM yyyy')
-        };
-      });
+      return Array.from(months).sort((a, b) => b.localeCompare(a)).map(month => ({
+        value: month,
+        label: format(new Date(month + '-01'), 'MMMM yyyy')
+      }));
     } else {
       const years = new Set(realEntries.map(entry => getYear(entry.date)));
       return Array.from(years).sort((a, b) => b - a).map(year => ({
@@ -110,11 +107,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       const weekNumber = parseInt(selectedPeriod);
       return realEntries.filter(entry => getSundayWeek(entry.date) === weekNumber);
     } else if (periodType === 'month') {
-      // Format entry dates as "yyyy-MM" and compare directly to avoid timezone issues
+      // For month filtering, a week belongs to the month that contains its Sunday
       return realEntries.filter(entry => {
-        const entryYearMonth = format(entry.date, 'yyyy-MM');
-        console.log('Month filtering - Entry date:', entry.date, 'Formatted:', entryYearMonth, 'Selected period:', selectedPeriod, 'Match:', entryYearMonth === selectedPeriod);
-        return entryYearMonth === selectedPeriod;
+        // Find the Sunday that starts the week containing this entry
+        const weekSunday = startOfWeek(entry.date, { weekStartsOn: 0 });
+        const sundayYearMonth = format(weekSunday, 'yyyy-MM');
+        return sundayYearMonth === selectedPeriod;
       });
     } else {
       const year = parseInt(selectedPeriod);
