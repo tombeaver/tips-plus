@@ -47,10 +47,15 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         const weekSunday = startOfWeek(entry.date, { weekStartsOn: 0 });
         return format(weekSunday, 'yyyy-MM');
       }));
-      return Array.from(months).sort((a, b) => b.localeCompare(a)).map(month => ({
-        value: month,
-        label: format(new Date(month + '-01'), 'MMMM yyyy')
-      }));
+      return Array.from(months).sort((a, b) => b.localeCompare(a)).map(month => {
+        // Display the next month in the dropdown label
+        const monthDate = new Date(month + '-01');
+        monthDate.setMonth(monthDate.getMonth() + 1);
+        return {
+          value: month,
+          label: format(monthDate, 'MMMM yyyy')
+        };
+      });
     } else {
       const years = new Set(realEntries.map(entry => getYear(entry.date)));
       return Array.from(years).sort((a, b) => b - a).map(year => ({
