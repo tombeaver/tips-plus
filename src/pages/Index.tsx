@@ -185,10 +185,12 @@ const Index = () => {
     const dateStr = format(date, 'yyyy-MM-dd');
     setPlannedDays(prev => {
       const newMap = new Map(prev);
-      if (newMap.has(dateStr)) {
-        newMap.delete(dateStr);
+      if (shift) {
+        // If a shift is provided, always set/update it
+        newMap.set(dateStr, shift);
       } else {
-        newMap.set(dateStr, shift || 'PM');
+        // If no shift provided, remove the planned day
+        newMap.delete(dateStr);
       }
       return newMap;
     });
