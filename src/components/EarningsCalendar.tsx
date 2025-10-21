@@ -14,8 +14,8 @@ interface EarningsCalendarProps {
   tipEntries: TipEntry[];
   getTotalEarnings: (entry: TipEntry) => number;
   getEntryForDate: (date: Date) => TipEntry | undefined;
-  onTogglePlannedDay?: (date: Date) => void;
   isPlannedDay?: (date: Date) => boolean;
+  getPlannedShift?: (date: Date) => 'AM' | 'PM' | 'Double' | undefined;
   averageEarnings?: number;
 }
 
@@ -26,8 +26,8 @@ export function EarningsCalendar({
   tipEntries,
   getTotalEarnings,
   getEntryForDate,
-  onTogglePlannedDay,
   isPlannedDay,
+  getPlannedShift,
   averageEarnings = 0,
   ...props
 }: EarningsCalendarProps) {
@@ -92,14 +92,7 @@ export function EarningsCalendar({
           targetDate.setHours(0, 0, 0, 0);
           const isFutureOrToday = targetDate >= today;
           const isPlanned = isPlannedDay?.(date) || false;
-          
-          const handleClick = () => {
-            if (isFutureOrToday && !hasEntry && onTogglePlannedDay) {
-              onTogglePlannedDay(date);
-            } else {
-              onSelect?.(date);
-            }
-          };
+          const plannedShift = getPlannedShift?.(date);
           
           return (
             <button
@@ -114,7 +107,7 @@ export function EarningsCalendar({
                 !hasEntry && !isPlanned && !isFutureOrToday && "border-transparent",
                 selected && date.toDateString() === selected.toDateString() && "ring-1 ring-primary ring-offset-1"
               )}
-              onClick={handleClick}
+              onClick={() => onSelect?.(date)}
               disabled={!isCurrentMonth}
             >
               <span className={cn("text-xs font-bold", (hasEntry || isPlanned) && "text-[10px]")}>{dayNumber}</span>
@@ -127,8 +120,8 @@ export function EarningsCalendar({
                 </span>
               )}
               {isPlanned && !hasEntry && (
-                <span className="text-[10px] font-semibold mt-0.5 leading-none text-blue-700">
-                  ~${averageEarnings.toFixed(0)}
+                <span className="text-[9px] font-semibold mt-0.5 leading-none text-blue-700">
+                  {plannedShift} ~${averageEarnings.toFixed(0)}
                 </span>
               )}
             </button>

@@ -41,7 +41,7 @@ const Index = () => {
   
   const [isSticky, setIsSticky] = useState(false);
   const tabsRef = React.useRef<HTMLDivElement>(null);
-  const [plannedDays, setPlannedDays] = useState<Set<string>>(new Set());
+  const [plannedDays, setPlannedDays] = useState<Map<string, 'AM' | 'PM' | 'Double'>>(new Map());
   
   const { tipEntries, loading: tipEntriesLoading, addTipEntry, updateTipEntry, deleteTipEntry } = useTipEntries();
   const { goals, financialData, loading: goalsLoading, addGoal, updateGoal, deleteGoal, updateFinancialData } = useGoals();
@@ -163,7 +163,7 @@ const Index = () => {
     return total / realEntries.length;
   };
 
-  const togglePlannedDay = (date: Date) => {
+  const togglePlannedDay = (date: Date, shift?: 'AM' | 'PM' | 'Double') => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const targetDate = new Date(date);
@@ -177,19 +177,24 @@ const Index = () => {
     
     const dateStr = format(date, 'yyyy-MM-dd');
     setPlannedDays(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(dateStr)) {
-        newSet.delete(dateStr);
+      const newMap = new Map(prev);
+      if (newMap.has(dateStr)) {
+        newMap.delete(dateStr);
       } else {
-        newSet.add(dateStr);
+        newMap.set(dateStr, shift || 'PM');
       }
-      return newSet;
+      return newMap;
     });
   };
 
   const isPlannedDay = (date: Date): boolean => {
     const dateStr = format(date, 'yyyy-MM-dd');
     return plannedDays.has(dateStr);
+  };
+
+  const getPlannedShift = (date: Date): 'AM' | 'PM' | 'Double' | undefined => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    return plannedDays.get(dateStr);
   };
 
   const selectedEntry = getEntryForDate(selectedDate);
@@ -295,8 +300,8 @@ const Index = () => {
                   tipEntries={tipEntries}
                   getTotalEarnings={getTotalEarnings}
                   getEntryForDate={getEntryForDate}
-                  onTogglePlannedDay={togglePlannedDay}
                   isPlannedDay={isPlannedDay}
+                  getPlannedShift={getPlannedShift}
                   averageEarnings={getAverageEarnings()}
                   className="rounded-md border pointer-events-auto flex justify-center"
                 />
@@ -444,14 +449,48 @@ const Index = () => {
                       <div className="text-3xl font-bold text-blue-600 mb-1">
                         ~${getAverageEarnings().toFixed(2)}
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        Predicted earnings based on your average
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Predicted earnings - {getPlannedShift(selectedDate)} shift
                       </p>
                     </div>
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-                      <p className="text-sm text-blue-900">
-                        You've marked this as a planned work day. Click the date again to unmark it.
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <p className="text-sm text-blue-900 mb-3 text-center font-medium">
+                        Planned work day
                       </p>
+                      <div className="flex gap-2 mb-3">
+                        <Button
+                          size="sm"
+                          variant={getPlannedShift(selectedDate) === 'AM' ? 'default' : 'outline'}
+                          className="flex-1"
+                          onClick={() => togglePlannedDay(selectedDate, 'AM')}
+                        >
+                          AM
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant={getPlannedShift(selectedDate) === 'PM' ? 'default' : 'outline'}
+                          className="flex-1"
+                          onClick={() => togglePlannedDay(selectedDate, 'PM')}
+                        >
+                          PM
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant={getPlannedShift(selectedDate) === 'Double' ? 'default' : 'outline'}
+                          className="flex-1"
+                          onClick={() => togglePlannedDay(selectedDate, 'Double')}
+                        >
+                          Double
+                        </Button>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="w-full text-xs"
+                        onClick={() => togglePlannedDay(selectedDate)}
+                      >
+                        Remove planned day
+                      </Button>
                     </div>
                     <Button 
                       className="w-full interactive-glow" 
@@ -481,10 +520,36 @@ const Index = () => {
                       
                       if (isFutureOrToday) {
                         return (
-                          <div className="bg-muted/50 border border-border rounded-lg p-4 text-center">
-                            <p className="text-sm text-muted-foreground">
-                              Click this date on the calendar to mark it as a planned work day
+                          <div className="bg-muted/50 border border-border rounded-lg p-4">
+                            <p className="text-sm text-muted-foreground mb-3 text-center">
+                              Mark as a planned work day?
                             </p>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex-1"
+                                onClick={() => togglePlannedDay(selectedDate, 'AM')}
+                              >
+                                AM
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex-1"
+                                onClick={() => togglePlannedDay(selectedDate, 'PM')}
+                              >
+                                PM
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex-1"
+                                onClick={() => togglePlannedDay(selectedDate, 'Double')}
+                              >
+                                Double
+                              </Button>
+                            </div>
                           </div>
                         );
                       }
