@@ -163,6 +163,13 @@ const Index = () => {
     return total / realEntries.length;
   };
 
+  const getAverageEarningsByShift = (shift: 'AM' | 'PM' | 'Double') => {
+    const realEntries = tipEntries.filter(entry => !entry.isPlaceholder && entry.shift === shift);
+    if (realEntries.length === 0) return getAverageEarnings(); // Fallback to overall average
+    const total = realEntries.reduce((sum, entry) => sum + getTotalEarnings(entry), 0);
+    return total / realEntries.length;
+  };
+
   const togglePlannedDay = (date: Date, shift?: 'AM' | 'PM' | 'Double') => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -302,7 +309,7 @@ const Index = () => {
                   getEntryForDate={getEntryForDate}
                   isPlannedDay={isPlannedDay}
                   getPlannedShift={getPlannedShift}
-                  averageEarnings={getAverageEarnings()}
+                  getAverageEarningsByShift={getAverageEarningsByShift}
                   className="rounded-md border pointer-events-auto flex justify-center"
                 />
               </CardContent>
@@ -447,7 +454,7 @@ const Index = () => {
                   <div className="space-y-4">
                     <div className="text-center">
                       <div className="text-3xl font-bold text-blue-600 mb-1">
-                        ~${getAverageEarnings().toFixed(2)}
+                        ~${getAverageEarningsByShift(getPlannedShift(selectedDate)!).toFixed(2)}
                       </div>
                       <p className="text-sm text-muted-foreground mb-2">
                         Predicted earnings - {getPlannedShift(selectedDate)} shift

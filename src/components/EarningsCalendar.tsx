@@ -16,7 +16,7 @@ interface EarningsCalendarProps {
   getEntryForDate: (date: Date) => TipEntry | undefined;
   isPlannedDay?: (date: Date) => boolean;
   getPlannedShift?: (date: Date) => 'AM' | 'PM' | 'Double' | undefined;
-  averageEarnings?: number;
+  getAverageEarningsByShift?: (shift: 'AM' | 'PM' | 'Double') => number;
 }
 
 export function EarningsCalendar({
@@ -28,7 +28,7 @@ export function EarningsCalendar({
   getEntryForDate,
   isPlannedDay,
   getPlannedShift,
-  averageEarnings = 0,
+  getAverageEarningsByShift,
   ...props
 }: EarningsCalendarProps) {
   const formatDate = (date: Date): string => {
@@ -119,9 +119,9 @@ export function EarningsCalendar({
                   ${earnings.toFixed(0)}
                 </span>
               )}
-              {isPlanned && !hasEntry && (
+              {isPlanned && !hasEntry && plannedShift && (
                 <span className="text-[9px] font-semibold mt-0.5 leading-none text-blue-700">
-                  {plannedShift} ~${averageEarnings.toFixed(0)}
+                  {plannedShift} ~${getAverageEarningsByShift?.(plannedShift).toFixed(0) || '0'}
                 </span>
               )}
             </button>
