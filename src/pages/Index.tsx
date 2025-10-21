@@ -41,6 +41,7 @@ const Index = () => {
   
   const [isSticky, setIsSticky] = useState(false);
   const tabsRef = React.useRef<HTMLDivElement>(null);
+  const [plannedDays, setPlannedDays] = useState<Set<string>>(new Set());
   
   const { tipEntries, loading: tipEntriesLoading, addTipEntry, updateTipEntry, deleteTipEntry } = useTipEntries();
   const { goals, financialData, loading: goalsLoading, addGoal, updateGoal, deleteGoal, updateFinancialData } = useGoals();
@@ -155,6 +156,42 @@ const Index = () => {
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
   };
 
+  const getAverageEarnings = () => {
+    const realEntries = tipEntries.filter(entry => !entry.isPlaceholder);
+    if (realEntries.length === 0) return 0;
+    const total = realEntries.reduce((sum, entry) => sum + getTotalEarnings(entry), 0);
+    return total / realEntries.length;
+  };
+
+  const togglePlannedDay = (date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const targetDate = new Date(date);
+    targetDate.setHours(0, 0, 0, 0);
+    
+    // Only allow toggling for present or future dates
+    if (targetDate < today) return;
+    
+    // Don't toggle if there's already an actual entry for this date
+    if (getEntryForDate(date)) return;
+    
+    const dateStr = format(date, 'yyyy-MM-dd');
+    setPlannedDays(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(dateStr)) {
+        newSet.delete(dateStr);
+      } else {
+        newSet.add(dateStr);
+      }
+      return newSet;
+    });
+  };
+
+  const isPlannedDay = (date: Date): boolean => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    return plannedDays.has(dateStr);
+  };
+
   const selectedEntry = getEntryForDate(selectedDate);
 
   if (loading) {
@@ -258,6 +295,9 @@ const Index = () => {
                   tipEntries={tipEntries}
                   getTotalEarnings={getTotalEarnings}
                   getEntryForDate={getEntryForDate}
+                  onTogglePlannedDay={togglePlannedDay}
+                  isPlannedDay={isPlannedDay}
+                  averageEarnings={getAverageEarnings()}
                   className="rounded-md border pointer-events-auto flex justify-center"
                 />
               </CardContent>
@@ -273,7 +313,7 @@ const Index = () => {
                       {format(selectedDate, 'EEEE, MMMM d, yyyy')}
                     </CardTitle>
                     <CardDescription className="body-md">
-                      {selectedEntry ? 'Your shift details' : 'No entry for this date'}
+                      {selectedEntry ? 'Your shift details' : isPlannedDay(selectedDate) ? 'Planned work day' : 'No entry for this date'}
                     </CardDescription>
                   </div>
                   {selectedEntry?.moodRating && (
@@ -398,15 +438,59 @@ const Index = () => {
                       </Button>
                     </div>
                   </div>
+                ) : isPlannedDay(selectedDate) ? (
+                  <div className="space-y-4">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-blue-600 mb-1">
+                        ~${getAverageEarnings().toFixed(2)}
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Predicted earnings based on your average
+                      </p>
+                    </div>
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                      <p className="text-sm text-blue-900">
+                        You've marked this as a planned work day. Click the date again to unmark it.
+                      </p>
+                    </div>
+                    <Button 
+                      className="w-full interactive-glow" 
+                      size="lg"
+                      onClick={() => setShowEntryForm(true)}
+                    >
+                      <Plus className="h-5 w-5 mr-2" />
+                      Add Tip Entry
+                    </Button>
+                  </div>
                 ) : (
-                  <Button 
-                    className="w-full interactive-glow" 
-                    size="lg"
-                    onClick={() => setShowEntryForm(true)}
-                  >
-                    <Plus className="h-5 w-5 mr-2" />
-                    Add Tip Entry
-                  </Button>
+                  <div className="space-y-4">
+                    <Button 
+                      className="w-full interactive-glow" 
+                      size="lg"
+                      onClick={() => setShowEntryForm(true)}
+                    >
+                      <Plus className="h-5 w-5 mr-2" />
+                      Add Tip Entry
+                    </Button>
+                    {(() => {
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
+                      const targetDate = new Date(selectedDate);
+                      targetDate.setHours(0, 0, 0, 0);
+                      const isFutureOrToday = targetDate >= today;
+                      
+                      if (isFutureOrToday) {
+                        return (
+                          <div className="bg-muted/50 border border-border rounded-lg p-4 text-center">
+                            <p className="text-sm text-muted-foreground">
+                              Click this date on the calendar to mark it as a planned work day
+                            </p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
                 )}
               </CardContent>
             </Card>

@@ -14,6 +14,9 @@ interface EarningsCalendarProps {
   tipEntries: TipEntry[];
   getTotalEarnings: (entry: TipEntry) => number;
   getEntryForDate: (date: Date) => TipEntry | undefined;
+  onTogglePlannedDay?: (date: Date) => void;
+  isPlannedDay?: (date: Date) => boolean;
+  averageEarnings?: number;
 }
 
 export function EarningsCalendar({
@@ -23,6 +26,9 @@ export function EarningsCalendar({
   tipEntries,
   getTotalEarnings,
   getEntryForDate,
+  onTogglePlannedDay,
+  isPlannedDay,
+  averageEarnings = 0,
   ...props
 }: EarningsCalendarProps) {
   const formatDate = (date: Date): string => {
@@ -80,26 +86,49 @@ export function EarningsCalendar({
           const todayDate = isToday(date);
           const hasEntry = hasEntryForDate(date);
           
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const targetDate = new Date(date);
+          targetDate.setHours(0, 0, 0, 0);
+          const isFutureOrToday = targetDate >= today;
+          const isPlanned = isPlannedDay?.(date) || false;
+          
+          const handleClick = () => {
+            if (isFutureOrToday && !hasEntry && onTogglePlannedDay) {
+              onTogglePlannedDay(date);
+            } else {
+              onSelect?.(date);
+            }
+          };
+          
           return (
             <button
               className={cn(
-                "w-full aspect-square min-h-[2.5rem] max-h-16 p-1 font-medium text-xs flex flex-col items-center justify-center rounded-md border border-transparent transition-all duration-200 hover:border-primary/30 focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-1",
+                "w-full aspect-square min-h-[2.5rem] max-h-16 p-1 font-medium text-xs flex flex-col items-center justify-center rounded-md border transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-1",
                 !isCurrentMonth && "text-muted-foreground/50 opacity-50",
-                todayDate && !hasEntry && "border-primary bg-primary/10 text-primary font-bold",
+                todayDate && !hasEntry && !isPlanned && "border-primary bg-primary/10 text-primary font-bold",
                 todayDate && hasEntry && "border-primary bg-primary text-primary-foreground font-bold",
                 !todayDate && hasEntry && "bg-green-100 text-green-800 border-green-200 hover:bg-green-200",
+                isPlanned && "border-2 border-dashed border-blue-400 bg-blue-50 hover:bg-blue-100 text-blue-900",
+                !hasEntry && !isPlanned && isFutureOrToday && "border-transparent hover:border-primary/30",
+                !hasEntry && !isPlanned && !isFutureOrToday && "border-transparent",
                 selected && date.toDateString() === selected.toDateString() && "ring-1 ring-primary ring-offset-1"
               )}
-              onClick={() => onSelect?.(date)}
+              onClick={handleClick}
               disabled={!isCurrentMonth}
             >
-              <span className={cn("text-xs font-bold", hasEntry && "text-[10px]")}>{dayNumber}</span>
+              <span className={cn("text-xs font-bold", (hasEntry || isPlanned) && "text-[10px]")}>{dayNumber}</span>
               {hasEntry && earnings > 0 && (
                 <span className={cn(
                   "text-[10px] font-semibold mt-0.5 leading-none",
                   todayDate ? "text-primary-foreground" : "text-green-700"
                 )}>
                   ${earnings.toFixed(0)}
+                </span>
+              )}
+              {isPlanned && !hasEntry && (
+                <span className="text-[10px] font-semibold mt-0.5 leading-none text-blue-700">
+                  ~${averageEarnings.toFixed(0)}
                 </span>
               )}
             </button>
