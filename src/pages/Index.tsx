@@ -19,6 +19,7 @@ import { CalendarDays, TrendingUp, Target, Plus, Wallet, LogOut, MessageCircle, 
 import { format, isToday, isSameDay } from 'date-fns';
 import { useTipEntries, type TipEntry } from '@/hooks/useTipEntries';
 import { useGoals, type Goal } from '@/hooks/useGoals';
+import { useAchievements } from '@/hooks/useAchievements';
 import { User, Session } from '@supabase/supabase-js';
 
 // Data is now handled by Supabase hooks
@@ -44,6 +45,7 @@ const Index = () => {
   
   const { tipEntries, loading: tipEntriesLoading, addTipEntry, updateTipEntry, deleteTipEntry } = useTipEntries();
   const { goals, financialData, loading: goalsLoading, addGoal, updateGoal, deleteGoal, updateFinancialData } = useGoals();
+  const { achievements, loading: achievementsLoading } = useAchievements(tipEntries, goals, financialData);
   const [showEntryForm, setShowEntryForm] = useState(false);
   const [activeTab, setActiveTab] = useState("calendar");
   const [sections, setSections] = useState<{ [key: string]: string }>(createDefaultSections());
@@ -524,6 +526,8 @@ const Index = () => {
         <AchievementsModal
           isOpen={showAchievements}
           onClose={() => setShowAchievements(false)}
+          achievements={achievements}
+          loading={achievementsLoading}
         />
       </div>
     </div>
