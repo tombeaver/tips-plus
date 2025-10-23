@@ -301,7 +301,15 @@ export function useAchievements(
       });
     }
 
-    setAchievements(newAchievements);
+    // Filter out hidden achievements (not unlocked and no progress)
+    const visibleAchievements = newAchievements.filter(achievement => {
+      if (achievement.unlocked) return true;
+      if ('progress' in achievement && achievement.progress !== undefined && achievement.progress > 0) return true;
+      // For achievements without progress tracking, only show if unlocked
+      return false;
+    });
+
+    setAchievements(visibleAchievements);
     setLoading(false);
 
     // Show toast for newly unlocked achievements
