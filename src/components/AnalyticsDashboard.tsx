@@ -47,7 +47,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         return format(entry.date, 'yyyy-MM');
       }));
       return Array.from(months).sort((a, b) => b.localeCompare(a)).map(month => {
-        const monthDate = new Date(month + '-01');
+        // Parse in local timezone to avoid UTC offset issues
+        const [year, monthNum] = month.split('-').map(Number);
+        const monthDate = new Date(year, monthNum - 1, 1);
         return {
           value: month,
           label: format(monthDate, 'MMMM yyyy')
