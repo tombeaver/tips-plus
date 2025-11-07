@@ -48,9 +48,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         return format(weekSunday, 'yyyy-MM');
       }));
       return Array.from(months).sort((a, b) => b.localeCompare(a)).map(month => {
-        // Display the next month in the dropdown label
         const monthDate = new Date(month + '-01');
-        monthDate.setMonth(monthDate.getMonth() + 1);
         return {
           value: month,
           label: format(monthDate, 'MMMM yyyy')
