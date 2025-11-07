@@ -42,10 +42,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         label: `Week ${week}`
       }));
     } else if (periodType === 'month') {
-      // Months should be based on the Sunday that starts each entry's week
+      // Group by the actual month the entry occurred in
       const months = new Set(realEntries.map(entry => {
-        const weekSunday = startOfWeek(entry.date, { weekStartsOn: 0 });
-        return format(weekSunday, 'yyyy-MM');
+        return format(entry.date, 'yyyy-MM');
       }));
       return Array.from(months).sort((a, b) => b.localeCompare(a)).map(month => {
         const monthDate = new Date(month + '-01');
@@ -102,12 +101,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       const weekNumber = parseInt(selectedPeriod);
       return realEntries.filter(entry => getSundayWeek(entry.date) === weekNumber);
     } else if (periodType === 'month') {
-      // For month filtering, a week belongs to the month that contains its Sunday
+      // Filter by the actual month the entry occurred in
       return realEntries.filter(entry => {
-        // Find the Sunday that starts the week containing this entry
-        const weekSunday = startOfWeek(entry.date, { weekStartsOn: 0 });
-        const sundayYearMonth = format(weekSunday, 'yyyy-MM');
-        return sundayYearMonth === selectedPeriod;
+        const entryYearMonth = format(entry.date, 'yyyy-MM');
+        return entryYearMonth === selectedPeriod;
       });
     } else {
       const year = parseInt(selectedPeriod);
