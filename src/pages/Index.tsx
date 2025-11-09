@@ -226,7 +226,7 @@ const Index = () => {
           >
             <TabsList className={`grid w-full grid-cols-4 backdrop-blur-sm shadow-sm transition-all duration-200 ${
               isSticky 
-                ? 'bg-card border-0 rounded-none' 
+                ? 'bg-background border-0 rounded-none' 
                 : 'bg-card/50 border rounded-lg'
             }`}>
             <TabsTrigger value="calendar" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary hover:bg-muted/50">
