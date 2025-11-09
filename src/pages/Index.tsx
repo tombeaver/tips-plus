@@ -211,8 +211,9 @@ const Index = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div 
             ref={tabsRef}
-            className={`sticky top-0 z-10 transition-all duration-200 ${isSticky ? 'shadow-md' : ''}`}
+            className={`sticky z-10 transition-all duration-200 ${isSticky ? 'shadow-md' : ''}`}
             style={{ 
+              top: 'env(safe-area-inset-top)',
               marginLeft: '-1rem', 
               marginRight: '-1rem',
               paddingLeft: '1rem',
