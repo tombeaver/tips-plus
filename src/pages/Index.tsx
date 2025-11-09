@@ -220,8 +220,8 @@ const Index = () => {
               paddingRight: '1rem',
               paddingTop: isSticky ? '0.5rem' : '0',
               paddingBottom: '0.5rem',
-              background: isSticky ? 'hsl(var(--background) / 0.95)' : 'transparent',
-              backdropFilter: isSticky ? 'blur(12px)' : 'none'
+              background: isSticky ? 'hsl(var(--background))' : 'transparent',
+              backdropFilter: 'none'
             }}
           >
             <TabsList className={`grid w-full grid-cols-4 backdrop-blur-sm shadow-sm transition-all duration-200 ${
