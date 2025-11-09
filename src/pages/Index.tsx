@@ -213,7 +213,7 @@ const Index = () => {
             ref={tabsRef}
             className={`sticky z-10 transition-all duration-200 ${isSticky ? 'shadow-md' : ''}`}
             style={{ 
-              top: 'env(safe-area-inset-top)',
+              top: 'max(4.5rem, calc(env(safe-area-inset-top) + 2rem))',
               marginLeft: '-1rem', 
               marginRight: '-1rem',
               paddingLeft: '1rem',
