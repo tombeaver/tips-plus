@@ -33,10 +33,10 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
       return tips + wages;
     };
     
-    // Calculate average per shift from real entries
-    const averagePerShift = realEntries.length > 0 ? 
-      realEntries.reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0) / realEntries.length : 
-      0;
+    // Calculate average per shift from real entries (count doubles as 2 shifts)
+    const totalEarnings = realEntries.reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
+    const totalShifts = realEntries.reduce((sum, entry) => sum + (entry.shift === 'Double' ? 2 : 1), 0);
+    const averagePerShift = totalShifts > 0 ? totalEarnings / totalShifts : 0;
     
     // Calculate monthly metrics
     const monthStart = startOfMonth(now);
@@ -51,6 +51,9 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
     // Calculate days left in month
     const daysLeftInMonth = Math.max(0, differenceInDays(monthEnd, now));
     
+    // Calculate shifts worked this month (count doubles as 2)
+    const shiftsWorkedThisMonth = monthEntries.reduce((sum, entry) => sum + (entry.shift === 'Double' ? 2 : 1), 0);
+    
     // Calculate total expenses (monthly expenses + additional expenses)
     const totalExpenses = financialData.monthlyExpenses + financialData.monthlySpendingLimit;
     
@@ -61,7 +64,7 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
       averagePerShift,
       monthlyIncome: monthTotal,
       projectedMonthlyIncome: projectedMonthTotal,
-      shiftsWorkedThisMonth: monthEntries.length,
+      shiftsWorkedThisMonth,
       daysLeftInMonth,
       currentSavings,
       totalExpenses,

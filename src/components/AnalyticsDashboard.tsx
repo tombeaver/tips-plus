@@ -144,6 +144,11 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
     const totalWages = filteredEntries.reduce((sum, entry) => sum + (entry.hoursWorked * entry.hourlyRate), 0);
     const totalEarnings = totalTips + totalWages;
     
+    // Count doubles as 2 shifts for averaging
+    const shiftsWorked = filteredEntries.reduce((sum, entry) => {
+      return sum + (entry.shift === 'Double' ? 2 : 1);
+    }, 0);
+    
     return {
       totalTips,
       totalSales,
@@ -151,7 +156,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       averageTipPercentage: totalSales > 0 ? (totalTips / totalSales) * 100 : 0,
       averagePerGuest: totalGuests > 0 ? totalTips / totalGuests : 0,
       totalGuests,
-      shiftsWorked: filteredEntries.length,
+      shiftsWorked,
       tipsPerHour: totalHours > 0 ? totalTips / totalHours : 0,
       earningsPerHour: totalHours > 0 ? totalEarnings / totalHours : 0,
       totalHours
@@ -163,6 +168,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
     
     filteredEntries.forEach(entry => {
       const totalEarnings = entry.creditTips + entry.cashTips + (entry.hoursWorked * entry.hourlyRate);
+      // Count doubles as 2 shifts
+      const shiftCount = entry.shift === 'Double' ? 2 : 1;
+      
       const existing = sectionMap.get(entry.section) || {
         section: entry.section,
         totalTips: 0,
@@ -178,7 +186,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         totalSales: existing.totalSales + entry.totalSales,
         totalGuests: existing.totalGuests + entry.guestCount,
         totalEarnings: existing.totalEarnings + totalEarnings,
-        shifts: existing.shifts + 1
+        shifts: existing.shifts + shiftCount
       });
     });
 
@@ -198,6 +206,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       const dayIndex = getDay(entry.date);
       const dayName = dayNames[dayIndex];
       const totalEarnings = entry.creditTips + entry.cashTips + (entry.hoursWorked * entry.hourlyRate);
+      // Count doubles as 2 shifts
+      const shiftCount = entry.shift === 'Double' ? 2 : 1;
       
       const existing = dayMap.get(dayName) || {
         day: dayName,
@@ -215,7 +225,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         totalSales: existing.totalSales + entry.totalSales,
         totalGuests: existing.totalGuests + entry.guestCount,
         totalEarnings: existing.totalEarnings + totalEarnings,
-        shifts: existing.shifts + 1
+        shifts: existing.shifts + shiftCount
       });
     });
 

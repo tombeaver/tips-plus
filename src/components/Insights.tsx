@@ -46,6 +46,8 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
       const earnings = calculateTotalEarnings(entry);
       const tips = calculateTips(entry);
       const tipPercentage = entry.totalSales > 0 ? (tips / entry.totalSales) * 100 : 0;
+      // Count doubles as 2 shifts
+      const shiftCount = entry.shift === 'Double' ? 2 : 1;
       
       if (!acc[section]) {
         acc[section] = { 
@@ -53,7 +55,7 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
           totalTips: 0, 
           totalHours: 0, 
           totalSales: 0,
-          count: 0,
+          shiftCount: 0,
           moodSum: 0,
           moodCount: 0
         };
@@ -62,7 +64,7 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
       acc[section].totalTips += tips;
       acc[section].totalHours += entry.hoursWorked || 0;
       acc[section].totalSales += entry.totalSales || 0;
-      acc[section].count += 1;
+      acc[section].shiftCount += shiftCount;
       
       if (entry.moodRating) {
         acc[section].moodSum += entry.moodRating;
@@ -70,15 +72,15 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
       }
       
       return acc;
-    }, {} as { [key: string]: { totalEarnings: number; totalTips: number; totalHours: number; totalSales: number; count: number; moodSum: number; moodCount: number } });
+    }, {} as { [key: string]: { totalEarnings: number; totalTips: number; totalHours: number; totalSales: number; shiftCount: number; moodSum: number; moodCount: number } });
 
     const sectionStats = Object.entries(sectionAnalysis).map(([section, stats]) => ({
       section,
       avgEarningsPerHour: stats.totalHours > 0 ? stats.totalEarnings / stats.totalHours : 0,
       avgTipPercentage: stats.totalSales > 0 ? (stats.totalTips / stats.totalSales) * 100 : 0,
       avgMood: stats.moodCount > 0 ? stats.moodSum / stats.moodCount : null,
-      count: stats.count,
-      avgEarnings: stats.totalEarnings / stats.count
+      shiftCount: stats.shiftCount,
+      avgEarnings: stats.shiftCount > 0 ? stats.totalEarnings / stats.shiftCount : 0
     })).sort((a, b) => b.avgEarningsPerHour - a.avgEarningsPerHour);
 
     // Day + Shift Analysis
@@ -88,21 +90,23 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
       const shiftType = entry.shift || 'PM';
       const key = `${dayName}-${shiftType}`;
       const earnings = calculateTotalEarnings(entry);
+      // Count doubles as 2 shifts
+      const shiftCount = entry.shift === 'Double' ? 2 : 1;
       
       if (!acc[key]) {
-        acc[key] = { totalEarnings: 0, count: 0, dayName, shiftType };
+        acc[key] = { totalEarnings: 0, shiftCount: 0, dayName, shiftType };
       }
       acc[key].totalEarnings += earnings;
-      acc[key].count += 1;
+      acc[key].shiftCount += shiftCount;
       return acc;
-    }, {} as { [key: string]: { totalEarnings: number; count: number; dayName: string; shiftType: string } });
+    }, {} as { [key: string]: { totalEarnings: number; shiftCount: number; dayName: string; shiftType: string } });
 
     const dayShiftStats = Object.entries(dayShiftAnalysis).map(([key, stats]) => ({
       key,
       dayName: stats.dayName,
       shiftType: stats.shiftType,
-      avgEarnings: stats.totalEarnings / stats.count,
-      count: stats.count
+      avgEarnings: stats.shiftCount > 0 ? stats.totalEarnings / stats.shiftCount : 0,
+      shiftCount: stats.shiftCount
     })).sort((a, b) => b.avgEarnings - a.avgEarnings);
 
     // Pattern analysis for change-it-up recommendations
@@ -293,7 +297,7 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
                 </div>
                 <div>
                   <p className="font-medium text-white">{section.section}</p>
-                  <p className="text-sm text-white/70">{section.count} shifts worked</p>
+                  <p className="text-sm text-white/70">{section.shiftCount} shifts worked</p>
                 </div>
               </div>
               <div className="text-right">
@@ -321,7 +325,7 @@ export const Insights: React.FC<InsightsProps> = ({ tipEntries, selectedDate }) 
               <div key={combo.key} className="flex justify-between items-center p-3 border border-white/20 rounded-lg">
                 <div>
                   <p className="font-medium text-white">{combo.dayName} {combo.shiftType}</p>
-                  <p className="text-sm text-white/70">{combo.count} shifts worked</p>
+                  <p className="text-sm text-white/70">{combo.shiftCount} shifts worked</p>
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-white">${combo.avgEarnings.toFixed(0)}</p>

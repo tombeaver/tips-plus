@@ -44,6 +44,8 @@ export const DayOutlook: React.FC<DayOutlookProps> = ({ tipEntries, selectedDate
       const dayOfWeek = getDay(entry.date);
       const totalTips = (entry.creditTips || 0) + (entry.cashTips || 0);
       const totalEarnings = totalTips + ((entry.hoursWorked || 0) * (entry.hourlyRate || 0));
+      // Count doubles as 2 shifts
+      const shiftCount = entry.shift === 'Double' ? 2 : 1;
       
       // Day statistics
       if (!dayStats[dayOfWeek]) {
@@ -51,7 +53,7 @@ export const DayOutlook: React.FC<DayOutlookProps> = ({ tipEntries, selectedDate
       }
       dayStats[dayOfWeek].total += totalTips;
       dayStats[dayOfWeek].earnings += totalEarnings;
-      dayStats[dayOfWeek].count += 1;
+      dayStats[dayOfWeek].count += shiftCount;
 
       // Section statistics
       const section = entry.section || 'Unknown';
@@ -60,7 +62,7 @@ export const DayOutlook: React.FC<DayOutlookProps> = ({ tipEntries, selectedDate
           sectionStats[section] = { total: 0, count: 0 };
         }
         sectionStats[section].total += totalTips;
-        sectionStats[section].count += 1;
+        sectionStats[section].count += shiftCount;
       }
     });
 
