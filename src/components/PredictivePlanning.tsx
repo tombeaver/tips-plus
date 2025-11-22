@@ -60,9 +60,16 @@ export const PredictivePlanning: React.FC<PredictivePlanningProps> = ({
       const dayStats = dayOfWeekStats.get(dayOfWeek);
       const shiftStat = shiftStats.get(key);
       
-      dayStats.totalShifts++;
+      // Count doubles as 2 shifts
+      const shiftCount = entry.shift === 'Double' ? 2 : 1;
+      dayStats.totalShifts += shiftCount;
       if (entry.shift === 'AM') dayStats.amShifts++;
-      else dayStats.pmShifts++;
+      else if (entry.shift === 'PM') dayStats.pmShifts++;
+      else if (entry.shift === 'Double') {
+        // For doubles, count both AM and PM
+        dayStats.amShifts += 0.5;
+        dayStats.pmShifts += 0.5;
+      }
       
       const tips = entry.creditTips + entry.cashTips;
       const earnings = tips + (entry.hoursWorked * entry.hourlyRate);
@@ -73,7 +80,7 @@ export const PredictivePlanning: React.FC<PredictivePlanningProps> = ({
       dayStats.totalHours += entry.hoursWorked;
       dayStats.totalEarnings += earnings;
       
-      shiftStat.count++;
+      shiftStat.count += shiftCount;
       shiftStat.totalTips += tips;
       shiftStat.totalSales += entry.totalSales;
       shiftStat.totalGuests += entry.guestCount;
