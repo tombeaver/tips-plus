@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { TrendingUp, DollarSign, Users, Percent, Calendar, HandCoins, Clock, CalendarRange } from 'lucide-react';
 import { TipEntry } from '@/hooks/useTipEntries';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, subDays, isWithinInterval, getDay, getYear, getWeek, getISOWeek } from 'date-fns';
+import { MetricDetailModal, MetricType } from './MetricDetailModal';
 
 interface AnalyticsDashboardProps {
   tipEntries: TipEntry[];
@@ -21,6 +22,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
   const [selectedPeriod, setSelectedPeriod] = useState(() => {
     return localStorage.getItem('analytics-selected-period') || '';
   });
+  const [selectedMetric, setSelectedMetric] = useState<MetricType | null>(null);
   
   const realEntries = tipEntries.filter(entry => !entry.isPlaceholder);
   
@@ -391,7 +393,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       ) : (
         <>
           {/* Total Earnings Card with Stack Bar Chart */}
-          <Card className="bg-gradient-to-r from-emerald-500 to-emerald-600">
+          <Card 
+            className="bg-gradient-to-r from-emerald-500 to-emerald-600 cursor-pointer hover:shadow-lg transition-shadow active:scale-[0.99]"
+            onClick={() => setSelectedMetric('totalEarnings')}
+          >
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
@@ -412,7 +417,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
               </div>
               
               {/* Monochromatic Stack Bar Chart */}
-              <div className="h-48">
+              <div className="h-48" onClick={(e) => e.stopPropagation()}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={trendData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.2)" />
@@ -464,7 +469,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
 
           {/* Highlight Cards: Average Hourly Rate and Average Daily Income */}
           <div className="grid grid-cols-2 gap-4">
-            <Card className="bg-gradient-to-br from-blue-500 to-blue-600">
+            <Card 
+              className="bg-gradient-to-br from-blue-500 to-blue-600 cursor-pointer hover:shadow-lg transition-shadow active:scale-[0.99]"
+              onClick={() => setSelectedMetric('avgHourlyRate')}
+            >
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -479,7 +487,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
               </CardContent>
             </Card>
             
-            <Card className="bg-gradient-to-br from-purple-500 to-purple-600">
+            <Card 
+              className="bg-gradient-to-br from-purple-500 to-purple-600 cursor-pointer hover:shadow-lg transition-shadow active:scale-[0.99]"
+              onClick={() => setSelectedMetric('avgDailyIncome')}
+            >
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -499,7 +510,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
 
           {/* Individual Metric Cards */}
           <div className="grid grid-cols-2 gap-4">
-            <Card>
+            <Card 
+              className="cursor-pointer hover:shadow-md transition-shadow active:scale-[0.99]"
+              onClick={() => setSelectedMetric('totalTips')}
+            >
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -511,7 +525,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
               </CardContent>
             </Card>
             
-            <Card>
+            <Card 
+              className="cursor-pointer hover:shadow-md transition-shadow active:scale-[0.99]"
+              onClick={() => setSelectedMetric('tipsPerHour')}
+            >
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -523,7 +540,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
               </CardContent>
             </Card>
             
-            <Card>
+            <Card 
+              className="cursor-pointer hover:shadow-md transition-shadow active:scale-[0.99]"
+              onClick={() => setSelectedMetric('avgPerGuest')}
+            >
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -535,7 +555,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
               </CardContent>
             </Card>
             
-            <Card>
+            <Card 
+              className="cursor-pointer hover:shadow-md transition-shadow active:scale-[0.99]"
+              onClick={() => setSelectedMetric('avgTipPercent')}
+            >
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -547,7 +570,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
               </CardContent>
             </Card>
             
-            <Card>
+            <Card 
+              className="cursor-pointer hover:shadow-md transition-shadow active:scale-[0.99]"
+              onClick={() => setSelectedMetric('totalShifts')}
+            >
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -559,7 +585,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
               </CardContent>
             </Card>
             
-            <Card>
+            <Card 
+              className="cursor-pointer hover:shadow-md transition-shadow active:scale-[0.99]"
+              onClick={() => setSelectedMetric('totalHours')}
+            >
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -710,6 +739,13 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         </>
       )}
 
+      <MetricDetailModal
+        isOpen={selectedMetric !== null}
+        onClose={() => setSelectedMetric(null)}
+        metricType={selectedMetric}
+        filteredEntries={filteredEntries}
+        timeFrameLabel={getTimeFrameLabel()}
+      />
     </div>
   );
 };
