@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Trophy, Sparkles, Star } from "lucide-react";
-import confetti from "canvas-confetti";
 
 interface AchievementUnlockModalProps {
   isOpen: boolean;
@@ -58,49 +57,54 @@ export function AchievementUnlockModal({
     if (isOpen) {
       setShowContent(false);
       
-      // Trigger confetti burst
-      const duration = 3000;
-      const end = Date.now() + duration;
+      // Dynamically import confetti to avoid module resolution issues
+      import("canvas-confetti").then((confettiModule) => {
+        const confetti = confettiModule.default;
+        
+        // Trigger confetti burst
+        const duration = 3000;
+        const end = Date.now() + duration;
 
-      const colors = achievement.rarity === "legendary" 
-        ? ["#fbbf24", "#f59e0b", "#fcd34d", "#ffffff"]
-        : achievement.rarity === "epic"
-        ? ["#a855f7", "#d946ef", "#c084fc", "#ffffff"]
-        : achievement.rarity === "rare"
-        ? ["#3b82f6", "#06b6d4", "#60a5fa", "#ffffff"]
-        : ["#71717a", "#a1a1aa", "#d4d4d8", "#ffffff"];
+        const colors = achievement.rarity === "legendary" 
+          ? ["#fbbf24", "#f59e0b", "#fcd34d", "#ffffff"]
+          : achievement.rarity === "epic"
+          ? ["#a855f7", "#d946ef", "#c084fc", "#ffffff"]
+          : achievement.rarity === "rare"
+          ? ["#3b82f6", "#06b6d4", "#60a5fa", "#ffffff"]
+          : ["#71717a", "#a1a1aa", "#d4d4d8", "#ffffff"];
 
-      const frame = () => {
-        confetti({
-          particleCount: 3,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0, y: 0.7 },
-          colors,
-        });
-        confetti({
-          particleCount: 3,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1, y: 0.7 },
-          colors,
-        });
+        const frame = () => {
+          confetti({
+            particleCount: 3,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0, y: 0.7 },
+            colors,
+          });
+          confetti({
+            particleCount: 3,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1, y: 0.7 },
+            colors,
+          });
 
-        if (Date.now() < end) {
-          requestAnimationFrame(frame);
-        }
-      };
-      frame();
+          if (Date.now() < end) {
+            requestAnimationFrame(frame);
+          }
+        };
+        frame();
 
-      // Big burst in the center
-      setTimeout(() => {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 },
-          colors,
-        });
-      }, 300);
+        // Big burst in the center
+        setTimeout(() => {
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors,
+          });
+        }, 300);
+      });
 
       // Show content after initial animation
       setTimeout(() => setShowContent(true), 200);
