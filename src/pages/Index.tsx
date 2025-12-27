@@ -42,6 +42,7 @@ const Index = () => {
   
   const [isSticky, setIsSticky] = useState(false);
   const tabsRef = React.useRef<HTMLDivElement>(null);
+  const stickyTriggerRef = React.useRef<HTMLDivElement>(null);
   
   const { tipEntries, loading: tipEntriesLoading, addTipEntry, updateTipEntry, deleteTipEntry } = useTipEntries();
   const { goals, financialData, loading: goalsLoading, addGoal, updateGoal, deleteGoal, updateFinancialData } = useGoals();
@@ -88,8 +89,8 @@ const Index = () => {
   // Sticky tabs scroll listener
   useEffect(() => {
     const handleScroll = () => {
-      if (tabsRef.current) {
-        const rect = tabsRef.current.getBoundingClientRect();
+      if (stickyTriggerRef.current) {
+        const rect = stickyTriggerRef.current.getBoundingClientRect();
         setIsSticky(rect.top <= 0);
       }
     };
@@ -207,6 +208,9 @@ const Index = () => {
           <p className="body-md text-muted-foreground text-center">Track. Analyze. Level Up Your Income.</p>
         </div>
 
+        {/* Sticky trigger point - stays in place to detect scroll position */}
+        <div ref={stickyTriggerRef} />
+        
         {/* Main Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div 
