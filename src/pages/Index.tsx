@@ -15,6 +15,7 @@ import { EarningsCalendar } from '@/components/EarningsCalendar';
 import { PrivacyPolicy } from '@/components/PrivacyPolicy';
 import { AchievementsGallery } from '@/components/AchievementsGallery';
 import { AchievementsModal } from '@/components/AchievementsModal';
+import { AchievementUnlockModal } from '@/components/AchievementUnlockModal';
 import { CalendarDays, TrendingUp, Target, Plus, Wallet, LogOut, MessageCircle, Frown, Meh, Smile, Laugh, Zap, DollarSign, CreditCard, Clock, Receipt, Users, Trophy } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
 import { useTipEntries, type TipEntry } from '@/hooks/useTipEntries';
@@ -55,6 +56,7 @@ const Index = () => {
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
+  const [showAchievementUnlock, setShowAchievementUnlock] = useState(false);
   const [entryToDelete, setEntryToDelete] = useState<string>('');
 
   useEffect(() => {
@@ -85,6 +87,18 @@ const Index = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  // Show achievement unlock modal on app return (placeholder demo)
+  useEffect(() => {
+    const hasSeenDemo = sessionStorage.getItem('achievement_demo_shown');
+    if (!hasSeenDemo && user && !loading) {
+      const timer = setTimeout(() => {
+        setShowAchievementUnlock(true);
+        sessionStorage.setItem('achievement_demo_shown', 'true');
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [user, loading]);
 
   // Sticky tabs scroll listener
   useEffect(() => {
@@ -545,6 +559,12 @@ const Index = () => {
           onClose={() => setShowAchievements(false)}
           achievements={achievements}
           loading={achievementsLoading}
+        />
+
+        {/* Achievement Unlock Celebration Modal */}
+        <AchievementUnlockModal
+          isOpen={showAchievementUnlock}
+          onClose={() => setShowAchievementUnlock(false)}
         />
       </div>
     </div>
