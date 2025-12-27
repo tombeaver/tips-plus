@@ -211,23 +211,26 @@ const Index = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div 
             ref={tabsRef}
-            className={`sticky z-10 transition-all duration-200 ${isSticky ? 'shadow-md' : ''}`}
-            style={{ 
-              top: 'max(4.5rem, calc(env(safe-area-inset-top) + 2rem))',
-              marginLeft: '-1rem', 
-              marginRight: '-1rem',
-              paddingLeft: '1rem',
-              paddingRight: '1rem',
-              paddingTop: isSticky ? '0.5rem' : '0',
+            className={`sticky z-50 transition-all duration-200 ${isSticky ? 'shadow-lg' : ''}`}
+            style={isSticky ? { 
+              top: 0,
+              left: 0,
+              right: 0,
+              position: 'fixed',
+              paddingTop: 'max(0.5rem, env(safe-area-inset-top))',
               paddingBottom: '0.5rem',
-              background: isSticky ? 'hsl(var(--background))' : 'transparent',
-              backdropFilter: 'none'
+              paddingLeft: 'max(1rem, env(safe-area-inset-left))',
+              paddingRight: 'max(1rem, env(safe-area-inset-right))',
+              background: 'hsl(var(--background) / 0.97)',
+              backdropFilter: 'blur(8px)'
+            } : {
+              top: 0
             }}
           >
-            <TabsList className={`grid w-full grid-cols-4 backdrop-blur-sm shadow-sm transition-all duration-200 ${
+            <TabsList className={`grid w-full grid-cols-4 shadow-sm transition-all duration-200 ${
               isSticky 
-                ? 'bg-background border-0 rounded-none' 
-                : 'bg-card/50 border rounded-lg'
+                ? 'bg-background/80 border-0 rounded-lg max-w-md mx-auto' 
+                : 'bg-card/50 border rounded-lg backdrop-blur-sm'
             }`}>
             <TabsTrigger value="calendar" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary hover:bg-muted/50">
               <CalendarDays className="h-4 w-4" />
@@ -247,6 +250,11 @@ const Index = () => {
             </TabsTrigger>
           </TabsList>
           </div>
+          
+          {/* Spacer to prevent content jump when nav becomes fixed */}
+          {isSticky && (
+            <div style={{ height: 'calc(3rem + max(0.5rem, env(safe-area-inset-top)) + 0.5rem)' }} />
+          )}
 
           {/* Calendar Tab */}
           <TabsContent value="calendar" className="space-group">
