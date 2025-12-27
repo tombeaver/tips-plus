@@ -2,14 +2,12 @@ import React, { useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { TipEntry } from '@/hooks/useTipEntries';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, AreaChart, Area } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { format, getDay } from 'date-fns';
-import { DollarSign, TrendingUp, TrendingDown, Clock, Users, Percent, HandCoins, Calendar, CalendarRange, ArrowUp, ArrowDown } from 'lucide-react';
-import { PurpleModalHeader } from './PurpleModalHeader';
+import { DollarSign, Clock, Users, Percent, HandCoins, Calendar, CalendarRange, ArrowUp, ArrowDown, X } from 'lucide-react';
 
 export type MetricType = 
   | 'totalEarnings' 
@@ -332,114 +330,146 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
 
   const Icon = config.icon;
 
+  // Get header gradient based on color
+  const getHeaderGradient = () => {
+    switch (config.color) {
+      case 'emerald':
+        return 'bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600';
+      case 'blue':
+        return 'bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600';
+      case 'orange':
+        return 'bg-gradient-to-r from-orange-600 via-orange-500 to-orange-600';
+      case 'indigo':
+        return 'bg-gradient-to-r from-indigo-600 via-indigo-500 to-indigo-600';
+      case 'slate':
+        return 'bg-gradient-to-r from-slate-600 via-slate-500 to-slate-600';
+      case 'purple':
+      default:
+        return 'bg-gradient-to-r from-purple-600 via-purple-500 to-purple-600';
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto p-0">
-        <PurpleModalHeader
-          title={config.title}
-          onClose={onClose}
-        />
+      <DialogContent className="w-screen h-screen max-w-none p-0 gap-0 border-0 flex flex-col">
+        {/* Dynamic Color Header */}
+        <div className={`sticky top-0 z-10 h-[130px] ${getHeaderGradient()} px-6 pt-[50px] flex items-center justify-between`}>
+          <h2 className="text-2xl font-semibold text-white">
+            {config.title}
+          </h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 text-white"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
         
-        <div className="p-4 space-y-4">
-          {/* Main Value */}
-          <div className="text-center py-2">
-            <p className="text-4xl font-bold text-foreground">{config.mainValue}</p>
-            <p className="text-muted-foreground text-sm mt-1">{config.subtitle}</p>
-            <p className="text-muted-foreground/70 text-xs mt-1">{timeFrameLabel}</p>
-          </div>
+        {/* Scrollable Content */}
+        <div className="overflow-y-auto flex-1 bg-background">
+          <div className="p-4 space-y-4">
+            {/* Main Value */}
+            <div className="text-center py-2">
+              <p className="text-4xl font-bold text-foreground">{config.mainValue}</p>
+              <p className="text-muted-foreground text-sm mt-1">{config.subtitle}</p>
+              <p className="text-muted-foreground/70 text-xs mt-1">{timeFrameLabel}</p>
+            </div>
 
-          {/* Trend Chart */}
-          {detailData.entries.length > 1 && (
+            {/* Trend Chart */}
+            {detailData.entries.length > 1 && (
+              <div className="bg-muted/30 rounded-lg p-3">
+                <p className="text-sm font-medium mb-2 text-muted-foreground">Trend Over Time</p>
+                <div className="h-32">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={detailData.entries}>
+                      <defs>
+                        <linearGradient id={`gradient-${metricType}`} x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={config.chartColor} stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor={config.chartColor} stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis dataKey="date" fontSize={10} stroke="hsl(var(--muted-foreground))" />
+                      <YAxis fontSize={10} stroke="hsl(var(--muted-foreground))" />
+                      <Tooltip 
+                        formatter={(value) => [config.formatValue(Number(value)), config.title]}
+                        contentStyle={{
+                          backgroundColor: 'hsl(var(--background))',
+                          border: '1px solid hsl(var(--border))',
+                          borderRadius: '8px',
+                        }}
+                      />
+                      <Area 
+                        type="monotone" 
+                        dataKey={config.chartDataKey} 
+                        stroke={config.chartColor} 
+                        fill={`url(#gradient-${metricType})`}
+                        strokeWidth={2}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
+
+            {/* By Day of Week */}
             <div className="bg-muted/30 rounded-lg p-3">
-              <p className="text-sm font-medium mb-2 text-muted-foreground">Trend Over Time</p>
-              <div className="h-32">
+              <p className="text-sm font-medium mb-2 text-muted-foreground">By Day of Week</p>
+              <div className="h-28">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={detailData.entries}>
-                    <defs>
-                      <linearGradient id={`gradient-${metricType}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={config.chartColor} stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor={config.chartColor} stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
+                  <BarChart data={detailData.byDayOfWeek}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="date" fontSize={10} stroke="hsl(var(--muted-foreground))" />
+                    <XAxis dataKey="day" fontSize={10} stroke="hsl(var(--muted-foreground))" />
                     <YAxis fontSize={10} stroke="hsl(var(--muted-foreground))" />
                     <Tooltip 
-                      formatter={(value) => [config.formatValue(Number(value)), config.title]}
+                      formatter={(value) => [config.formatValue(Number(value)), 'Avg']}
                       contentStyle={{
                         backgroundColor: 'hsl(var(--background))',
                         border: '1px solid hsl(var(--border))',
                         borderRadius: '8px',
                       }}
                     />
-                    <Area 
-                      type="monotone" 
-                      dataKey={config.chartDataKey} 
-                      stroke={config.chartColor} 
-                      fill={`url(#gradient-${metricType})`}
-                      strokeWidth={2}
-                    />
-                  </AreaChart>
+                    <Bar dataKey="value" fill={config.chartColor} radius={[4, 4, 0, 0]} />
+                  </BarChart>
                 </ResponsiveContainer>
               </div>
             </div>
-          )}
 
-          {/* By Day of Week */}
-          <div className="bg-muted/30 rounded-lg p-3">
-            <p className="text-sm font-medium mb-2 text-muted-foreground">By Day of Week</p>
-            <div className="h-28">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={detailData.byDayOfWeek}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="day" fontSize={10} stroke="hsl(var(--muted-foreground))" />
-                  <YAxis fontSize={10} stroke="hsl(var(--muted-foreground))" />
-                  <Tooltip 
-                    formatter={(value) => [config.formatValue(Number(value)), 'Avg']}
-                    contentStyle={{
-                      backgroundColor: 'hsl(var(--background))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px',
-                    }}
-                  />
-                  <Bar dataKey="value" fill={config.chartColor} radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Breakdown */}
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-muted-foreground">Breakdown</p>
-            {config.breakdown.map((item, idx) => (
-              <div key={idx} className="flex justify-between items-center py-2 border-b border-border/50 last:border-0">
-                <span className="text-sm text-muted-foreground">{item.label}</span>
-                <span className="font-medium">{item.value}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Best & Worst */}
-          {detailData.best && detailData.worst && detailData.entries.length > 1 && (
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-emerald-500/10 rounded-lg p-3">
-                <div className="flex items-center gap-1 text-emerald-600 mb-1">
-                  <ArrowUp className="h-4 w-4" />
-                  <span className="text-xs font-medium">Best Day</span>
+            {/* Breakdown */}
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-muted-foreground">Breakdown</p>
+              {config.breakdown.map((item, idx) => (
+                <div key={idx} className="flex justify-between items-center py-2 border-b border-border/50 last:border-0">
+                  <span className="text-sm text-muted-foreground">{item.label}</span>
+                  <span className="font-medium">{item.value}</span>
                 </div>
-                <p className="text-sm font-bold">{detailData.best.date}</p>
-                <p className="text-xs text-muted-foreground">{detailData.best.dayOfWeek}</p>
-              </div>
-              <div className="bg-red-500/10 rounded-lg p-3">
-                <div className="flex items-center gap-1 text-red-600 mb-1">
-                  <ArrowDown className="h-4 w-4" />
-                  <span className="text-xs font-medium">Needs Improvement</span>
-                </div>
-                <p className="text-sm font-bold">{detailData.worst.date}</p>
-                <p className="text-xs text-muted-foreground">{detailData.worst.dayOfWeek}</p>
-              </div>
+              ))}
             </div>
-          )}
+
+            {/* Best & Worst */}
+            {detailData.best && detailData.worst && detailData.entries.length > 1 && (
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-emerald-500/10 rounded-lg p-3">
+                  <div className="flex items-center gap-1 text-emerald-600 mb-1">
+                    <ArrowUp className="h-4 w-4" />
+                    <span className="text-xs font-medium">Best Day</span>
+                  </div>
+                  <p className="text-sm font-bold">{detailData.best.date}</p>
+                  <p className="text-xs text-muted-foreground">{detailData.best.dayOfWeek}</p>
+                </div>
+                <div className="bg-red-500/10 rounded-lg p-3">
+                  <div className="flex items-center gap-1 text-red-600 mb-1">
+                    <ArrowDown className="h-4 w-4" />
+                    <span className="text-xs font-medium">Needs Improvement</span>
+                  </div>
+                  <p className="text-sm font-bold">{detailData.worst.date}</p>
+                  <p className="text-xs text-muted-foreground">{detailData.worst.dayOfWeek}</p>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>
