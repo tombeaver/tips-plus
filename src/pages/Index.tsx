@@ -90,11 +90,9 @@ const Index = () => {
 
   // Show achievement unlock modal on app return (placeholder demo)
   useEffect(() => {
-    const hasSeenDemo = sessionStorage.getItem('achievement_demo_shown');
-    if (!hasSeenDemo && user && !loading) {
+    if (user && !loading) {
       const timer = setTimeout(() => {
         setShowAchievementUnlock(true);
-        sessionStorage.setItem('achievement_demo_shown', 'true');
       }, 1000);
       return () => clearTimeout(timer);
     }
