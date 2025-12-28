@@ -88,15 +88,8 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  // Show achievement unlock modal on app return (placeholder demo)
-  useEffect(() => {
-    if (user && !loading) {
-      const timer = setTimeout(() => {
-        setShowAchievementUnlock(true);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [user, loading]);
+  // Achievement unlock modal can be triggered here when real achievements are unlocked
+  // For now, the trigger is disabled until connected to the achievement system
 
   // Sticky tabs scroll listener
   useEffect(() => {
