@@ -5,8 +5,7 @@ import { Progress } from '@/components/ui/progress';
 
 interface ShiftRecommendationsProps {
   monthlyIncome: number;
-  monthlyExpenses: number;
-  monthlySavingsGoal: number;
+  monthlyTargetIncome: number;
   averagePerShift: number;
   shiftsWorkedThisMonth: number;
   daysLeftInMonth: number;
@@ -14,19 +13,16 @@ interface ShiftRecommendationsProps {
 
 export const ShiftRecommendations: React.FC<ShiftRecommendationsProps> = ({
   monthlyIncome,
-  monthlyExpenses,
-  monthlySavingsGoal,
+  monthlyTargetIncome,
   averagePerShift,
   shiftsWorkedThisMonth,
   daysLeftInMonth,
 }) => {
-  const requiredMonthlyIncome = monthlyExpenses + monthlySavingsGoal;
-  const shortfall = Math.max(0, requiredMonthlyIncome - monthlyIncome);
+  const shortfall = Math.max(0, monthlyTargetIncome - monthlyIncome);
   const shiftsNeeded = averagePerShift > 0 ? Math.ceil(shortfall / averagePerShift) : 0;
-  const progress = requiredMonthlyIncome > 0 ? (monthlyIncome / requiredMonthlyIncome) * 100 : 0;
+  const progress = monthlyTargetIncome > 0 ? (monthlyIncome / monthlyTargetIncome) * 100 : 0;
   
-  const safeToSpend = Math.max(0, monthlyIncome - monthlyExpenses - monthlySavingsGoal);
-  const weeklyBudget = safeToSpend / 4;
+  const surplus = Math.max(0, monthlyIncome - monthlyTargetIncome);
 
   const getStatusIcon = () => {
     if (progress >= 100) return <CheckCircle className="h-5 w-5 text-green-600" />;
@@ -36,15 +32,15 @@ export const ShiftRecommendations: React.FC<ShiftRecommendationsProps> = ({
 
   const getStatusMessage = () => {
     if (progress >= 100) {
-      return "Great job! You've covered expenses and met your savings goal.";
+      return `Great job! You've hit your target with $${surplus.toFixed(0)} extra this month.`;
     }
     if (shiftsNeeded > 0 && daysLeftInMonth > 0) {
-      return `You need ${shiftsNeeded} more shift${shiftsNeeded !== 1 ? 's' : ''} this month to cover expenses and save $${monthlySavingsGoal.toFixed(0)}.`;
+      return `You need ${shiftsNeeded} more shift${shiftsNeeded !== 1 ? 's' : ''} to reach your Monthly Target Income.`;
     }
     if (shiftsNeeded > 0 && daysLeftInMonth === 0) {
-      return `You're $${shortfall.toFixed(2)} short of your target this month. Consider adjusting next month's plan.`;
+      return `You're $${shortfall.toFixed(2)} short of your target this month.`;
     }
-    return "Keep tracking your shifts to meet your goals!";
+    return "Set your budget to get personalized shift recommendations!";
   };
 
   return (
@@ -67,12 +63,15 @@ export const ShiftRecommendations: React.FC<ShiftRecommendationsProps> = ({
 
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span>Monthly Progress</span>
+            <span>Progress to Target</span>
             <span className="font-semibold">
-              ${monthlyIncome.toFixed(0)} / ${requiredMonthlyIncome.toFixed(0)}
+              ${monthlyIncome.toFixed(0)} / ${monthlyTargetIncome.toFixed(0)}
             </span>
           </div>
           <Progress value={Math.min(progress, 100)} className="h-2" />
+          <p className="text-xs text-muted-foreground text-right">
+            Monthly Target Income (Expenses + Savings)
+          </p>
         </div>
 
         <div className="grid grid-cols-2 gap-4 pt-4 border-t">
@@ -86,17 +85,28 @@ export const ShiftRecommendations: React.FC<ShiftRecommendationsProps> = ({
           </div>
         </div>
 
-        {safeToSpend > 0 && (
+        {shiftsNeeded > 0 && daysLeftInMonth > 0 && averagePerShift > 0 && (
           <div className="pt-4 border-t">
-            <p className="text-sm font-medium mb-2">Safe to Spend</p>
-            <div className="space-y-1">
-              <p className="text-lg font-bold text-green-600">
-                ${safeToSpend.toFixed(2)} <span className="text-xs font-normal text-muted-foreground">this month</span>
-              </p>
-              <p className="text-sm text-muted-foreground">
-                ~${weeklyBudget.toFixed(2)} per week
-              </p>
+            <p className="text-sm font-medium mb-2">To Hit Your Target</p>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-bold text-primary">{shiftsNeeded}</span>
+              <span className="text-muted-foreground">more shift{shiftsNeeded !== 1 ? 's' : ''}</span>
             </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Based on ${averagePerShift.toFixed(0)} avg per shift
+            </p>
+          </div>
+        )}
+
+        {surplus > 0 && (
+          <div className="pt-4 border-t">
+            <p className="text-sm font-medium mb-2">Surplus This Month</p>
+            <p className="text-2xl font-bold text-green-600">
+              +${surplus.toFixed(2)}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Extra income above your target
+            </p>
           </div>
         )}
 
