@@ -54,8 +54,11 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
     // Calculate shifts worked this month (count doubles as 2)
     const shiftsWorkedThisMonth = monthEntries.reduce((sum, entry) => sum + (entry.shift === 'Double' ? 2 : 1), 0);
     
-    // Calculate total expenses (monthly expenses + additional expenses)
-    const totalExpenses = financialData.monthlyExpenses + financialData.monthlySpendingLimit;
+    // Monthly expenses (no longer adding spending limit since it was removed)
+    const totalExpenses = financialData.monthlyExpenses;
+    
+    // Monthly target income = expenses + savings goal
+    const monthlyTargetIncome = totalExpenses + financialData.monthlySavingsGoal;
     
     // Calculate current savings (income - total expenses)
     const currentSavings = Math.max(0, monthTotal - totalExpenses);
@@ -68,8 +71,9 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
       daysLeftInMonth,
       currentSavings,
       totalExpenses,
+      monthlyTargetIncome,
     };
-  }, [realEntries, tipEntries, financialData.monthlyExpenses, financialData.monthlySpendingLimit]);
+  }, [realEntries, tipEntries, financialData.monthlyExpenses, financialData.monthlySavingsGoal]);
 
   return (
     <div className="space-y-4">
@@ -107,8 +111,7 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
       {/* Shift Recommendations */}
       <ShiftRecommendations
         monthlyIncome={financialMetrics.monthlyIncome}
-        monthlyExpenses={financialMetrics.totalExpenses}
-        monthlySavingsGoal={financialData.monthlySavingsGoal}
+        monthlyTargetIncome={financialMetrics.monthlyTargetIncome}
         averagePerShift={financialMetrics.averagePerShift}
         shiftsWorkedThisMonth={financialMetrics.shiftsWorkedThisMonth}
         daysLeftInMonth={financialMetrics.daysLeftInMonth}
