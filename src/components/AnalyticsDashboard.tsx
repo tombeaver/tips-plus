@@ -44,6 +44,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
     return `${year}-W${String(week).padStart(2, '0')}`;
   };
 
+  // Helper to get month key based on the Sunday that starts the entry's week
+  const getMonthKeyBySunday = (date: Date) => {
+    const weekStart = startOfWeek(date, { weekStartsOn: 0 });
+    return format(weekStart, 'yyyy-MM');
+  };
+
   // Get available options based on period type
   const availableOptions = useMemo(() => {
     const now = new Date();
@@ -62,10 +68,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         };
       });
     } else if (periodType === 'month') {
-      // Group by the actual month the entry occurred in
-      const months = new Set(realEntries.map(entry => {
-        return format(entry.date, 'yyyy-MM');
-      }));
+      // Group by the month of the week's Sunday start date
+      const months = new Set(realEntries.map(entry => getMonthKeyBySunday(entry.date)));
       return Array.from(months).sort((a, b) => b.localeCompare(a)).map(month => {
         // Parse in local timezone to avoid UTC offset issues
         const [year, monthNum] = month.split('-').map(Number);
@@ -107,7 +111,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         if (periodType === 'week') {
           setSelectedPeriod(getWeekKey(now));
         } else if (periodType === 'month') {
-          setSelectedPeriod(format(now, 'yyyy-MM'));
+          setSelectedPeriod(getMonthKeyBySunday(now));
         } else {
           setSelectedPeriod(now.getFullYear().toString());
         }
@@ -123,11 +127,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       // Filter by year-week key
       return realEntries.filter(entry => getWeekKey(entry.date) === selectedPeriod);
     } else if (periodType === 'month') {
-      // Filter by the actual month the entry occurred in
-      return realEntries.filter(entry => {
-        const entryYearMonth = format(entry.date, 'yyyy-MM');
-        return entryYearMonth === selectedPeriod;
-      });
+      // Filter by the month of the week's Sunday start date
+      return realEntries.filter(entry => getMonthKeyBySunday(entry.date) === selectedPeriod);
     } else {
       const year = parseInt(selectedPeriod);
       return realEntries.filter(entry => getYear(entry.date) === year);
