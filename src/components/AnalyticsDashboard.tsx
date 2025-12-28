@@ -26,9 +26,16 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
   
   const realEntries = tipEntries.filter(entry => !entry.isPlaceholder);
   
-  // Helper function to get week number starting on Sunday (US convention)
+  // Helper function to get week number starting on Sunday (US convention) with year
   const getSundayWeek = (date: Date) => {
     return getWeek(date, { weekStartsOn: 0, firstWeekContainsDate: 1 });
+  };
+
+  // Get unique week identifier including year
+  const getWeekKey = (date: Date) => {
+    const year = getYear(date);
+    const week = getSundayWeek(date);
+    return `${year}-W${week}`;
   };
 
   // Get available options based on period type
@@ -38,11 +45,16 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
     if (periodType === 'all') {
       return [];
     } else if (periodType === 'week') {
-      const weeks = new Set(realEntries.map(entry => getSundayWeek(entry.date)));
-      return Array.from(weeks).sort((a, b) => b - a).map(week => ({
-        value: week.toString(),
-        label: `Week ${week}`
-      }));
+      // Use year-week key to properly distinguish weeks across years
+      const weekKeys = new Set(realEntries.map(entry => getWeekKey(entry.date)));
+      return Array.from(weekKeys).sort((a, b) => b.localeCompare(a)).map(weekKey => {
+        const [year, weekPart] = weekKey.split('-W');
+        const weekNum = parseInt(weekPart);
+        return {
+          value: weekKey,
+          label: `Week ${weekNum}, ${year}`
+        };
+      });
     } else if (periodType === 'month') {
       // Group by the actual month the entry occurred in
       const months = new Set(realEntries.map(entry => {
@@ -87,7 +99,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       if (!selectedPeriod || !isValidPeriod) {
         const now = new Date();
         if (periodType === 'week') {
-          setSelectedPeriod(getSundayWeek(now).toString());
+          setSelectedPeriod(getWeekKey(now));
         } else if (periodType === 'month') {
           setSelectedPeriod(format(now, 'yyyy-MM'));
         } else {
@@ -102,8 +114,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
     if (periodType === 'all' || !selectedPeriod) return realEntries;
     
     if (periodType === 'week') {
-      const weekNumber = parseInt(selectedPeriod);
-      return realEntries.filter(entry => getSundayWeek(entry.date) === weekNumber);
+      // Filter by year-week key
+      return realEntries.filter(entry => getWeekKey(entry.date) === selectedPeriod);
     } else if (periodType === 'month') {
       // Filter by the actual month the entry occurred in
       return realEntries.filter(entry => {
