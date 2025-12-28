@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { TrendingUp, DollarSign, Users, Percent, Calendar, HandCoins, Clock, CalendarRange } from 'lucide-react';
 import { TipEntry } from '@/hooks/useTipEntries';
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, subDays, isWithinInterval, getDay, getYear, differenceInCalendarDays } from 'date-fns';
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, subDays, isWithinInterval, getDay, getYear, addWeeks, differenceInCalendarWeeks } from 'date-fns';
 import { MetricDetailModal, MetricType } from './MetricDetailModal';
 
 interface AnalyticsDashboardProps {
@@ -26,20 +26,22 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
   
   const realEntries = tipEntries.filter(entry => !entry.isPlaceholder);
   
-  // Fixed 52-week numbering: Week 1 starts Jan 1 and each week is 7-day buckets.
-  // Any remaining end-of-year days are grouped into Week 52.
-  const getFixed52WeekNumber = (date: Date) => {
-    const yearStart = startOfYear(date);
-    const dayOfYear = differenceInCalendarDays(date, yearStart) + 1; // 1..365/366
-    const week = Math.ceil(dayOfYear / 7);
-    return Math.min(52, week);
-  };
-
+  // Week starts on Sunday.
+  // Week numbering is constrained to 1–52 per calendar year:
+  // - Week 1 = first *full* Sunday-starting week in the year
+  // - The final partial week that crosses into next year is counted as Week 52
   const getWeekKey = (date: Date) => {
-    const year = getYear(date);
-    const week = getFixed52WeekNumber(date);
-    const weekPadded = String(week).padStart(2, '0');
-    return `${year}-W${weekPadded}`;
+    const weekStart = startOfWeek(date, { weekStartsOn: 0 });
+    const year = getYear(weekStart);
+
+    // First Sunday on/after Jan 1 (i.e., first full Sunday-starting week)
+    let firstSunday = startOfWeek(new Date(year, 0, 1), { weekStartsOn: 0 });
+    if (getYear(firstSunday) < year) firstSunday = addWeeks(firstSunday, 1);
+
+    const rawWeek = differenceInCalendarWeeks(weekStart, firstSunday, { weekStartsOn: 0 }) + 1;
+    const week = Math.min(52, Math.max(1, rawWeek));
+
+    return `${year}-W${String(week).padStart(2, '0')}`;
   };
 
   // Get available options based on period type
