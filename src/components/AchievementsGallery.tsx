@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Trophy, Target, TrendingUp, Star, Zap, Crown, DollarSign, Calendar, CheckCircle, Rocket, Wallet, LayoutGrid, Coins, Flame, Sparkles } from "lucide-react";
+import { Trophy, Target, TrendingUp, Star, Zap, Crown, DollarSign, Calendar, CheckCircle, Rocket, Wallet, LayoutGrid, Coins, Flame, Sparkles, Users, Sun, Moon } from "lucide-react";
 import { AchievementBadge, BadgeCategory } from "./AchievementBadge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserAchievement } from "@/hooks/useAchievements";
@@ -15,7 +15,12 @@ const iconMap: Record<string, any> = {
   DollarSign,
   Crown,
   Rocket,
-  Wallet
+  Wallet,
+  Flame,
+  Sparkles,
+  Users,
+  Sun,
+  Moon
 };
 
 interface AchievementsGalleryProps {
