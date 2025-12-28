@@ -55,14 +55,12 @@ export const BudgetInput: React.FC<BudgetInputProps> = ({
     other: 0,
   });
   const [savingsGoal, setSavingsGoal] = useState(monthlySavingsGoal.toString());
-  const [spendingLimit, setSpendingLimit] = useState(monthlySpendingLimit.toString());
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     setSimpleExpenses(monthlyExpenses.toString());
     setSavingsGoal(monthlySavingsGoal.toString());
-    setSpendingLimit(monthlySpendingLimit.toString());
-  }, [monthlyExpenses, monthlySavingsGoal, monthlySpendingLimit]);
+  }, [monthlyExpenses, monthlySavingsGoal]);
 
   const categoryTotal = useMemo(() => {
     return Object.values(categories).reduce((sum, val) => sum + val, 0);
@@ -87,7 +85,7 @@ export const BudgetInput: React.FC<BudgetInputProps> = ({
       await onSave({
         monthlyExpenses: effectiveExpenses,
         monthlySavingsGoal: parseFloat(savingsGoal) || 0,
-        monthlySpendingLimit: parseFloat(spendingLimit) || 0,
+        monthlySpendingLimit: 0,
       });
     } finally {
       setIsSaving(false);
@@ -228,33 +226,14 @@ export const BudgetInput: React.FC<BudgetInputProps> = ({
           </p>
         </div>
 
-        {/* Additional Spending */}
-        <div className="space-y-2">
-          <Label htmlFor="spendingLimit" className="flex items-center gap-2">
-            <ShoppingBag className="h-4 w-4" />
-            Discretionary Spending
-          </Label>
-          <Input
-            id="spendingLimit"
-            type="number"
-            step="0.01"
-            placeholder="Entertainment, dining out, etc."
-            value={spendingLimit}
-            onChange={(e) => setSpendingLimit(e.target.value)}
-          />
-          <p className="text-xs text-muted-foreground">
-            Non-essential spending budget
-          </p>
-        </div>
-
         {/* Summary */}
         <div className="p-3 bg-primary/5 rounded-lg border border-primary/20">
           <div className="text-sm text-muted-foreground mb-1">Monthly Target Income</div>
           <div className="text-2xl font-bold text-primary">
-            ${(effectiveExpenses + (parseFloat(savingsGoal) || 0) + (parseFloat(spendingLimit) || 0)).toFixed(2)}
+            ${(effectiveExpenses + (parseFloat(savingsGoal) || 0)).toFixed(2)}
           </div>
           <div className="text-xs text-muted-foreground mt-1">
-            Expenses + Savings + Discretionary
+            Expenses + Savings Goal
           </div>
         </div>
 
