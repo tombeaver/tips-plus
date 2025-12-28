@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { TrendingUp, DollarSign, Users, Percent, Calendar, HandCoins, Clock, CalendarRange } from 'lucide-react';
 import { TipEntry } from '@/hooks/useTipEntries';
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, subDays, isWithinInterval, getDay, getYear, getWeek, getWeekYear } from 'date-fns';
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, subDays, isWithinInterval, getDay, getYear, differenceInCalendarDays } from 'date-fns';
 import { MetricDetailModal, MetricType } from './MetricDetailModal';
 
 interface AnalyticsDashboardProps {
@@ -26,19 +26,20 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
   
   const realEntries = tipEntries.filter(entry => !entry.isPlaceholder);
   
-  // Helper function to get week number starting on Sunday (US convention)
-  // Using firstWeekContainsDate: 4 ensures December dates stay in the current year
-  const weekOptions = { weekStartsOn: 0 as const, firstWeekContainsDate: 4 as const };
-  
-  const getSundayWeek = (date: Date) => {
-    return getWeek(date, weekOptions);
+  // Fixed 52-week numbering: Week 1 starts Jan 1 and each week is 7-day buckets.
+  // Any remaining end-of-year days are grouped into Week 52.
+  const getFixed52WeekNumber = (date: Date) => {
+    const yearStart = startOfYear(date);
+    const dayOfYear = differenceInCalendarDays(date, yearStart) + 1; // 1..365/366
+    const week = Math.ceil(dayOfYear / 7);
+    return Math.min(52, week);
   };
 
-  // Get unique week identifier including the proper week-year
   const getWeekKey = (date: Date) => {
-    const year = getWeekYear(date, weekOptions);
-    const week = getSundayWeek(date);
-    return `${year}-W${week}`;
+    const year = getYear(date);
+    const week = getFixed52WeekNumber(date);
+    const weekPadded = String(week).padStart(2, '0');
+    return `${year}-W${weekPadded}`;
   };
 
   // Get available options based on period type
@@ -52,7 +53,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       const weekKeys = new Set(realEntries.map(entry => getWeekKey(entry.date)));
       return Array.from(weekKeys).sort((a, b) => b.localeCompare(a)).map(weekKey => {
         const [year, weekPart] = weekKey.split('-W');
-        const weekNum = parseInt(weekPart);
+        const weekNum = parseInt(weekPart, 10);
         return {
           value: weekKey,
           label: `Week ${weekNum}, ${year}`
