@@ -5,7 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, DollarSign, Users, Percent, Calendar, HandCoins, Clock, CalendarRange } from 'lucide-react';
+import { TrendingUp, DollarSign, Users, Percent, Calendar, HandCoins, Clock, CalendarRange, Banknote, CreditCard } from 'lucide-react';
 import { TipEntry } from '@/hooks/useTipEntries';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, subDays, isWithinInterval, getDay, getYear, addWeeks, differenceInCalendarWeeks } from 'date-fns';
 import { MetricDetailModal, MetricType } from './MetricDetailModal';
@@ -147,6 +147,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
     if (filteredEntries.length === 0) {
       return {
         totalTips: 0,
+        totalCashTips: 0,
+        totalCreditTips: 0,
         totalSales: 0,
         totalEarnings: 0,
         averageTipPercentage: 0,
@@ -154,11 +156,14 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         totalGuests: 0,
         tipsPerHour: 0,
         earningsPerHour: 0,
-        totalHours: 0
+        totalHours: 0,
+        shiftsWorked: 0
       };
     }
 
-    const totalTips = filteredEntries.reduce((sum, entry) => sum + entry.creditTips + entry.cashTips, 0);
+    const totalCashTips = filteredEntries.reduce((sum, entry) => sum + entry.cashTips, 0);
+    const totalCreditTips = filteredEntries.reduce((sum, entry) => sum + entry.creditTips, 0);
+    const totalTips = totalCashTips + totalCreditTips;
     const totalSales = filteredEntries.reduce((sum, entry) => sum + entry.totalSales, 0);
     const totalGuests = filteredEntries.reduce((sum, entry) => sum + entry.guestCount, 0);
     const totalHours = filteredEntries.reduce((sum, entry) => sum + entry.hoursWorked, 0);
@@ -172,6 +177,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
     
     return {
       totalTips,
+      totalCashTips,
+      totalCreditTips,
       totalSales,
       totalEarnings,
       averageTipPercentage: totalSales > 0 ? (totalTips / totalSales) * 100 : 0,
@@ -531,30 +538,30 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
           <div className="grid grid-cols-2 gap-4">
             <Card 
               className="cursor-pointer hover:shadow-md transition-shadow active:scale-[0.99]"
-              onClick={() => setSelectedMetric('totalTips')}
+              onClick={() => setSelectedMetric('totalCashTips')}
             >
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Total Tips</p>
-                    <p className="text-xl font-bold text-emerald-600">${stats.totalTips.toFixed(2)}</p>
+                    <p className="text-sm text-muted-foreground">Total Cash Tips</p>
+                    <p className="text-xl font-bold text-emerald-600">${stats.totalCashTips.toFixed(2)}</p>
                   </div>
-                  <HandCoins className="h-6 w-6 text-emerald-600" />
+                  <Banknote className="h-6 w-6 text-emerald-600" />
                 </div>
               </CardContent>
             </Card>
             
             <Card 
               className="cursor-pointer hover:shadow-md transition-shadow active:scale-[0.99]"
-              onClick={() => setSelectedMetric('tipsPerHour')}
+              onClick={() => setSelectedMetric('totalCreditTips')}
             >
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Tips per Hour</p>
-                    <p className="text-xl font-bold text-blue-600">${stats.tipsPerHour.toFixed(2)}</p>
+                    <p className="text-sm text-muted-foreground">Total Credit Tips</p>
+                    <p className="text-xl font-bold text-blue-600">${stats.totalCreditTips.toFixed(2)}</p>
                   </div>
-                  <Clock className="h-6 w-6 text-blue-600" />
+                  <CreditCard className="h-6 w-6 text-blue-600" />
                 </div>
               </CardContent>
             </Card>

@@ -7,13 +7,15 @@ import { Button } from '@/components/ui/button';
 import { TipEntry } from '@/hooks/useTipEntries';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { format, getDay } from 'date-fns';
-import { DollarSign, Clock, Users, Percent, HandCoins, Calendar, CalendarRange, ArrowUp, ArrowDown, X } from 'lucide-react';
+import { DollarSign, Clock, Users, Percent, HandCoins, Calendar, CalendarRange, ArrowUp, ArrowDown, X, Banknote, CreditCard } from 'lucide-react';
 
 export type MetricType = 
   | 'totalEarnings' 
   | 'avgHourlyRate' 
   | 'avgDailyIncome' 
   | 'totalTips' 
+  | 'totalCashTips'
+  | 'totalCreditTips'
   | 'tipsPerHour' 
   | 'avgPerGuest' 
   | 'avgTipPercent' 
@@ -48,6 +50,8 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
 
     const entries = sortedEntries.map((entry, index) => {
       const tips = entry.creditTips + entry.cashTips;
+      const cashTips = entry.cashTips;
+      const creditTips = entry.creditTips;
       const wages = entry.hoursWorked * entry.hourlyRate;
       const earnings = tips + wages;
       const shiftCount = entry.shift === 'Double' ? 2 : 1;
@@ -56,6 +60,8 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
         date: format(entry.date, 'MMM d'),
         dayOfWeek: dayNames[getDay(entry.date)],
         tips,
+        cashTips,
+        creditTips,
         wages,
         earnings,
         hoursWorked: entry.hoursWorked,
@@ -75,13 +81,15 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
     // Calculate totals and averages
     const totals = entries.reduce((acc, entry) => ({
       tips: acc.tips + entry.tips,
+      cashTips: acc.cashTips + entry.cashTips,
+      creditTips: acc.creditTips + entry.creditTips,
       wages: acc.wages + entry.wages,
       earnings: acc.earnings + entry.earnings,
       hours: acc.hours + entry.hoursWorked,
       guests: acc.guests + entry.guestCount,
       sales: acc.sales + entry.totalSales,
       shifts: acc.shifts + entry.shiftCount,
-    }), { tips: 0, wages: 0, earnings: 0, hours: 0, guests: 0, sales: 0, shifts: 0 });
+    }), { tips: 0, cashTips: 0, creditTips: 0, wages: 0, earnings: 0, hours: 0, guests: 0, sales: 0, shifts: 0 });
 
     // Calculate stats by day of week
     const byDayOfWeek = dayNames.map(day => {
@@ -102,10 +110,18 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
           value = totalHours > 0 ? totalEarnings / totalHours : 0;
           break;
         case 'totalTips':
+          value = dayEntries.reduce((sum, e) => sum + e.tips, 0) / totalShifts;
+          break;
+        case 'totalCashTips':
+          value = dayEntries.reduce((sum, e) => sum + e.cashTips, 0) / totalShifts;
+          break;
+        case 'totalCreditTips':
+          value = dayEntries.reduce((sum, e) => sum + e.creditTips, 0) / totalShifts;
+          break;
         case 'tipsPerHour':
           const tipTotal = dayEntries.reduce((sum, e) => sum + e.tips, 0);
           const hours = dayEntries.reduce((sum, e) => sum + e.hoursWorked, 0);
-          value = metricType === 'tipsPerHour' && hours > 0 ? tipTotal / hours : tipTotal / totalShifts;
+          value = hours > 0 ? tipTotal / hours : 0;
           break;
         case 'avgPerGuest':
           const tips = dayEntries.reduce((sum, e) => sum + e.tips, 0);
@@ -140,6 +156,12 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
         break;
       case 'totalTips':
         rankedEntries.sort((a, b) => b.tips - a.tips);
+        break;
+      case 'totalCashTips':
+        rankedEntries.sort((a, b) => b.cashTips - a.cashTips);
+        break;
+      case 'totalCreditTips':
+        rankedEntries.sort((a, b) => b.creditTips - a.creditTips);
         break;
       case 'tipsPerHour':
         rankedEntries.sort((a, b) => b.tipsPerHour - a.tipsPerHour);
@@ -235,6 +257,38 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
             { label: 'Average per Shift', value: `$${(totals.tips / totals.shifts).toFixed(2)}` },
             { label: 'Tip % of Sales', value: `${((totals.tips / totals.sales) * 100).toFixed(1)}%` },
             { label: 'Best Day Tips', value: detailData.best ? `$${detailData.best.tips.toFixed(2)}` : '-' },
+          ],
+        };
+      case 'totalCashTips':
+        return {
+          title: 'Total Cash Tips',
+          icon: Banknote,
+          mainValue: `$${totals.cashTips.toFixed(2)}`,
+          subtitle: 'Cash tips received',
+          color: 'emerald',
+          chartDataKey: 'cashTips',
+          chartColor: '#10B981',
+          formatValue: (v: number) => `$${v.toFixed(2)}`,
+          breakdown: [
+            { label: 'Average per Shift', value: `$${(totals.cashTips / totals.shifts).toFixed(2)}` },
+            { label: '% of Total Tips', value: `${totals.tips > 0 ? ((totals.cashTips / totals.tips) * 100).toFixed(1) : 0}%` },
+            { label: 'Best Day Cash', value: detailData.best ? `$${detailData.best.cashTips.toFixed(2)}` : '-' },
+          ],
+        };
+      case 'totalCreditTips':
+        return {
+          title: 'Total Credit Tips',
+          icon: CreditCard,
+          mainValue: `$${totals.creditTips.toFixed(2)}`,
+          subtitle: 'Credit card tips',
+          color: 'blue',
+          chartDataKey: 'creditTips',
+          chartColor: '#3B82F6',
+          formatValue: (v: number) => `$${v.toFixed(2)}`,
+          breakdown: [
+            { label: 'Average per Shift', value: `$${(totals.creditTips / totals.shifts).toFixed(2)}` },
+            { label: '% of Total Tips', value: `${totals.tips > 0 ? ((totals.creditTips / totals.tips) * 100).toFixed(1) : 0}%` },
+            { label: 'Best Day Credit', value: detailData.best ? `$${detailData.best.creditTips.toFixed(2)}` : '-' },
           ],
         };
       case 'tipsPerHour':
