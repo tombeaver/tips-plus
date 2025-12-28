@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { TrendingUp, DollarSign, Users, Percent, Calendar, HandCoins, Clock, CalendarRange } from 'lucide-react';
 import { TipEntry } from '@/hooks/useTipEntries';
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, subDays, isWithinInterval, getDay, getYear, getWeek, getISOWeek } from 'date-fns';
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, subDays, isWithinInterval, getDay, getYear, getWeek, getWeekYear } from 'date-fns';
 import { MetricDetailModal, MetricType } from './MetricDetailModal';
 
 interface AnalyticsDashboardProps {
@@ -26,14 +26,17 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
   
   const realEntries = tipEntries.filter(entry => !entry.isPlaceholder);
   
-  // Helper function to get week number starting on Sunday (US convention) with year
+  // Helper function to get week number starting on Sunday (US convention)
+  // Using firstWeekContainsDate: 4 ensures December dates stay in the current year
+  const weekOptions = { weekStartsOn: 0 as const, firstWeekContainsDate: 4 as const };
+  
   const getSundayWeek = (date: Date) => {
-    return getWeek(date, { weekStartsOn: 0, firstWeekContainsDate: 1 });
+    return getWeek(date, weekOptions);
   };
 
-  // Get unique week identifier including year
+  // Get unique week identifier including the proper week-year
   const getWeekKey = (date: Date) => {
-    const year = getYear(date);
+    const year = getWeekYear(date, weekOptions);
     const week = getSundayWeek(date);
     return `${year}-W${week}`;
   };
