@@ -165,12 +165,8 @@ export function YearInReviewModal({
     }
   }, [isOpen, hasData]);
 
-  // Don't render if no data
-  if (!hasData) {
-    return null;
-  }
 
-  const slides = [
+  const dataSlides = [
     // Intro slide
     {
       id: "intro",
@@ -350,6 +346,28 @@ export function YearInReviewModal({
       ),
     },
   ];
+
+  const slides = hasData
+    ? dataSlides
+    : [
+        {
+          id: "empty",
+          content: (
+            <div className="text-center space-y-6">
+              <div className="relative inline-block">
+                <div className="w-24 h-24 bg-gradient-to-br from-amber-400 via-orange-500 to-pink-500 rounded-full flex items-center justify-center shadow-[0_0_60px_rgba(251,191,36,0.35)]">
+                  <Calendar className="w-12 h-12 text-white" />
+                </div>
+                <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-amber-400 animate-pulse" />
+              </div>
+              <div>
+                <h2 className="text-3xl font-bold text-white mb-2">Your {reviewYear} in Review</h2>
+                <p className="text-muted-foreground">No entries yet — add a few tip entries and we’ll build your recap.</p>
+              </div>
+            </div>
+          ),
+        },
+      ];
 
   const handleNext = () => {
     if (currentSlide < slides.length - 1) {

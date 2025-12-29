@@ -96,14 +96,14 @@ const Index = () => {
   // Year in Review modal - show once per day during review period (week 52 or week 1)
   // TODO: Restore shouldShowYearInReview() check after testing
   useEffect(() => {
-    if (!tipEntriesLoading && tipEntries.length > 0 && activeTab === 'calendar') {
-      // For testing: show every time (remove this condition for production)
+    if (!tipEntriesLoading && activeTab === 'calendar') {
+      // For testing: show every time the calendar tab is loaded
       const timer = setTimeout(() => {
         setShowYearInReview(true);
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [tipEntriesLoading, tipEntries.length, activeTab]);
+  }, [tipEntriesLoading, activeTab]);
   useEffect(() => {
     const handleScroll = () => {
       if (stickyTriggerRef.current) {
