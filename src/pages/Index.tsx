@@ -16,6 +16,7 @@ import { PrivacyPolicy } from '@/components/PrivacyPolicy';
 import { AchievementsGallery } from '@/components/AchievementsGallery';
 import { AchievementsModal } from '@/components/AchievementsModal';
 import { AchievementUnlockModal } from '@/components/AchievementUnlockModal';
+import { YearInReviewModal, shouldShowYearInReview, markYearInReviewShown, getReviewYear } from '@/components/YearInReviewModal';
 import { CalendarDays, TrendingUp, Target, Plus, Wallet, LogOut, MessageCircle, Frown, Meh, Smile, Laugh, Zap, DollarSign, CreditCard, Clock, Receipt, Users, Trophy } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
 import { useTipEntries, type TipEntry } from '@/hooks/useTipEntries';
@@ -57,6 +58,7 @@ const Index = () => {
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
   const [showAchievementUnlock, setShowAchievementUnlock] = useState(false);
+  const [showYearInReview, setShowYearInReview] = useState(false);
   const [entryToDelete, setEntryToDelete] = useState<string>('');
 
   useEffect(() => {
@@ -91,7 +93,19 @@ const Index = () => {
   // Achievement unlock modal can be triggered here when real achievements are unlocked
   // For now, the trigger is disabled until connected to the achievement system
 
-  // Sticky tabs scroll listener
+  // Year in Review modal - show once per day during review period (week 52 or week 1)
+  useEffect(() => {
+    if (!tipEntriesLoading && tipEntries.length > 0 && activeTab === 'calendar') {
+      if (shouldShowYearInReview()) {
+        // Small delay to let the page load first
+        const timer = setTimeout(() => {
+          setShowYearInReview(true);
+          markYearInReviewShown();
+        }, 1000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [tipEntriesLoading, tipEntries.length, activeTab]);
   useEffect(() => {
     const handleScroll = () => {
       if (stickyTriggerRef.current) {
@@ -556,6 +570,14 @@ const Index = () => {
         <AchievementUnlockModal
           isOpen={showAchievementUnlock}
           onClose={() => setShowAchievementUnlock(false)}
+        />
+
+        {/* Year in Review Modal */}
+        <YearInReviewModal
+          isOpen={showYearInReview}
+          onClose={() => setShowYearInReview(false)}
+          tipEntries={tipEntries}
+          year={getReviewYear()}
         />
       </div>
     </div>
