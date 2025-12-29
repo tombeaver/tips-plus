@@ -374,17 +374,19 @@ export function markYearInReviewShown(): void {
   localStorage.setItem("yearInReviewLastShown", format(new Date(), "yyyy-MM-dd"));
 }
 
-// Get the year to review (previous year if in week 1, current year if in week 52)
+// Get the year to review based on current date
+// Week 52/53 (December) → show current year's review
+// Week 1 (January) → show previous year's review
 export function getReviewYear(): number {
   const now = new Date();
-  const week = getWeek(now, { weekStartsOn: 0 });
+  const month = now.getMonth(); // 0 = January, 11 = December
   const currentYear = getYear(now);
 
-  // If we're in week 1 of the new year, show previous year's review
-  if (week === 1) {
+  // If we're in January (month 0), show previous year's review
+  if (month === 0) {
     return currentYear - 1;
   }
 
-  // If we're in week 52/53, show current year's review
+  // If we're in December (month 11), show current year's review
   return currentYear;
 }
