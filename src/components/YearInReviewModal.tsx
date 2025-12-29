@@ -42,7 +42,7 @@ export function YearInReviewModal({
   isOpen,
   onClose,
   tipEntries,
-  year = new Date().getFullYear() - 1,
+  year = new Date().getFullYear(), // Default to current year for testing
 }: YearInReviewModalProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [showContent, setShowContent] = useState(false);
@@ -139,8 +139,11 @@ export function YearInReviewModal({
     };
   }, [tipEntries, year]);
 
+  // Check if we have data before showing
+  const hasData = stats.totalShifts > 0;
+
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && hasData) {
       setCurrentSlide(0);
       setShowContent(false);
       
@@ -157,7 +160,12 @@ export function YearInReviewModal({
 
       setTimeout(() => setShowContent(true), 200);
     }
-  }, [isOpen]);
+  }, [isOpen, hasData]);
+
+  // Don't render if no data
+  if (!hasData) {
+    return null;
+  }
 
   const slides = [
     // Intro slide
@@ -352,9 +360,6 @@ export function YearInReviewModal({
     onClose();
   };
 
-  if (stats.totalShifts === 0) {
-    return null; // Don't show if no data for the year
-  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
