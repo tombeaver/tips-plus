@@ -42,16 +42,19 @@ export function YearInReviewModal({
   isOpen,
   onClose,
   tipEntries,
-  year = new Date().getFullYear(), // Default to current year for testing
+  year, // Will be passed from parent using getReviewYear()
 }: YearInReviewModalProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [showContent, setShowContent] = useState(false);
+  
+  // Use provided year or calculate based on current week
+  const reviewYear = year ?? getReviewYear();
 
   // Calculate year stats
   const stats = useMemo((): YearStats => {
     const yearEntries = tipEntries.filter(entry => {
       const entryYear = new Date(entry.date).getFullYear();
-      return entryYear === year;
+      return entryYear === reviewYear;
     });
 
     if (yearEntries.length === 0) {
@@ -137,7 +140,7 @@ export function YearInReviewModal({
       avgPerShift: totalShifts > 0 ? totalEarnings / totalShifts : 0,
       avgHourlyRate: totalHours > 0 ? totalEarnings / totalHours : 0,
     };
-  }, [tipEntries, year]);
+  }, [tipEntries, reviewYear]);
 
   // Check if we have data before showing
   const hasData = stats.totalShifts > 0;
@@ -180,7 +183,7 @@ export function YearInReviewModal({
             <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-amber-400 animate-pulse" />
           </div>
           <div>
-            <h2 className="text-3xl font-bold text-white mb-2">Your {year} in Review</h2>
+            <h2 className="text-3xl font-bold text-white mb-2">Your {reviewYear} in Review</h2>
             <p className="text-muted-foreground">Let's celebrate your year of hustle!</p>
           </div>
         </div>
@@ -340,7 +343,7 @@ export function YearInReviewModal({
               </div>
             </div>
             <p className="text-muted-foreground mt-6 text-sm">
-              Here's to an even better {year + 1}! 🎉
+              Here's to an even better {reviewYear + 1}! 🎉
             </p>
           </div>
         </div>
