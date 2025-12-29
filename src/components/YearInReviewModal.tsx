@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ComponentType } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { TipEntry } from "@/hooks/useTipEntries";
 import {
   CalendarDays,
-  ChevronRight,
   DollarSign,
   Sparkles,
   Star,
@@ -17,6 +16,7 @@ import {
   Users,
 } from "lucide-react";
 import { format, getWeek, getYear } from "date-fns";
+import useEmblaCarousel from "embla-carousel-react";
 
 interface YearInReviewModalProps {
   isOpen: boolean;
@@ -251,22 +251,28 @@ export function YearInReviewModal({
     });
   }, [isOpen, hasData]);
 
-  const slide = slides[Math.min(currentSlide, slides.length - 1)];
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
 
-  const valueToneClass =
-    slide.valueTone === "success"
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setCurrentSlide(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    emblaApi.on("select", onSelect);
+    onSelect();
+    return () => {
+      emblaApi.off("select", onSelect);
+    };
+  }, [emblaApi, onSelect]);
+
+  const getValueToneClass = (tone?: "primary" | "success" | "warning") =>
+    tone === "success"
       ? "text-success"
-      : slide.valueTone === "warning"
+      : tone === "warning"
         ? "text-warning"
         : "text-primary";
-
-  const handleNext = () => {
-    if (currentSlide < slides.length - 1) {
-      setCurrentSlide((s) => s + 1);
-      return;
-    }
-    onClose();
-  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -291,59 +297,53 @@ export function YearInReviewModal({
           </div>
         </DialogHeader>
 
-        <main className="px-5 py-5 bg-gradient-prism-aurora">
-          <section
-            key={slide.id}
-            className="rounded-xl border bg-background/80 backdrop-blur-sm p-5 animate-enter"
-          >
-            <div className="flex items-start gap-4">
-              <div className="h-11 w-11 shrink-0 rounded-xl bg-primary/10 text-primary flex items-center justify-center shadow-inner-glow">
-                <slide.icon className="h-5 w-5" />
-              </div>
+        <main className="px-5 py-5 bg-gradient-prism-aurora overflow-hidden">
+          <div ref={emblaRef} className="overflow-hidden">
+            <div className="flex">
+              {slides.map((slide) => (
+                <div key={slide.id} className="min-w-0 shrink-0 grow-0 basis-full">
+                  <section className="rounded-xl border bg-background/80 backdrop-blur-sm p-5">
+                    <div className="flex items-start gap-4">
+                      <div className="h-11 w-11 shrink-0 rounded-xl bg-primary/10 text-primary flex items-center justify-center shadow-inner-glow">
+                        <slide.icon className="h-5 w-5" />
+                      </div>
 
-              <div className="min-w-0 flex-1">
-                <p className="text-sm text-muted-foreground">{slide.title}</p>
-                <p className={`mt-1 text-3xl font-semibold tracking-tight ${valueToneClass}`}>
-                  {slide.value}
-                </p>
-                {!!slide.sub && (
-                  <p className="mt-2 text-sm text-muted-foreground">{slide.sub}</p>
-                )}
-              </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm text-muted-foreground">{slide.title}</p>
+                        <p className={`mt-1 text-3xl font-semibold tracking-tight ${getValueToneClass(slide.valueTone)}`}>
+                          {slide.value}
+                        </p>
+                        {!!slide.sub && (
+                          <p className="mt-2 text-sm text-muted-foreground">{slide.sub}</p>
+                        )}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+              ))}
             </div>
+          </div>
 
-            <div className="mt-5 flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                {slides.map((s, i) => (
-                  <span
-                    key={s.id}
-                    className={`h-1.5 rounded-full transition-all ${
-                      i === currentSlide
-                        ? "w-6 bg-primary"
-                        : i < currentSlide
-                          ? "w-2 bg-primary/40"
-                          : "w-2 bg-muted"
-                    }`}
-                  />
-                ))}
-              </div>
-
-              <span className="text-xs text-muted-foreground">
-                {currentSlide + 1} / {slides.length}
-              </span>
-            </div>
-          </section>
+          {/* Dot indicators */}
+          <div className="mt-4 flex items-center justify-center gap-2">
+            {slides.map((s, i) => (
+              <button
+                key={s.id}
+                onClick={() => emblaApi?.scrollTo(i)}
+                className={`h-2 rounded-full transition-all ${
+                  i === currentSlide
+                    ? "w-6 bg-primary"
+                    : "w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                }`}
+                aria-label={`Go to slide ${i + 1}`}
+              />
+            ))}
+          </div>
         </main>
 
-        <footer className="px-5 py-4 border-t bg-card flex items-center justify-between">
-          <Button variant="ghost" onClick={onClose}>
-            Skip
-          </Button>
-          <Button onClick={handleNext}>
-            {currentSlide === slides.length - 1 ? "Done" : "Next"}
-            {currentSlide < slides.length - 1 && (
-              <ChevronRight className="h-4 w-4" />
-            )}
+        <footer className="px-5 py-4 border-t bg-card flex items-center justify-center">
+          <Button onClick={onClose}>
+            {currentSlide === slides.length - 1 ? "Done" : "Close"}
           </Button>
         </footer>
       </DialogContent>
