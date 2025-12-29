@@ -94,16 +94,14 @@ const Index = () => {
   // For now, the trigger is disabled until connected to the achievement system
 
   // Year in Review modal - show once per day during review period (week 52 or week 1)
+  // TODO: Restore shouldShowYearInReview() check after testing
   useEffect(() => {
     if (!tipEntriesLoading && tipEntries.length > 0 && activeTab === 'calendar') {
-      if (shouldShowYearInReview()) {
-        // Small delay to let the page load first
-        const timer = setTimeout(() => {
-          setShowYearInReview(true);
-          markYearInReviewShown();
-        }, 1000);
-        return () => clearTimeout(timer);
-      }
+      // For testing: show every time (remove this condition for production)
+      const timer = setTimeout(() => {
+        setShowYearInReview(true);
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [tipEntriesLoading, tipEntries.length, activeTab]);
   useEffect(() => {
