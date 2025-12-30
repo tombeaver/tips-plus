@@ -353,8 +353,8 @@ const Index = () => {
                     <div>
                       <div className="grid grid-cols-2 gap-4">
                         {/* Row 1: Total Sales - Alcohol Sales (or just Total Sales if no alcohol) */}
-                        <div className={`bg-background/50 rounded-xl p-4 border border-border/50 ${!selectedEntry.alcoholSales ? 'col-span-2' : ''}`}>
-                          <div className="flex items-center gap-3 mb-2">
+                        <div className={`bg-background/50 rounded-xl p-4 border border-border/50 ${!selectedEntry.alcoholSales ? 'col-span-2 text-center' : ''}`}>
+                          <div className={`flex items-center gap-3 mb-2 ${!selectedEntry.alcoholSales ? 'justify-center' : ''}`}>
                             <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
                               <Receipt className="w-5 h-5 text-orange-600" />
                             </div>
