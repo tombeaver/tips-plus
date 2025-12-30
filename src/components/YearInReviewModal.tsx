@@ -279,17 +279,13 @@ export function YearInReviewModal({
       <DialogContent
         className="w-[calc(100vw-2rem)] max-w-md p-0 overflow-hidden border bg-card shadow-depth-lg"
         aria-describedby={undefined}
+        hideCloseButton
       >
         <DialogHeader className="px-5 py-4 bg-gradient-primary text-primary-foreground">
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0">
-              <DialogTitle className="text-base font-semibold tracking-tight">
-                Year in Review
-              </DialogTitle>
-              <p className="text-sm text-primary-foreground/80 truncate">
-                Week 52 + Week 1 recap
-              </p>
-            </div>
+          <div className="flex items-center justify-between gap-4">
+            <DialogTitle className="text-base font-semibold tracking-tight">
+              Year in Review
+            </DialogTitle>
             <div className="inline-flex items-center gap-2 rounded-full bg-primary-foreground/15 px-3 py-1">
               <Sparkles className="h-4 w-4" />
               <span className="text-xs font-medium">{reviewYear}</span>
