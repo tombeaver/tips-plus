@@ -93,16 +93,17 @@ const Index = () => {
   // Achievement unlock modal can be triggered here when real achievements are unlocked
   // For now, the trigger is disabled until connected to the achievement system
 
-  // Year in Review modal - show once per day during review period (week 52 or week 1)
-  // TODO: Restore shouldShowYearInReview() check after testing
+  // Year in Review modal - show during review period with 24h cooldown after close
   useEffect(() => {
-    if (!tipEntriesLoading && activeTab === 'calendar') {
-      // For testing: show every time the calendar tab is loaded
-      const timer = setTimeout(() => {
-        setShowYearInReview(true);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
+    if (tipEntriesLoading) return;
+    if (activeTab !== 'calendar') return;
+    if (!shouldShowYearInReview()) return;
+
+    const timer = setTimeout(() => {
+      setShowYearInReview(true);
+    }, 500);
+
+    return () => clearTimeout(timer);
   }, [tipEntriesLoading, activeTab]);
   useEffect(() => {
     const handleScroll = () => {
@@ -576,7 +577,10 @@ const Index = () => {
         {/* Year in Review Modal */}
         <YearInReviewModal
           isOpen={showYearInReview}
-          onClose={() => setShowYearInReview(false)}
+          onClose={() => {
+            markYearInReviewShown();
+            setShowYearInReview(false);
+          }}
           tipEntries={tipEntries}
           year={getReviewYear()}
         />
