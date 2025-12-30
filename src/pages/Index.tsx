@@ -352,7 +352,8 @@ const Index = () => {
                     {/* Income Breakdown */}
                     <div>
                       <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-background/50 rounded-xl p-4 border border-border/50">
+                        {/* Row 1: Total Sales - Alcohol Sales (or just Total Sales if no alcohol) */}
+                        <div className={`bg-background/50 rounded-xl p-4 border border-border/50 ${!selectedEntry.alcoholSales ? 'col-span-2' : ''}`}>
                           <div className="flex items-center gap-3 mb-2">
                             <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
                               <Receipt className="w-5 h-5 text-orange-600" />
@@ -364,18 +365,21 @@ const Index = () => {
                           </div>
                         </div>
 
-                        <div className="bg-background/50 rounded-xl p-4 border border-border/50">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
-                              <Users className="w-5 h-5 text-amber-600" />
+                        {selectedEntry.alcoholSales > 0 && (
+                          <div className="bg-background/50 rounded-xl p-4 border border-border/50">
+                            <div className="flex items-center gap-3 mb-2">
+                              <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center">
+                                <Receipt className="w-5 h-5 text-rose-600" />
+                              </div>
+                              <span className="text-muted-foreground">Alcohol Sales</span>
                             </div>
-                            <span className="text-muted-foreground">Guests</span>
+                            <div className="text-2xl font-bold text-rose-600">
+                              ${selectedEntry.alcoholSales}
+                            </div>
                           </div>
-                          <div className="text-2xl font-bold text-amber-600">
-                            {selectedEntry.guestCount}
-                          </div>
-                        </div>
+                        )}
 
+                        {/* Row 2: Cash - Credit */}
                         <div className="bg-background/50 rounded-xl p-4 border border-border/50">
                           <div className="flex items-center gap-3 mb-2">
                             <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
@@ -400,7 +404,8 @@ const Index = () => {
                           </div>
                         </div>
 
-                        <div className="bg-background/50 rounded-xl p-4 border border-border/50 col-span-2">
+                        {/* Row 3: Section - Guests */}
+                        <div className="bg-background/50 rounded-xl p-4 border border-border/50">
                           <div className="flex items-center gap-3 mb-2">
                             <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                               <Receipt className="w-5 h-5 text-blue-600" />
@@ -408,7 +413,19 @@ const Index = () => {
                             <span className="text-muted-foreground">Section</span>
                           </div>
                           <div className="text-2xl font-bold text-blue-600">
-                            {selectedEntry.section}
+                            Section {selectedEntry.section}
+                          </div>
+                        </div>
+
+                        <div className="bg-background/50 rounded-xl p-4 border border-border/50">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                              <Users className="w-5 h-5 text-amber-600" />
+                            </div>
+                            <span className="text-muted-foreground">Guests</span>
+                          </div>
+                          <div className="text-2xl font-bold text-amber-600">
+                            {selectedEntry.guestCount}
                           </div>
                         </div>
                       </div>
