@@ -7,6 +7,7 @@ export interface TipEntry {
   id: string;
   date: Date;
   totalSales: number;
+  alcoholSales?: number;
   creditTips: number;
   cashTips: number;
   guestCount: number;
@@ -49,6 +50,7 @@ export const useTipEntries = () => {
           id: entry.id,
           date,
           totalSales: Number(entry.sales) || 0,
+          alcoholSales: entry.alcohol_sales ? Number(entry.alcohol_sales) : undefined,
           creditTips: Number(entry.tips) || 0,
           cashTips: Number(entry.cash_tips) || 0,
           guestCount: Number(entry.guest_count) || 0,
@@ -98,6 +100,7 @@ export const useTipEntries = () => {
           user_id: user.id,
           date: dateString,
           sales: entry.totalSales,
+          alcohol_sales: entry.alcoholSales || 0,
           tips: entry.creditTips,
           cash_tips: entry.cashTips,
           guest_count: entry.guestCount,
@@ -120,6 +123,7 @@ export const useTipEntries = () => {
         id: data.id,
         date: dateObj,
         totalSales: Number(data.sales),
+        alcoholSales: data.alcohol_sales ? Number(data.alcohol_sales) : undefined,
         creditTips: Number(data.tips),
         cashTips: Number(data.cash_tips),
         guestCount: Number(data.guest_count),
@@ -158,6 +162,7 @@ export const useTipEntries = () => {
         console.log('Updating entry for date:', updateData.date, 'Original date object:', updates.date);
       }
       if (updates.totalSales !== undefined) updateData.sales = updates.totalSales;
+      if (updates.alcoholSales !== undefined) updateData.alcohol_sales = updates.alcoholSales;
       if (updates.creditTips !== undefined) updateData.tips = updates.creditTips;
       if (updates.cashTips !== undefined) updateData.cash_tips = updates.cashTips;
       if (updates.guestCount !== undefined) updateData.guest_count = updates.guestCount;

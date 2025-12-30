@@ -34,6 +34,7 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
   onUpdateSections
 }) => {
   const [totalSales, setTotalSales] = useState(existingEntry?.totalSales.toString() || '');
+  const [alcoholSales, setAlcoholSales] = useState(existingEntry?.alcoholSales?.toString() || '');
   const [creditTips, setCreditTips] = useState(existingEntry?.creditTips.toString() || '');
   const [cashTips, setCashTips] = useState(existingEntry?.cashTips.toString() || '');
   const [guestCount, setGuestCount] = useState(existingEntry?.guestCount.toString() || '');
@@ -95,6 +96,7 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
     const entry = {
       date: selectedDate,
       totalSales: parseFloat(totalSales) || 0,
+      alcoholSales: alcoholSales ? parseFloat(alcoholSales) : undefined,
       creditTips: parseFloat(creditTips) || 0,
       cashTips: parseFloat(cashTips) || 0,
       guestCount: parseInt(guestCount) || 0,
@@ -138,6 +140,18 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
                 value={totalSales}
                 onChange={(e) => setTotalSales(e.target.value)}
                 required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="alcoholSales">Alcohol Sales ($) <span className="text-muted-foreground text-xs">(optional)</span></Label>
+              <Input
+                id="alcoholSales"
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                value={alcoholSales}
+                onChange={(e) => setAlcoholSales(e.target.value)}
               />
             </div>
 
