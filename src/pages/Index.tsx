@@ -413,7 +413,7 @@ const Index = () => {
                             <span className="text-muted-foreground">Section</span>
                           </div>
                           <div className="text-2xl font-bold text-blue-600">
-                            Section {selectedEntry.section}
+                            {selectedEntry.section}
                           </div>
                         </div>
 
