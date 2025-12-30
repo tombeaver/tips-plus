@@ -82,6 +82,7 @@ export type Database = {
       }
       tip_entries: {
         Row: {
+          alcohol_sales: number
           cash_tips: number
           created_at: string
           date: string
@@ -98,6 +99,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          alcohol_sales?: number
           cash_tips?: number
           created_at?: string
           date: string
@@ -114,6 +116,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          alcohol_sales?: number
           cash_tips?: number
           created_at?: string
           date?: string
