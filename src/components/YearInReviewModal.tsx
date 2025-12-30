@@ -323,15 +323,23 @@ export function YearInReviewModal({
           </div>
         </DialogHeader>
 
-        <main className="px-5 py-5 bg-gradient-prism-aurora overflow-hidden">
+        <main className="px-5 py-5 overflow-hidden">
           <div ref={emblaRef} className="overflow-hidden">
             <div className="flex">
               {slides.map((slide) => (
                 <div key={slide.id} className="min-w-0 shrink-0 grow-0 basis-full">
-                  <section className="rounded-xl border bg-background/80 backdrop-blur-sm p-5">
+                  <section className="rounded-xl border bg-background/90 backdrop-blur-sm p-5 min-h-[280px] flex flex-col relative overflow-hidden">
+                    {/* Background decorative elements for data slides */}
+                    {!slide.isIntro && (
+                      <>
+                        <div className="absolute -right-8 -bottom-8 h-32 w-32 rounded-full bg-primary/5 blur-2xl" />
+                        <div className="absolute -left-4 -top-4 h-20 w-20 rounded-full bg-primary/5 blur-xl" />
+                      </>
+                    )}
+                    
                     {slide.isIntro ? (
                       // Special intro slide layout
-                      <div className="text-center py-2">
+                      <div className="text-center py-2 flex-1 flex flex-col justify-center">
                         <div className="mx-auto mb-4 h-14 w-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shadow-inner-glow">
                           <slide.icon className="h-7 w-7" />
                         </div>
@@ -354,25 +362,29 @@ export function YearInReviewModal({
                         </div>
                       </div>
                     ) : (
-                      // Regular slide layout
-                      <div className="flex items-start gap-4">
-                        <div className="h-11 w-11 shrink-0 rounded-xl bg-primary/10 text-primary flex items-center justify-center shadow-inner-glow">
-                          <slide.icon className="h-5 w-5" />
+                      // Regular slide layout - centered with design elements
+                      <div className="flex-1 flex flex-col justify-center relative z-10">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="h-12 w-12 shrink-0 rounded-xl bg-primary/10 text-primary flex items-center justify-center shadow-inner-glow">
+                            <slide.icon className="h-6 w-6" />
+                          </div>
+                          <p className="text-sm font-medium text-muted-foreground">{slide.title}</p>
                         </div>
-
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm text-muted-foreground">{slide.title}</p>
-                          <p className={`mt-1 text-3xl font-semibold tracking-tight ${getValueToneClass(slide.valueTone)}`}>
-                            {slide.value}
-                          </p>
-                          {!!slide.subLines?.length && (
-                            <div className="mt-2 space-y-0.5">
-                              {slide.subLines.map((line, idx) => (
-                                <p key={idx} className="text-sm text-muted-foreground">{line}</p>
-                              ))}
-                            </div>
-                          )}
-                        </div>
+                        
+                        <p className={`text-4xl font-bold tracking-tight ${getValueToneClass(slide.valueTone)}`}>
+                          {slide.value}
+                        </p>
+                        
+                        {!!slide.subLines?.length && (
+                          <div className="mt-4 pt-4 border-t border-border/50 space-y-1.5">
+                            {slide.subLines.map((line, idx) => (
+                              <div key={idx} className="flex items-center gap-2">
+                                <div className="h-1.5 w-1.5 rounded-full bg-primary/40" />
+                                <p className="text-sm text-muted-foreground">{line}</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     )}
                   </section>
