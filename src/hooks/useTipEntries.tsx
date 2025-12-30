@@ -3,11 +3,20 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { format, parseISO } from 'date-fns';
 
+export interface SalesBreakdown {
+  food: number;
+  liquor: number;
+  beer: number;
+  wine: number;
+  cocktails: number;
+}
+
 export interface TipEntry {
   id: string;
   date: Date;
   totalSales: number;
-  alcoholSales?: number;
+  alcoholSales?: number; // Computed: liquor + beer + wine + cocktails
+  salesBreakdown?: SalesBreakdown;
   creditTips: number;
   cashTips: number;
   guestCount: number;
@@ -46,11 +55,24 @@ export const useTipEntries = () => {
         const [year, month, day] = entry.date.split('-').map(Number);
         const date = new Date(year, month - 1, day);
         
+        // Build sales breakdown
+        const salesBreakdown: SalesBreakdown = {
+          food: Number(entry.food_sales) || 0,
+          liquor: Number(entry.liquor_sales) || 0,
+          beer: Number(entry.beer_sales) || 0,
+          wine: Number(entry.wine_sales) || 0,
+          cocktails: Number(entry.cocktail_sales) || 0,
+        };
+        
+        // Calculate alcohol sales as sum of liquor, beer, wine, cocktails
+        const alcoholSales = salesBreakdown.liquor + salesBreakdown.beer + salesBreakdown.wine + salesBreakdown.cocktails;
+        
         return {
           id: entry.id,
           date,
           totalSales: Number(entry.sales) || 0,
-          alcoholSales: entry.alcohol_sales ? Number(entry.alcohol_sales) : undefined,
+          alcoholSales: alcoholSales > 0 ? alcoholSales : undefined,
+          salesBreakdown,
           creditTips: Number(entry.tips) || 0,
           cashTips: Number(entry.cash_tips) || 0,
           guestCount: Number(entry.guest_count) || 0,
@@ -94,13 +116,23 @@ export const useTipEntries = () => {
       });
       console.log('Shift value being saved:', entry.shift, 'Type:', typeof entry.shift);
 
+      // Calculate alcohol sales from breakdown
+      const alcoholSales = entry.salesBreakdown 
+        ? (entry.salesBreakdown.liquor + entry.salesBreakdown.beer + entry.salesBreakdown.wine + entry.salesBreakdown.cocktails)
+        : (entry.alcoholSales || 0);
+
       const { data, error } = await supabase
         .from('tip_entries')
         .insert([{
           user_id: user.id,
           date: dateString,
           sales: entry.totalSales,
-          alcohol_sales: entry.alcoholSales || 0,
+          alcohol_sales: alcoholSales,
+          food_sales: entry.salesBreakdown?.food || 0,
+          liquor_sales: entry.salesBreakdown?.liquor || 0,
+          beer_sales: entry.salesBreakdown?.beer || 0,
+          wine_sales: entry.salesBreakdown?.wine || 0,
+          cocktail_sales: entry.salesBreakdown?.cocktails || 0,
           tips: entry.creditTips,
           cash_tips: entry.cashTips,
           guest_count: entry.guestCount,
@@ -119,11 +151,23 @@ export const useTipEntries = () => {
       const [year, month, day] = data.date.split('-').map(Number);
       const dateObj = new Date(year, month - 1, day);
       
+      // Build sales breakdown from response
+      const salesBreakdown: SalesBreakdown = {
+        food: Number(data.food_sales) || 0,
+        liquor: Number(data.liquor_sales) || 0,
+        beer: Number(data.beer_sales) || 0,
+        wine: Number(data.wine_sales) || 0,
+        cocktails: Number(data.cocktail_sales) || 0,
+      };
+      
+      const newAlcoholSales = salesBreakdown.liquor + salesBreakdown.beer + salesBreakdown.wine + salesBreakdown.cocktails;
+      
       const newEntry: TipEntry = {
         id: data.id,
         date: dateObj,
         totalSales: Number(data.sales),
-        alcoholSales: data.alcohol_sales ? Number(data.alcohol_sales) : undefined,
+        alcoholSales: newAlcoholSales > 0 ? newAlcoholSales : undefined,
+        salesBreakdown,
         creditTips: Number(data.tips),
         cashTips: Number(data.cash_tips),
         guestCount: Number(data.guest_count),
@@ -162,7 +206,19 @@ export const useTipEntries = () => {
         console.log('Updating entry for date:', updateData.date, 'Original date object:', updates.date);
       }
       if (updates.totalSales !== undefined) updateData.sales = updates.totalSales;
-      if (updates.alcoholSales !== undefined) updateData.alcohol_sales = updates.alcoholSales;
+      if (updates.salesBreakdown) {
+        updateData.food_sales = updates.salesBreakdown.food || 0;
+        updateData.liquor_sales = updates.salesBreakdown.liquor || 0;
+        updateData.beer_sales = updates.salesBreakdown.beer || 0;
+        updateData.wine_sales = updates.salesBreakdown.wine || 0;
+        updateData.cocktail_sales = updates.salesBreakdown.cocktails || 0;
+        updateData.alcohol_sales = (updates.salesBreakdown.liquor || 0) + 
+                                   (updates.salesBreakdown.beer || 0) + 
+                                   (updates.salesBreakdown.wine || 0) + 
+                                   (updates.salesBreakdown.cocktails || 0);
+      } else if (updates.alcoholSales !== undefined) {
+        updateData.alcohol_sales = updates.alcoholSales;
+      }
       if (updates.creditTips !== undefined) updateData.tips = updates.creditTips;
       if (updates.cashTips !== undefined) updateData.cash_tips = updates.cashTips;
       if (updates.guestCount !== undefined) updateData.guest_count = updates.guestCount;
