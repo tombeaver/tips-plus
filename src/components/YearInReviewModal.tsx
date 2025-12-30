@@ -41,6 +41,7 @@ interface YearStats {
   bestDay: { dateLabel: string; earnings: number; shift: string; sectionLabel: string } | null;
   avgPerShift: number;
   avgPerHour: number;
+  avgPerGuest: number;
 }
 
 type Slide = {
@@ -160,6 +161,7 @@ export function YearInReviewModal({
       bestDay,
       avgPerShift: totalShifts > 0 ? totalEarnings / totalShifts : 0,
       avgPerHour: totalHours > 0 ? totalEarnings / totalHours : 0,
+      avgPerGuest: totalGuests > 0 ? totalEarnings / totalGuests : 0,
     };
   }, [tipEntries, reviewYear]);
 
@@ -227,7 +229,10 @@ export function YearInReviewModal({
         id: "avg",
         title: "Averages",
         value: `$${stats.avgPerShift.toFixed(0)} / shift`,
-        subLines: [`$${stats.avgPerHour.toFixed(2)} / hour`],
+        subLines: [
+          `$${stats.avgPerHour.toFixed(2)} / hour`,
+          `$${stats.avgPerGuest.toFixed(2)} / guest`,
+        ],
         icon: Users,
         valueTone: "primary",
       },
