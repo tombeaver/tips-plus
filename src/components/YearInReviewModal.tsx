@@ -192,14 +192,6 @@ export function YearInReviewModal({
         valueTone: "primary",
       },
       {
-        id: "best",
-        title: "Best shift + section",
-        value: `${stats.bestShift ?? "—"}`,
-        sub: `${stats.bestSectionLabel ?? "—"}`,
-        icon: Star,
-        valueTone: "warning",
-      },
-      {
         id: "bestDay",
         title: "Best day",
         value: stats.bestDay
