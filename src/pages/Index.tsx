@@ -349,89 +349,75 @@ const Index = () => {
                       </div>
                     </div>
 
-                    {/* Income Breakdown */}
-                    <div>
-                      <div className="grid grid-cols-2 gap-4">
-                        {/* Row 1: Total Sales - Alcohol Sales (or just Total Sales if no alcohol) */}
-                        <div className={`bg-background/50 rounded-xl p-4 border border-border/50 ${!selectedEntry.alcoholSales ? 'col-span-2 text-center' : ''}`}>
-                          <div className={`flex items-center gap-3 mb-2 ${!selectedEntry.alcoholSales ? 'justify-center' : ''}`}>
-                            <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                              <Receipt className="w-5 h-5 text-orange-600" />
-                            </div>
-                            <span className="text-muted-foreground">Total Sales</span>
+                    {/* Income Breakdown - Compact List */}
+                    <div className="space-y-2">
+                      {/* Sales Row */}
+                      <div className="flex items-center justify-between py-3 border-b border-border/50">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                            <Receipt className="w-4 h-4 text-orange-600" />
                           </div>
-                          <div className="text-2xl font-bold text-orange-600">
-                            ${selectedEntry.totalSales}
-                          </div>
+                          <span className="text-muted-foreground">Total Sales</span>
                         </div>
+                        <span className="text-lg font-semibold text-orange-600">${selectedEntry.totalSales}</span>
+                      </div>
 
-                        {selectedEntry.alcoholSales > 0 && (
-                          <div className="bg-background/50 rounded-xl p-4 border border-border/50">
-                            <div className="flex items-center gap-3 mb-2">
-                              <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center">
-                                <Receipt className="w-5 h-5 text-rose-600" />
-                              </div>
-                              <span className="text-muted-foreground">Alcohol Sales</span>
+                      {selectedEntry.alcoholSales > 0 && (
+                        <div className="flex items-center justify-between py-3 border-b border-border/50">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-rose-100 rounded-full flex items-center justify-center">
+                              <Receipt className="w-4 h-4 text-rose-600" />
                             </div>
-                            <div className="text-2xl font-bold text-rose-600">
-                              ${selectedEntry.alcoholSales}
-                            </div>
+                            <span className="text-muted-foreground">Alcohol Sales</span>
                           </div>
-                        )}
-
-                        {/* Row 2: Cash - Credit */}
-                        <div className="bg-background/50 rounded-xl p-4 border border-border/50">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                              <DollarSign className="w-5 h-5 text-green-600" />
-                            </div>
-                            <span className="text-muted-foreground">Cash</span>
-                          </div>
-                          <div className="text-2xl font-bold text-green-600">
-                            ${selectedEntry.cashTips}
-                          </div>
+                          <span className="text-lg font-semibold text-rose-600">${selectedEntry.alcoholSales}</span>
                         </div>
+                      )}
 
-                        <div className="bg-background/50 rounded-xl p-4 border border-border/50">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                              <CreditCard className="w-5 h-5 text-green-600" />
-                            </div>
-                            <span className="text-muted-foreground">Credit</span>
+                      {/* Tips Row */}
+                      <div className="flex items-center justify-between py-3 border-b border-border/50">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                            <DollarSign className="w-4 h-4 text-green-600" />
                           </div>
-                          <div className="text-2xl font-bold text-green-600">
-                            ${selectedEntry.creditTips}
-                          </div>
+                          <span className="text-muted-foreground">Cash Tips</span>
                         </div>
+                        <span className="text-lg font-semibold text-green-600">${selectedEntry.cashTips}</span>
+                      </div>
 
-                        {/* Row 3: Section - Guests */}
-                        <div className="bg-background/50 rounded-xl p-4 border border-border/50">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                              <Receipt className="w-5 h-5 text-blue-600" />
-                            </div>
-                            <span className="text-muted-foreground">Section</span>
+                      <div className="flex items-center justify-between py-3 border-b border-border/50">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                            <CreditCard className="w-4 h-4 text-green-600" />
                           </div>
-                          <div className="text-2xl font-bold text-blue-600">
-                            {selectedEntry.section}
-                          </div>
+                          <span className="text-muted-foreground">Credit Tips</span>
                         </div>
+                        <span className="text-lg font-semibold text-green-600">${selectedEntry.creditTips}</span>
+                      </div>
 
-                        <div className="bg-background/50 rounded-xl p-4 border border-border/50">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
-                              <Users className="w-5 h-5 text-amber-600" />
-                            </div>
-                            <span className="text-muted-foreground">Guests</span>
+                      {/* Details Row */}
+                      <div className="flex items-center justify-between py-3 border-b border-border/50">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <Receipt className="w-4 h-4 text-blue-600" />
                           </div>
-                          <div className="text-2xl font-bold text-amber-600">
-                            {selectedEntry.guestCount}
-                          </div>
+                          <span className="text-muted-foreground">Section</span>
                         </div>
+                        <span className="text-lg font-semibold text-blue-600">{selectedEntry.section}</span>
+                      </div>
+
+                      <div className="flex items-center justify-between py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
+                            <Users className="w-4 h-4 text-amber-600" />
+                          </div>
+                          <span className="text-muted-foreground">Guests</span>
+                        </div>
+                        <span className="text-lg font-semibold text-amber-600">{selectedEntry.guestCount}</span>
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-2 pt-2">
                       <Button 
                         variant="outline" 
                         className="interactive-rise"
