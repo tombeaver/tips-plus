@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { TipEntry } from '@/hooks/useTipEntries';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { format, getDay } from 'date-fns';
-import { DollarSign, Clock, Users, Percent, HandCoins, Calendar, CalendarRange, ArrowUp, ArrowDown, X, Banknote, CreditCard } from 'lucide-react';
+import { DollarSign, Clock, Users, Percent, HandCoins, Calendar, CalendarRange, ArrowUp, ArrowDown, X, Banknote, CreditCard, Wine } from 'lucide-react';
 
 export type MetricType = 
   | 'totalEarnings' 
@@ -16,6 +16,7 @@ export type MetricType =
   | 'totalTips' 
   | 'totalCashTips'
   | 'totalCreditTips'
+  | 'totalAlcoholSales'
   | 'tipsPerHour' 
   | 'avgPerGuest' 
   | 'avgTipPercent' 
@@ -62,6 +63,7 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
         tips,
         cashTips,
         creditTips,
+        alcoholSales: entry.alcoholSales || 0,
         wages,
         earnings,
         hoursWorked: entry.hoursWorked,
@@ -83,13 +85,14 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
       tips: acc.tips + entry.tips,
       cashTips: acc.cashTips + entry.cashTips,
       creditTips: acc.creditTips + entry.creditTips,
+      alcoholSales: acc.alcoholSales + entry.alcoholSales,
       wages: acc.wages + entry.wages,
       earnings: acc.earnings + entry.earnings,
       hours: acc.hours + entry.hoursWorked,
       guests: acc.guests + entry.guestCount,
       sales: acc.sales + entry.totalSales,
       shifts: acc.shifts + entry.shiftCount,
-    }), { tips: 0, cashTips: 0, creditTips: 0, wages: 0, earnings: 0, hours: 0, guests: 0, sales: 0, shifts: 0 });
+    }), { tips: 0, cashTips: 0, creditTips: 0, alcoholSales: 0, wages: 0, earnings: 0, hours: 0, guests: 0, sales: 0, shifts: 0 });
 
     // Calculate stats by day of week
     const byDayOfWeek = dayNames.map(day => {
@@ -117,6 +120,9 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
           break;
         case 'totalCreditTips':
           value = dayEntries.reduce((sum, e) => sum + e.creditTips, 0) / totalShifts;
+          break;
+        case 'totalAlcoholSales':
+          value = dayEntries.reduce((sum, e) => sum + e.alcoholSales, 0) / totalShifts;
           break;
         case 'tipsPerHour':
           const tipTotal = dayEntries.reduce((sum, e) => sum + e.tips, 0);
@@ -162,6 +168,9 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
         break;
       case 'totalCreditTips':
         rankedEntries.sort((a, b) => b.creditTips - a.creditTips);
+        break;
+      case 'totalAlcoholSales':
+        rankedEntries.sort((a, b) => b.alcoholSales - a.alcoholSales);
         break;
       case 'tipsPerHour':
         rankedEntries.sort((a, b) => b.tipsPerHour - a.tipsPerHour);
@@ -289,6 +298,22 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
             { label: 'Average per Shift', value: `$${(totals.creditTips / totals.shifts).toFixed(2)}` },
             { label: '% of Total Tips', value: `${totals.tips > 0 ? ((totals.creditTips / totals.tips) * 100).toFixed(1) : 0}%` },
             { label: 'Best Day Credit', value: detailData.best ? `$${detailData.best.creditTips.toFixed(2)}` : '-' },
+          ],
+        };
+      case 'totalAlcoholSales':
+        return {
+          title: 'Total Alcohol Sales',
+          icon: Wine,
+          mainValue: `$${totals.alcoholSales.toFixed(2)}`,
+          subtitle: `${totals.sales > 0 ? ((totals.alcoholSales / totals.sales) * 100).toFixed(1) : 0}% of total sales`,
+          color: 'rose',
+          chartDataKey: 'alcoholSales',
+          chartColor: '#E11D48',
+          formatValue: (v: number) => `$${v.toFixed(2)}`,
+          breakdown: [
+            { label: 'Average per Shift', value: `$${(totals.alcoholSales / totals.shifts).toFixed(2)}` },
+            { label: 'Total Sales', value: `$${totals.sales.toFixed(2)}` },
+            { label: 'Best Day', value: detailData.best ? `$${detailData.best.alcoholSales.toFixed(2)}` : '-' },
           ],
         };
       case 'tipsPerHour':

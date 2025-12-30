@@ -544,6 +544,26 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
 
           {/* Individual Metric Cards */}
           <div className="grid grid-cols-2 gap-4">
+            {stats.hasAlcoholData && (
+              <Card 
+                className="col-span-2 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.99]"
+                onClick={() => setSelectedMetric('totalAlcoholSales')}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Alcohol Sales</p>
+                      <p className="text-xl font-bold text-rose-600">${stats.totalAlcoholSales.toFixed(2)}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {stats.totalSales > 0 ? ((stats.totalAlcoholSales / stats.totalSales) * 100).toFixed(1) : 0}% of total sales
+                      </p>
+                    </div>
+                    <Wine className="h-6 w-6 text-rose-600" />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            
             <Card 
               className="cursor-pointer hover:shadow-md transition-shadow active:scale-[0.99]"
               onClick={() => setSelectedMetric('totalCashTips')}
@@ -634,22 +654,6 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
               </CardContent>
             </Card>
             
-            {stats.hasAlcoholData && (
-              <Card className="col-span-2">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Total Alcohol Sales</p>
-                      <p className="text-xl font-bold text-rose-600">${stats.totalAlcoholSales.toFixed(2)}</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {stats.totalSales > 0 ? ((stats.totalAlcoholSales / stats.totalSales) * 100).toFixed(1) : 0}% of total sales
-                      </p>
-                    </div>
-                    <Wine className="h-6 w-6 text-rose-600" />
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </div>
 
           {/* Performance Analysis */}
