@@ -5,7 +5,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { TipEntry } from '@/hooks/useTipEntries';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, Cell } from 'recharts';
 import { format, getDay } from 'date-fns';
 import { DollarSign, Clock, Users, Percent, HandCoins, Calendar, CalendarRange, ArrowUp, ArrowDown, X, Banknote, CreditCard, Wine } from 'lucide-react';
 
@@ -56,6 +56,12 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
       const wages = entry.hoursWorked * entry.hourlyRate;
       const earnings = tips + wages;
       const shiftCount = entry.shift === 'Double' ? 2 : 1;
+      
+      // Extract alcohol subcategories
+      const liquorSales = entry.salesBreakdown?.liquor || 0;
+      const beerSales = entry.salesBreakdown?.beer || 0;
+      const wineSales = entry.salesBreakdown?.wine || 0;
+      const cocktailSales = entry.salesBreakdown?.cocktails || 0;
 
       return {
         date: format(entry.date, 'MMM d'),
@@ -64,6 +70,10 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
         cashTips,
         creditTips,
         alcoholSales: entry.alcoholSales || 0,
+        liquorSales,
+        beerSales,
+        wineSales,
+        cocktailSales,
         wages,
         earnings,
         hoursWorked: entry.hoursWorked,
@@ -86,13 +96,17 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
       cashTips: acc.cashTips + entry.cashTips,
       creditTips: acc.creditTips + entry.creditTips,
       alcoholSales: acc.alcoholSales + entry.alcoholSales,
+      liquorSales: acc.liquorSales + entry.liquorSales,
+      beerSales: acc.beerSales + entry.beerSales,
+      wineSales: acc.wineSales + entry.wineSales,
+      cocktailSales: acc.cocktailSales + entry.cocktailSales,
       wages: acc.wages + entry.wages,
       earnings: acc.earnings + entry.earnings,
       hours: acc.hours + entry.hoursWorked,
       guests: acc.guests + entry.guestCount,
       sales: acc.sales + entry.totalSales,
       shifts: acc.shifts + entry.shiftCount,
-    }), { tips: 0, cashTips: 0, creditTips: 0, alcoholSales: 0, wages: 0, earnings: 0, hours: 0, guests: 0, sales: 0, shifts: 0 });
+    }), { tips: 0, cashTips: 0, creditTips: 0, alcoholSales: 0, liquorSales: 0, beerSales: 0, wineSales: 0, cocktailSales: 0, wages: 0, earnings: 0, hours: 0, guests: 0, sales: 0, shifts: 0 });
 
     // Calculate stats by day of week
     const byDayOfWeek = dayNames.map(day => {
@@ -301,6 +315,21 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
           ],
         };
       case 'totalAlcoholSales':
+        // Check if we have subcategory data
+        const hasSubcategories = totals.liquorSales > 0 || totals.beerSales > 0 || 
+                                 totals.wineSales > 0 || totals.cocktailSales > 0;
+        
+        const alcoholBreakdown = hasSubcategories ? [
+          { label: 'Liquor', value: `$${totals.liquorSales.toFixed(2)}` },
+          { label: 'Beer', value: `$${totals.beerSales.toFixed(2)}` },
+          { label: 'Wine', value: `$${totals.wineSales.toFixed(2)}` },
+          { label: 'Cocktails', value: `$${totals.cocktailSales.toFixed(2)}` },
+        ] : [
+          { label: 'Average per Shift', value: `$${(totals.alcoholSales / totals.shifts).toFixed(2)}` },
+          { label: 'Total Sales', value: `$${totals.sales.toFixed(2)}` },
+          { label: 'Best Day', value: detailData.best ? `$${detailData.best.alcoholSales.toFixed(2)}` : '-' },
+        ];
+        
         return {
           title: 'Total Alcohol Sales',
           icon: Wine,
@@ -310,11 +339,13 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
           chartDataKey: 'alcoholSales',
           chartColor: '#E11D48',
           formatValue: (v: number) => `$${v.toFixed(2)}`,
-          breakdown: [
-            { label: 'Average per Shift', value: `$${(totals.alcoholSales / totals.shifts).toFixed(2)}` },
-            { label: 'Total Sales', value: `$${totals.sales.toFixed(2)}` },
-            { label: 'Best Day', value: detailData.best ? `$${detailData.best.alcoholSales.toFixed(2)}` : '-' },
-          ],
+          breakdown: alcoholBreakdown,
+          alcoholSubcategories: hasSubcategories ? {
+            liquor: totals.liquorSales,
+            beer: totals.beerSales,
+            wine: totals.wineSales,
+            cocktails: totals.cocktailSales,
+          } : undefined,
         };
       case 'tipsPerHour':
         const tph = totals.hours > 0 ? totals.tips / totals.hours : 0;
@@ -528,6 +559,48 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
                 </div>
               ))}
             </div>
+
+            {/* Alcohol Subcategory Pie Chart (only for alcohol sales with subcategory data) */}
+            {metricType === 'totalAlcoholSales' && (config as any).alcoholSubcategories && (
+              <div className="bg-muted/30 rounded-lg p-4">
+                <p className="text-sm font-medium mb-3 text-muted-foreground">Category Breakdown</p>
+                <div className="h-40">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart 
+                      data={[
+                        { name: 'Liquor', value: (config as any).alcoholSubcategories.liquor, fill: '#8B5CF6' },
+                        { name: 'Beer', value: (config as any).alcoholSubcategories.beer, fill: '#F59E0B' },
+                        { name: 'Wine', value: (config as any).alcoholSubcategories.wine, fill: '#E11D48' },
+                        { name: 'Cocktails', value: (config as any).alcoholSubcategories.cocktails, fill: '#06B6D4' },
+                      ]}
+                      layout="vertical"
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis type="number" fontSize={10} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => `$${v}`} />
+                      <YAxis type="category" dataKey="name" fontSize={10} stroke="hsl(var(--muted-foreground))" width={70} />
+                      <Tooltip 
+                        formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Sales']}
+                        contentStyle={{
+                          backgroundColor: 'hsl(var(--background))',
+                          border: '1px solid hsl(var(--border))',
+                          borderRadius: '8px',
+                        }}
+                      />
+                      <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                        {[
+                          { name: 'Liquor', fill: '#8B5CF6' },
+                          { name: 'Beer', fill: '#F59E0B' },
+                          { name: 'Wine', fill: '#E11D48' },
+                          { name: 'Cocktails', fill: '#06B6D4' },
+                        ].map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.fill} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
 
             {/* Best & Worst */}
             {detailData.best && detailData.worst && detailData.entries.length > 1 && (

@@ -83,13 +83,17 @@ export type Database = {
       tip_entries: {
         Row: {
           alcohol_sales: number
+          beer_sales: number | null
           cash_tips: number
+          cocktail_sales: number | null
           created_at: string
           date: string
+          food_sales: number | null
           guest_count: number
           hourly_rate: number
           hours_worked: number
           id: string
+          liquor_sales: number | null
           mood_rating: number | null
           sales: number
           section: number
@@ -97,16 +101,21 @@ export type Database = {
           tips: number
           updated_at: string
           user_id: string
+          wine_sales: number | null
         }
         Insert: {
           alcohol_sales?: number
+          beer_sales?: number | null
           cash_tips?: number
+          cocktail_sales?: number | null
           created_at?: string
           date: string
+          food_sales?: number | null
           guest_count?: number
           hourly_rate?: number
           hours_worked?: number
           id?: string
+          liquor_sales?: number | null
           mood_rating?: number | null
           sales?: number
           section?: number
@@ -114,16 +123,21 @@ export type Database = {
           tips?: number
           updated_at?: string
           user_id: string
+          wine_sales?: number | null
         }
         Update: {
           alcohol_sales?: number
+          beer_sales?: number | null
           cash_tips?: number
+          cocktail_sales?: number | null
           created_at?: string
           date?: string
+          food_sales?: number | null
           guest_count?: number
           hourly_rate?: number
           hours_worked?: number
           id?: string
+          liquor_sales?: number | null
           mood_rating?: number | null
           sales?: number
           section?: number
@@ -131,6 +145,7 @@ export type Database = {
           tips?: number
           updated_at?: string
           user_id?: string
+          wine_sales?: number | null
         }
         Relationships: []
       }
