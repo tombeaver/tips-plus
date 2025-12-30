@@ -45,7 +45,7 @@ type Slide = {
   id: string;
   title: string;
   value: string;
-  sub?: string;
+  subLines?: string[];
   icon: React.ComponentType<{ className?: string }>;
   valueTone?: "primary" | "success" | "warning";
 };
@@ -166,7 +166,7 @@ export function YearInReviewModal({
           id: "empty",
           title: `${reviewYear} Year in Review`,
           value: "No entries yet",
-          sub: "Add a few tip entries and we’ll build your recap automatically.",
+          subLines: ["Add a few tip entries and we'll build your recap automatically."],
           icon: CalendarDays,
           valueTone: "primary",
         },
@@ -181,7 +181,11 @@ export function YearInReviewModal({
           minimumFractionDigits: 0,
           maximumFractionDigits: 0,
         })}`,
-        sub: `Cash $${stats.totalCashTips.toLocaleString()} • Credit $${stats.totalCreditTips.toLocaleString()} • Wages $${stats.totalWages.toLocaleString()}`,
+        subLines: [
+          `Cash $${stats.totalCashTips.toLocaleString()}`,
+          `Credit $${stats.totalCreditTips.toLocaleString()}`,
+          `Wages $${stats.totalWages.toLocaleString()}`,
+        ],
         icon: DollarSign,
         valueTone: "success",
       },
@@ -189,7 +193,10 @@ export function YearInReviewModal({
         id: "shifts",
         title: "Shifts worked",
         value: `${stats.totalShifts}`,
-        sub: `${stats.totalDoubles} doubles • ${stats.totalGuests.toLocaleString()} guests served`,
+        subLines: [
+          `${stats.totalDoubles} doubles`,
+          `${stats.totalGuests.toLocaleString()} guests served`,
+        ],
         icon: CalendarDays,
         valueTone: "primary",
       },
@@ -202,9 +209,9 @@ export function YearInReviewModal({
               maximumFractionDigits: 0,
             })}`
           : "—",
-        sub: stats.bestDay
-          ? `${stats.bestDay.dateLabel} • ${stats.bestDay.shift} • ${stats.bestDay.sectionLabel}`
-          : "",
+        subLines: stats.bestDay
+          ? [stats.bestDay.dateLabel, stats.bestDay.shift, stats.bestDay.sectionLabel]
+          : [],
         icon: TrendingUp,
         valueTone: "primary",
       },
@@ -212,7 +219,7 @@ export function YearInReviewModal({
         id: "avg",
         title: "Averages",
         value: `$${stats.avgPerShift.toFixed(0)} / shift`,
-        sub: `$${stats.avgPerHour.toFixed(2)} / hour`,
+        subLines: [`$${stats.avgPerHour.toFixed(2)} / hour`],
         icon: Users,
         valueTone: "primary",
       },
@@ -303,8 +310,12 @@ export function YearInReviewModal({
                         <p className={`mt-1 text-3xl font-semibold tracking-tight ${getValueToneClass(slide.valueTone)}`}>
                           {slide.value}
                         </p>
-                        {!!slide.sub && (
-                          <p className="mt-2 text-sm text-muted-foreground">{slide.sub}</p>
+                        {!!slide.subLines?.length && (
+                          <div className="mt-2 space-y-0.5">
+                            {slide.subLines.map((line, idx) => (
+                              <p key={idx} className="text-sm text-muted-foreground">{line}</p>
+                            ))}
+                          </div>
                         )}
                       </div>
                     </div>
