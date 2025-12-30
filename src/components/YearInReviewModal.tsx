@@ -9,7 +9,10 @@ import { Button } from "@/components/ui/button";
 import { TipEntry } from "@/hooks/useTipEntries";
 import {
   CalendarDays,
+  ChevronLeft,
+  ChevronRight,
   DollarSign,
+  PartyPopper,
   Sparkles,
   Star,
   TrendingUp,
@@ -51,6 +54,7 @@ type Slide = {
   subLines?: string[];
   icon: React.ComponentType<{ className?: string }>;
   valueTone?: "primary" | "success" | "warning";
+  isIntro?: boolean;
 };
 
 function cssHslVar(varName: string, fallback: string) {
@@ -183,8 +187,20 @@ export function YearInReviewModal({
 
     return [
       {
-        id: "earnings",
+        id: "intro",
         title: `${reviewYear} Year in Review`,
+        value: "You crushed it!",
+        subLines: [
+          "Another year of hard work in the books.",
+          "Let's celebrate your wins and see how you stacked up.",
+        ],
+        icon: PartyPopper,
+        valueTone: "primary",
+        isIntro: true,
+      },
+      {
+        id: "earnings",
+        title: "Total Earnings",
         value: `$${stats.totalEarnings.toLocaleString(undefined, {
           minimumFractionDigits: 0,
           maximumFractionDigits: 0,
@@ -313,25 +329,52 @@ export function YearInReviewModal({
               {slides.map((slide) => (
                 <div key={slide.id} className="min-w-0 shrink-0 grow-0 basis-full">
                   <section className="rounded-xl border bg-background/80 backdrop-blur-sm p-5">
-                    <div className="flex items-start gap-4">
-                      <div className="h-11 w-11 shrink-0 rounded-xl bg-primary/10 text-primary flex items-center justify-center shadow-inner-glow">
-                        <slide.icon className="h-5 w-5" />
-                      </div>
-
-                      <div className="min-w-0 flex-1">
+                    {slide.isIntro ? (
+                      // Special intro slide layout
+                      <div className="text-center py-2">
+                        <div className="mx-auto mb-4 h-14 w-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shadow-inner-glow">
+                          <slide.icon className="h-7 w-7" />
+                        </div>
                         <p className="text-sm text-muted-foreground">{slide.title}</p>
-                        <p className={`mt-1 text-3xl font-semibold tracking-tight ${getValueToneClass(slide.valueTone)}`}>
+                        <p className={`mt-1 text-3xl font-bold tracking-tight ${getValueToneClass(slide.valueTone)}`}>
                           {slide.value}
                         </p>
                         {!!slide.subLines?.length && (
-                          <div className="mt-2 space-y-0.5">
+                          <div className="mt-3 space-y-1">
                             {slide.subLines.map((line, idx) => (
                               <p key={idx} className="text-sm text-muted-foreground">{line}</p>
                             ))}
                           </div>
                         )}
+                        {/* Swipe hint */}
+                        <div className="mt-5 flex items-center justify-center gap-1 text-xs text-muted-foreground animate-pulse">
+                          <ChevronLeft className="h-3 w-3" />
+                          <span>Swipe to explore</span>
+                          <ChevronRight className="h-3 w-3" />
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      // Regular slide layout
+                      <div className="flex items-start gap-4">
+                        <div className="h-11 w-11 shrink-0 rounded-xl bg-primary/10 text-primary flex items-center justify-center shadow-inner-glow">
+                          <slide.icon className="h-5 w-5" />
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm text-muted-foreground">{slide.title}</p>
+                          <p className={`mt-1 text-3xl font-semibold tracking-tight ${getValueToneClass(slide.valueTone)}`}>
+                            {slide.value}
+                          </p>
+                          {!!slide.subLines?.length && (
+                            <div className="mt-2 space-y-0.5">
+                              {slide.subLines.map((line, idx) => (
+                                <p key={idx} className="text-sm text-muted-foreground">{line}</p>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </section>
                 </div>
               ))}
