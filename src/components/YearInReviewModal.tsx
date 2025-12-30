@@ -6,6 +6,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { TipEntry } from "@/hooks/useTipEntries";
 import {
   CalendarDays,
@@ -76,6 +78,7 @@ export function YearInReviewModal({
   year,
 }: YearInReviewModalProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [dontShowAgain, setDontShowAgain] = useState(false);
   const reviewYear = year ?? getReviewYear();
 
   const stats = useMemo((): YearStats => {
@@ -410,8 +413,26 @@ export function YearInReviewModal({
           </div>
         </main>
 
-        <footer className="px-5 py-4 border-t bg-card flex items-center justify-center">
-          <Button onClick={onClose}>
+        <footer className="px-5 py-4 border-t bg-card flex flex-col gap-3">
+          <div className="flex items-center justify-center gap-2">
+            <Checkbox 
+              id="dontShowAgain" 
+              checked={dontShowAgain}
+              onCheckedChange={(checked) => setDontShowAgain(checked === true)}
+            />
+            <Label htmlFor="dontShowAgain" className="text-sm text-muted-foreground cursor-pointer">
+              Don't show again this year
+            </Label>
+          </div>
+          <Button 
+            onClick={() => {
+              if (dontShowAgain) {
+                markYearInReviewDismissed(reviewYear);
+              }
+              onClose();
+            }} 
+            className="w-full"
+          >
             {currentSlide === slides.length - 1 ? "Done" : "Close"}
           </Button>
         </footer>
@@ -427,10 +448,17 @@ export function isInReviewPeriod(): boolean {
   return week === 52 || week === 1 || week === 53;
 }
 
-// Helper function to check if review was shown today
+// Helper function to check if review was shown today or permanently dismissed
 export function shouldShowYearInReview(): boolean {
   if (!isInReviewPeriod()) return false;
 
+  const reviewYear = getReviewYear();
+  
+  // Check if permanently dismissed for this year
+  const dismissed = localStorage.getItem("yearInReviewDismissed");
+  if (dismissed === String(reviewYear)) return false;
+
+  // Check if already shown today
   const lastShown = localStorage.getItem("yearInReviewLastShown");
   if (!lastShown) return true;
 
@@ -441,6 +469,11 @@ export function shouldShowYearInReview(): boolean {
 // Helper to mark review as shown today
 export function markYearInReviewShown(): void {
   localStorage.setItem("yearInReviewLastShown", format(new Date(), "yyyy-MM-dd"));
+}
+
+// Helper to permanently dismiss review for a specific year
+export function markYearInReviewDismissed(year: number): void {
+  localStorage.setItem("yearInReviewDismissed", String(year));
 }
 
 // Get the year to review based on current date
