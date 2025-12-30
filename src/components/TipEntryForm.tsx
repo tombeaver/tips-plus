@@ -85,9 +85,6 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
   // Effective total sales - always from the total sales input
   const effectiveTotalSales = parseFloat(totalSales) || 0;
 
-  // Effective food sales - either manual or calculated
-  const effectiveFood = useDetailedSales ? salesCategories.food : calculatedFood;
-
   const handleCategoryChange = (key: keyof typeof salesCategories, value: string) => {
     const numValue = parseFloat(value) || 0;
     
