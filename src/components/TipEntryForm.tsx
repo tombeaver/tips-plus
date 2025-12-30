@@ -70,24 +70,43 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
   const [showSectionDeleteConfirm, setShowSectionDeleteConfirm] = useState(false);
   const [sectionToDelete, setSectionToDelete] = useState<string>('');
 
-  // Calculated total from categories
-  const categoryTotal = useMemo(() => {
-    return salesCategories.food + salesCategories.liquor + salesCategories.beer + 
+  // Alcohol total (liquor + beer + wine + cocktails)
+  const alcoholTotal = useMemo(() => {
+    return salesCategories.liquor + salesCategories.beer + 
            salesCategories.wine + salesCategories.cocktails;
   }, [salesCategories]);
 
-  // Effective total sales (from categories if detailed mode, otherwise from input)
-  const effectiveTotalSales = useDetailedSales ? categoryTotal : (parseFloat(totalSales) || 0);
+  // Calculated food from total minus alcohol (when total is set first)
+  const calculatedFood = useMemo(() => {
+    const total = parseFloat(totalSales) || 0;
+    return Math.max(0, total - alcoholTotal);
+  }, [totalSales, alcoholTotal]);
+
+  // Effective total sales - always from the total sales input
+  const effectiveTotalSales = parseFloat(totalSales) || 0;
+
+  // Effective food sales - either manual or calculated
+  const effectiveFood = useDetailedSales ? salesCategories.food : calculatedFood;
 
   const handleCategoryChange = (key: keyof typeof salesCategories, value: string) => {
     const numValue = parseFloat(value) || 0;
-    setSalesCategories(prev => ({ ...prev, [key]: numValue }));
-    setUseDetailedSales(true);
+    
+    if (key === 'food') {
+      // User is manually setting food, so enable detailed mode
+      setSalesCategories(prev => ({ ...prev, food: numValue }));
+      setUseDetailedSales(true);
+    } else {
+      // Alcohol category changed - food auto-adjusts if not in detailed mode
+      setSalesCategories(prev => ({ ...prev, [key]: numValue }));
+    }
   };
 
   const handleTotalSalesChange = (value: string) => {
     setTotalSales(value);
-    setUseDetailedSales(false);
+    // When total changes and breakdown is open, recalculate food
+    if (salesBreakdownOpen && !useDetailedSales) {
+      // Food will auto-recalculate via calculatedFood
+    }
   };
 
   const addNewSection = () => {
@@ -129,8 +148,15 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
       getDate: selectedDate.getDate()
     });
     
-    // Build sales breakdown
-    const salesBreakdown: SalesBreakdown = useDetailedSales ? salesCategories : {
+    // Build sales breakdown - use calculated food when breakdown is open but not manually set
+    const finalFood = useDetailedSales ? salesCategories.food : (salesBreakdownOpen ? calculatedFood : 0);
+    const salesBreakdown: SalesBreakdown = salesBreakdownOpen ? {
+      food: finalFood,
+      liquor: salesCategories.liquor,
+      beer: salesCategories.beer,
+      wine: salesCategories.wine,
+      cocktails: salesCategories.cocktails,
+    } : {
       food: 0,
       liquor: 0,
       beer: 0,
@@ -145,12 +171,11 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
       date: selectedDate,
       totalSales: effectiveTotalSales,
       alcoholSales: alcoholSales > 0 ? alcoholSales : undefined,
-      salesBreakdown: useDetailedSales ? salesBreakdown : undefined,
+      salesBreakdown: salesBreakdownOpen ? salesBreakdown : undefined,
       creditTips: parseFloat(creditTips) || 0,
       cashTips: parseFloat(cashTips) || 0,
       guestCount: parseInt(guestCount) || 0,
       section: section || Object.keys(sections)[0],
-      
       shift,
       hoursWorked: parseFloat(hoursWorked) || 0,
       hourlyRate: parseFloat(hourlyRate) || 0,
@@ -198,17 +223,10 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
                     type="number"
                     step="0.01"
                     placeholder="0.00"
-                    value={useDetailedSales ? categoryTotal.toFixed(2) : totalSales}
+                    value={totalSales}
                     onChange={(e) => handleTotalSalesChange(e.target.value)}
-                    className={useDetailedSales ? 'bg-muted/50' : ''}
-                    readOnly={useDetailedSales}
                     required
                   />
-                  {useDetailedSales && (
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                      Auto
-                    </span>
-                  )}
                 </div>
                 <Collapsible open={salesBreakdownOpen} onOpenChange={setSalesBreakdownOpen}>
                   <CollapsibleTrigger asChild>
@@ -219,9 +237,7 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
                 </Collapsible>
               </div>
               <p className="text-xs text-muted-foreground">
-                {useDetailedSales 
-                  ? 'Calculated from categories below' 
-                  : 'Tap arrow to break down by category'}
+                Tap arrow to break down by category
               </p>
             </div>
 
@@ -229,38 +245,49 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
             <Collapsible open={salesBreakdownOpen} onOpenChange={setSalesBreakdownOpen}>
               <CollapsibleContent>
                 <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border/50">
-                  {salesCategoryConfig.map(({ key, label, icon: Icon }) => (
-                    <div key={key} className="grid grid-cols-[1fr_120px] gap-3 items-center">
-                      <Label className="flex items-center gap-2 text-sm">
-                        <Icon className="h-4 w-4 text-muted-foreground" />
-                        {label}
-                      </Label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          placeholder="0"
-                          value={salesCategories[key] || ''}
-                          onChange={(e) => handleCategoryChange(key, e.target.value)}
-                          className="pl-7 h-9 text-right"
-                        />
+                  {salesCategoryConfig.map(({ key, label, icon: Icon }) => {
+                    // Food shows calculated value unless manually edited
+                    const displayValue = key === 'food' && !useDetailedSales 
+                      ? calculatedFood 
+                      : salesCategories[key];
+                    const isAutoFood = key === 'food' && !useDetailedSales;
+                    
+                    return (
+                      <div key={key} className="grid grid-cols-[1fr_120px] gap-3 items-center">
+                        <Label className="flex items-center gap-2 text-sm">
+                          <Icon className="h-4 w-4 text-muted-foreground" />
+                          {label}
+                          {isAutoFood && (
+                            <span className="text-xs text-muted-foreground">(auto)</span>
+                          )}
+                        </Label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            placeholder="0"
+                            value={displayValue || ''}
+                            onChange={(e) => handleCategoryChange(key, e.target.value)}
+                            className={`pl-7 h-9 text-right ${isAutoFood ? 'bg-muted/50' : ''}`}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   
                   {/* Category Total */}
                   <div className="pt-3 mt-3 border-t border-border/50">
                     <div className="grid grid-cols-[1fr_120px] gap-3 items-center">
                       <span className="font-medium text-sm">Total Sales</span>
                       <div className="text-right font-bold text-primary">
-                        ${categoryTotal.toFixed(2)}
+                        ${effectiveTotalSales.toFixed(2)}
                       </div>
                     </div>
                     <div className="grid grid-cols-[1fr_120px] gap-3 items-center mt-1">
                       <span className="text-sm text-muted-foreground">Alcohol Total</span>
                       <div className="text-right text-sm text-rose-600">
-                        ${(salesCategories.liquor + salesCategories.beer + salesCategories.wine + salesCategories.cocktails).toFixed(2)}
+                        ${alcoholTotal.toFixed(2)}
                       </div>
                     </div>
                   </div>
