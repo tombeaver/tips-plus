@@ -30,6 +30,7 @@ interface YearStats {
   totalEarnings: number;
   totalCashTips: number;
   totalCreditTips: number;
+  totalWages: number;
   totalShifts: number;
   totalDoubles: number;
   totalGuests: number;
@@ -144,6 +145,7 @@ export function YearInReviewModal({
       totalEarnings,
       totalCashTips,
       totalCreditTips,
+      totalWages,
       totalShifts,
       totalDoubles,
       totalGuests,
@@ -179,7 +181,7 @@ export function YearInReviewModal({
           minimumFractionDigits: 0,
           maximumFractionDigits: 0,
         })}`,
-        sub: `Cash $${stats.totalCashTips.toLocaleString()} • Credit $${stats.totalCreditTips.toLocaleString()}`,
+        sub: `Cash $${stats.totalCashTips.toLocaleString()} • Credit $${stats.totalCreditTips.toLocaleString()} • Wages $${stats.totalWages.toLocaleString()}`,
         icon: DollarSign,
         valueTone: "success",
       },
