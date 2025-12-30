@@ -328,7 +328,7 @@ export function YearInReviewModal({
             <div className="flex">
               {slides.map((slide) => (
                 <div key={slide.id} className="min-w-0 shrink-0 grow-0 basis-full">
-                  <section className="rounded-xl border bg-background/90 backdrop-blur-sm p-5 min-h-[280px] flex flex-col relative overflow-hidden">
+                  <section className="rounded-xl border bg-background/90 backdrop-blur-sm p-5 h-[280px] flex flex-col relative overflow-hidden">
                     {/* Background decorative elements for data slides */}
                     {!slide.isIntro && (
                       <>
