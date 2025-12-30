@@ -448,7 +448,7 @@ export function isInReviewPeriod(): boolean {
   return week === 52 || week === 1 || week === 53;
 }
 
-// Helper function to check if review was shown today or permanently dismissed
+// Helper function to check if review should show (24h delay after close)
 export function shouldShowYearInReview(): boolean {
   if (!isInReviewPeriod()) return false;
 
@@ -458,17 +458,20 @@ export function shouldShowYearInReview(): boolean {
   const dismissed = localStorage.getItem("yearInReviewDismissed");
   if (dismissed === String(reviewYear)) return false;
 
-  // Check if already shown today
-  const lastShown = localStorage.getItem("yearInReviewLastShown");
-  if (!lastShown) return true;
+  // Check if 24 hours have passed since last closed
+  const lastClosed = localStorage.getItem("yearInReviewLastClosed");
+  if (!lastClosed) return true;
 
-  const today = format(new Date(), "yyyy-MM-dd");
-  return lastShown !== today;
+  const lastClosedTime = parseInt(lastClosed, 10);
+  const now = Date.now();
+  const twentyFourHours = 24 * 60 * 60 * 1000;
+  
+  return now - lastClosedTime >= twentyFourHours;
 }
 
-// Helper to mark review as shown today
+// Helper to mark review as closed (starts 24h timer)
 export function markYearInReviewShown(): void {
-  localStorage.setItem("yearInReviewLastShown", format(new Date(), "yyyy-MM-dd"));
+  localStorage.setItem("yearInReviewLastClosed", String(Date.now()));
 }
 
 // Helper to permanently dismiss review for a specific year
