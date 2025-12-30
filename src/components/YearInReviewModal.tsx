@@ -32,6 +32,8 @@ interface YearStats {
   totalCreditTips: number;
   totalWages: number;
   totalShifts: number;
+  totalAMShifts: number;
+  totalPMShifts: number;
   totalDoubles: number;
   totalGuests: number;
   bestSectionLabel: string | null;
@@ -90,7 +92,9 @@ export function YearInReviewModal({
     const totalGuests = yearEntries.reduce((sum, e) => sum + e.guestCount, 0);
     const totalShifts = yearEntries.length;
 
-    // Doubles: either explicitly marked or long shifts.
+    // Shift type counts
+    const totalAMShifts = yearEntries.filter((e) => e.shift === "AM").length;
+    const totalPMShifts = yearEntries.filter((e) => e.shift === "PM").length;
     const totalDoubles = yearEntries.filter(
       (e) => e.shift === "Double" || e.hoursWorked >= 10
     ).length;
@@ -147,6 +151,8 @@ export function YearInReviewModal({
       totalCreditTips,
       totalWages,
       totalShifts,
+      totalAMShifts,
+      totalPMShifts,
       totalDoubles,
       totalGuests,
       bestSectionLabel,
@@ -194,6 +200,8 @@ export function YearInReviewModal({
         title: "Shifts worked",
         value: `${stats.totalShifts}`,
         subLines: [
+          `${stats.totalAMShifts} AM shifts`,
+          `${stats.totalPMShifts} PM shifts`,
           `${stats.totalDoubles} doubles`,
           `${stats.totalGuests.toLocaleString()} guests served`,
         ],
