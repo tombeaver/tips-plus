@@ -307,7 +307,7 @@ export function YearInReviewModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="w-[calc(100vw-2rem)] max-w-md p-0 overflow-hidden border bg-card shadow-depth-lg"
+        className="w-[calc(100vw-2rem)] max-w-md p-0 overflow-hidden border bg-gradient-prism-aurora shadow-depth-lg"
         aria-describedby={undefined}
         hideCloseButton
       >
