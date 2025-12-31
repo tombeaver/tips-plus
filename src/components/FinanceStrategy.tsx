@@ -5,7 +5,6 @@ import { FinancialData } from '@/hooks/useGoals';
 import { TipEntry } from '@/hooks/useTipEntries';
 import { FinancialHealthScore } from '@/components/FinancialHealthScore';
 import { FinancialHealthScoreModal } from '@/components/FinancialHealthScoreModal';
-import { IncomeExpenseChart } from '@/components/IncomeExpenseChart';
 import { BudgetInput } from '@/components/BudgetInput';
 import { ShiftRecommendations } from '@/components/ShiftRecommendations';
 import { startOfMonth, endOfMonth, isWithinInterval, differenceInDays } from 'date-fns';
@@ -133,12 +132,6 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
         daysLeftInMonth={financialMetrics.daysLeftInMonth}
       />
 
-      {/* Income vs Expense Chart */}
-      <IncomeExpenseChart
-        monthlyIncome={financialMetrics.monthlyIncome}
-        monthlyExpenses={financialMetrics.totalExpenses}
-        monthlySavings={financialMetrics.currentSavings}
-      />
 
       {/* Tips Section */}
       <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
