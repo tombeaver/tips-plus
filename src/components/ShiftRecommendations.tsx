@@ -7,7 +7,7 @@ interface ShiftRecommendationsProps {
   monthlyTargetIncome: number;
   averagePerShift: number;
   shiftsWorkedThisMonth: number;
-  daysLeftInMonth: number;
+  daysLeftInWeek: number;
 }
 
 export const ShiftRecommendations: React.FC<ShiftRecommendationsProps> = ({
@@ -15,7 +15,7 @@ export const ShiftRecommendations: React.FC<ShiftRecommendationsProps> = ({
   monthlyTargetIncome,
   averagePerShift,
   shiftsWorkedThisMonth,
-  daysLeftInMonth,
+  daysLeftInWeek,
 }) => {
   const shortfall = Math.max(0, monthlyTargetIncome - monthlyIncome);
   const shiftsNeeded = averagePerShift > 0 ? Math.ceil(shortfall / averagePerShift) : 0;
@@ -24,11 +24,11 @@ export const ShiftRecommendations: React.FC<ShiftRecommendationsProps> = ({
   const isOnTrack = progress >= 100;
 
   // Calculate pace metrics
-  const shiftsPerDayNeeded = daysLeftInMonth > 0 ? shiftsNeeded / daysLeftInMonth : 0;
+  const shiftsPerDayNeeded = daysLeftInWeek > 0 ? shiftsNeeded / daysLeftInWeek : 0;
   const paceDescription = shiftsPerDayNeeded <= 0.5 ? 'relaxed' : shiftsPerDayNeeded <= 1 ? 'steady' : 'aggressive';
 
-  // Generate timeline markers (show last few days of month)
-  const totalDaysInTimeline = Math.min(daysLeftInMonth, 14);
+  // Generate timeline markers (show days left in week)
+  const totalDaysInTimeline = Math.min(daysLeftInWeek, 7);
   const shiftsSpreadAcrossDays = Array.from({ length: totalDaysInTimeline }, (_, i) => {
     const dayIndex = i + 1;
     const cumulativeShiftsNeeded = Math.ceil((dayIndex / totalDaysInTimeline) * shiftsNeeded);
@@ -77,7 +77,7 @@ export const ShiftRecommendations: React.FC<ShiftRecommendationsProps> = ({
                     <span className="text-white/80 text-lg">shift{shiftsNeeded !== 1 ? 's' : ''}</span>
                   </div>
                   <p className="text-white/70 text-sm mt-1">
-                    {daysLeftInMonth} days left • ${averagePerShift.toFixed(0)}/shift avg
+                    {daysLeftInWeek} day{daysLeftInWeek !== 1 ? 's' : ''} left this week • ${averagePerShift.toFixed(0)}/shift avg
                   </p>
                 </>
               )}
@@ -113,7 +113,7 @@ export const ShiftRecommendations: React.FC<ShiftRecommendationsProps> = ({
         </div>
 
         {/* Timeline visualization */}
-        {!isOnTrack && daysLeftInMonth > 0 && shiftsNeeded > 0 && (
+        {!isOnTrack && daysLeftInWeek > 0 && shiftsNeeded > 0 && (
           <div className="p-4 border-b">
             <div className="flex items-center gap-2 mb-3">
               <Clock className="h-4 w-4 text-muted-foreground" />
@@ -161,7 +161,7 @@ export const ShiftRecommendations: React.FC<ShiftRecommendationsProps> = ({
               <p className="text-xs text-muted-foreground">Shifts worked</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold">{daysLeftInMonth}</p>
+              <p className="text-2xl font-bold">{daysLeftInWeek}</p>
               <p className="text-xs text-muted-foreground">Days left</p>
             </div>
             <div className="text-center">
