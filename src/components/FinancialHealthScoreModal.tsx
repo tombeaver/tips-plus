@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Progress } from '@/components/ui/progress';
 import { Target, ShoppingBag, Save, Home, Zap, ShoppingCart, Car, CreditCard, MoreHorizontal, ChevronDown, ChevronUp, Pencil, X, TrendingUp, Trash2 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, getDaysInMonth, getDate } from 'date-fns';
 import { FinancialData } from '@/hooks/useGoals';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
@@ -86,24 +86,35 @@ export const FinancialHealthScoreModal: React.FC<FinancialHealthScoreModalProps>
 
   const effectiveExpenses = useDetailedMode ? categoryTotal : (parseFloat(simpleExpenses) || 0);
 
-  // Calculate financial health score (0-100)
+  // Calculate pro-rated expenses based on how far into the month we are
+  const today = new Date();
+  const dayOfMonth = getDate(today);
+  const daysInMonth = getDaysInMonth(today);
+  const monthProgress = dayOfMonth / daysInMonth;
+  const proratedExpenses = monthlyExpenses * monthProgress;
+
+  // Calculate financial health score (0-100) using pro-rated expenses
   const calculateScore = () => {
+    if (monthlyIncome === 0 && proratedExpenses === 0) return 50; // Neutral start
     if (monthlyIncome === 0) return 0;
     
-    const incomeExpenseRatio = Math.min((monthlyIncome - monthlyExpenses) / monthlyIncome * 100, 100);
+    // Compare income against pro-rated expenses for fair early-month comparison
+    const incomeExpenseRatio = Math.min((monthlyIncome - proratedExpenses) / monthlyIncome * 100, 100);
     const incomeExpensePoints = Math.max(0, (incomeExpenseRatio / 100) * 40);
     
     const savingsRate = monthlyIncome > 0 ? (monthlySavings / monthlyIncome) * 100 : 0;
     const savingsPoints = Math.min(Math.max(0, (savingsRate / 20) * 30), 30);
     
-    const goalProgress = savingsGoal > 0 ? (monthlySavings / savingsGoal) * 100 : 100;
+    // Pro-rate savings goal progress too
+    const proratedSavingsGoal = savingsGoal * monthProgress;
+    const goalProgress = proratedSavingsGoal > 0 ? (monthlySavings / proratedSavingsGoal) * 100 : 100;
     const goalPoints = Math.min(Math.max(0, (goalProgress / 100) * 30), 30);
     
     return Math.round(incomeExpensePoints + savingsPoints + goalPoints);
   };
 
   const score = calculateScore();
-  const netIncome = monthlyIncome - monthlyExpenses;
+  const netIncome = monthlyIncome - proratedExpenses;
   const currentMonth = format(new Date(), 'MMMM');
   
   const getScoreLabel = () => {
@@ -147,19 +158,20 @@ export const FinancialHealthScoreModal: React.FC<FinancialHealthScoreModalProps>
     onClose();
   };
 
-  const savingsProgress = savingsGoal > 0 ? Math.min((monthlySavings / savingsGoal) * 100, 100) : 0;
+  const proratedSavingsGoal = savingsGoal * monthProgress;
+  const savingsProgress = proratedSavingsGoal > 0 ? Math.min((monthlySavings / proratedSavingsGoal) * 100, 100) : 0;
 
-  // Score breakdown calculations
-  const incomeExpenseRatio = monthlyIncome > 0 ? Math.min((monthlyIncome - monthlyExpenses) / monthlyIncome * 100, 100) : 0;
+  // Score breakdown calculations (using pro-rated values)
+  const incomeExpenseRatio = monthlyIncome > 0 ? Math.min((monthlyIncome - proratedExpenses) / monthlyIncome * 100, 100) : 0;
   const incomeExpensePoints = Math.round(Math.max(0, (incomeExpenseRatio / 100) * 40));
   const savingsRate = monthlyIncome > 0 ? (monthlySavings / monthlyIncome) * 100 : 0;
   const savingsPoints = Math.round(Math.min(Math.max(0, (savingsRate / 20) * 30), 30));
   const goalPoints = Math.round(Math.min(Math.max(0, (savingsProgress / 100) * 30), 30));
 
-  // Chart data for income breakdown
+  // Chart data for income breakdown (show pro-rated expenses)
   const incomeBreakdownData = [
     { name: 'Income', value: monthlyIncome, fill: '#10B981' },
-    { name: 'Expenses', value: monthlyExpenses, fill: '#EF4444' },
+    { name: 'Expenses (pro-rated)', value: proratedExpenses, fill: '#EF4444' },
     { name: 'Savings', value: monthlySavings, fill: '#3B82F6' },
   ];
 
