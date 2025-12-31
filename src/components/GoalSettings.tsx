@@ -7,7 +7,8 @@ import { TipEntry } from '@/hooks/useTipEntries';
 import { GoalSettingsForm } from '@/components/GoalSettingsForm';
 import { AnnualGoalCard } from '@/components/AnnualGoalCard';
 import { AnnualGoalModal } from '@/components/AnnualGoalModal';
-import { startOfYear, endOfYear, isWithinInterval, startOfMonth, endOfMonth, differenceInDays } from 'date-fns';
+import { GoalShiftStrategy } from '@/components/GoalShiftStrategy';
+import { startOfYear, endOfYear, isWithinInterval, startOfMonth, endOfMonth, startOfWeek, endOfWeek } from 'date-fns';
 
 interface GoalSettingsProps {
   goals: Goal[];
@@ -40,10 +41,14 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
 
   const yearlyGoal = goals.find(g => g.type === 'yearly') || null;
 
-  const yearlyProgress = useMemo(() => {
+  const { yearlyProgress, weeklyData, monthlyData } = useMemo(() => {
     const now = new Date();
     const yearStart = startOfYear(now);
     const yearEnd = endOfYear(now);
+    const weekStart = startOfWeek(now);
+    const weekEnd = endOfWeek(now);
+    const monthStart = startOfMonth(now);
+    const monthEnd = endOfMonth(now);
     
     const achieved = realEntries
       .filter(entry => isWithinInterval(entry.date, { start: yearStart, end: yearEnd }))
@@ -53,7 +58,23 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
       ? Math.min((achieved / yearlyGoal.amount) * 100, 100) 
       : 0;
 
-    return { achieved, percentage };
+    // Calculate targets based on yearly goal
+    const monthlyTarget = yearlyGoal ? yearlyGoal.amount / 12 : 0;
+    const weeklyTarget = monthlyTarget / (52 / 12);
+
+    const weeklyEarned = realEntries
+      .filter(entry => isWithinInterval(entry.date, { start: weekStart, end: weekEnd }))
+      .reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
+
+    const monthlyEarned = realEntries
+      .filter(entry => isWithinInterval(entry.date, { start: monthStart, end: monthEnd }))
+      .reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
+
+    return {
+      yearlyProgress: { achieved, percentage },
+      weeklyData: { target: weeklyTarget, earned: weeklyEarned },
+      monthlyData: { target: monthlyTarget, earned: monthlyEarned },
+    };
   }, [yearlyGoal, realEntries]);
 
   const averagePerShift = useMemo(() => {
@@ -89,12 +110,27 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
 
       {/* Annual Goal Card OR Setup */}
       {yearlyGoal ? (
-        <AnnualGoalCard
-          yearlyGoal={yearlyGoal.amount}
-          yearlyAchieved={yearlyProgress.achieved}
-          yearlyPercentage={yearlyProgress.percentage}
-          onClick={() => setIsGoalModalOpen(true)}
-        />
+        <>
+          <AnnualGoalCard
+            yearlyGoal={yearlyGoal.amount}
+            yearlyAchieved={yearlyProgress.achieved}
+            yearlyPercentage={yearlyProgress.percentage}
+            weeklyTarget={weeklyData.target}
+            weeklyEarned={weeklyData.earned}
+            monthlyTarget={monthlyData.target}
+            monthlyEarned={monthlyData.earned}
+            onClick={() => setIsGoalModalOpen(true)}
+          />
+          
+          {/* Shift Strategy */}
+          <GoalShiftStrategy
+            weeklyTarget={weeklyData.target}
+            weeklyEarned={weeklyData.earned}
+            monthlyTarget={monthlyData.target}
+            monthlyEarned={monthlyData.earned}
+            averagePerShift={averagePerShift}
+          />
+        </>
       ) : (
         <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
           <CardContent className="py-8">
