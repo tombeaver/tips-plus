@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Progress } from '@/components/ui/progress';
-import { Target, ShoppingBag, Save, Home, Zap, ShoppingCart, Car, CreditCard, MoreHorizontal, ChevronDown, ChevronUp, Pencil, X, TrendingUp } from 'lucide-react';
+import { Target, ShoppingBag, Save, Home, Zap, ShoppingCart, Car, CreditCard, MoreHorizontal, ChevronDown, ChevronUp, Pencil, X, TrendingUp, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { FinancialData } from '@/hooks/useGoals';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
@@ -58,6 +58,7 @@ export const FinancialHealthScoreModal: React.FC<FinancialHealthScoreModalProps>
   const [isEditing, setIsEditing] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [useDetailedMode, setUseDetailedMode] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [simpleExpenses, setSimpleExpenses] = useState(financialData.monthlyExpenses.toString());
   const [categories, setCategories] = useState<ExpenseCategories>({
     rent: 0,
@@ -75,6 +76,7 @@ export const FinancialHealthScoreModal: React.FC<FinancialHealthScoreModalProps>
       setSimpleExpenses(financialData.monthlyExpenses.toString());
       setSavingsGoalInput(financialData.monthlySavingsGoal.toString());
       setIsEditing(false);
+      setShowDeleteConfirm(false);
     }
   }, [isOpen, financialData]);
 
@@ -134,6 +136,15 @@ export const FinancialHealthScoreModal: React.FC<FinancialHealthScoreModalProps>
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleDelete = async () => {
+    await onUpdateFinancialData({
+      monthlyExpenses: 0,
+      monthlySavingsGoal: 0,
+      monthlySpendingLimit: 0,
+    });
+    onClose();
   };
 
   const savingsProgress = savingsGoal > 0 ? Math.min((monthlySavings / savingsGoal) * 100, 100) : 0;
@@ -305,15 +316,46 @@ export const FinancialHealthScoreModal: React.FC<FinancialHealthScoreModalProps>
             )}
 
             {/* Edit Budget Button / Form */}
-            {!isEditing ? (
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => setIsEditing(true)}
-              >
-                <Pencil className="h-4 w-4 mr-2" />
-                Edit Budget
-              </Button>
+            {!isEditing && !showDeleteConfirm ? (
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setIsEditing(true)}
+                >
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Edit Budget
+                </Button>
+                <Button
+                  variant="outline"
+                  className="text-destructive hover:bg-destructive/10"
+                  onClick={() => setShowDeleteConfirm(true)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : showDeleteConfirm ? (
+              <Card className="border-destructive/50">
+                <CardContent className="p-4 space-y-3">
+                  <p className="text-sm text-center">Are you sure you want to delete your budget?</p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => setShowDeleteConfirm(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      className="flex-1"
+                      onClick={handleDelete}
+                    >
+                      Delete Budget
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             ) : (
               <Card className="border-primary/50">
                 <CardContent className="p-4 space-y-4">
