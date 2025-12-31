@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wallet } from 'lucide-react';
 import { FinancialData } from '@/hooks/useGoals';
 import { TipEntry } from '@/hooks/useTipEntries';
@@ -7,6 +7,7 @@ import { FinancialHealthScore } from '@/components/FinancialHealthScore';
 import { FinancialHealthScoreModal } from '@/components/FinancialHealthScoreModal';
 import { BudgetInput } from '@/components/BudgetInput';
 import { ShiftRecommendations } from '@/components/ShiftRecommendations';
+import { ContextualFinanceTips } from '@/components/ContextualFinanceTips';
 import { startOfMonth, endOfMonth, isWithinInterval, differenceInDays } from 'date-fns';
 
 interface FinanceStrategyProps {
@@ -132,27 +133,15 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
         daysLeftInMonth={financialMetrics.daysLeftInMonth}
       />
 
-
-      {/* Tips Section */}
-      <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-        <CardHeader>
-          <CardTitle className="text-white text-lg">Financial Planning Tips</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="p-3 border border-white/20 rounded-lg bg-white/5">
-            <p className="text-white text-sm">• Track all expenses to identify areas to save</p>
-          </div>
-          <div className="p-3 border border-white/20 rounded-lg bg-white/5">
-            <p className="text-white text-sm">• Aim to save at least 20% of your income</p>
-          </div>
-          <div className="p-3 border border-white/20 rounded-lg bg-white/5">
-            <p className="text-white text-sm">• Set aside money for irregular expenses (car maintenance, gifts)</p>
-          </div>
-          <div className="p-3 border border-white/20 rounded-lg bg-white/5">
-            <p className="text-white text-sm">• Review your budget monthly and adjust as needed</p>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Contextual Tips */}
+      <ContextualFinanceTips
+        monthlyIncome={financialMetrics.monthlyIncome}
+        monthlyExpenses={financialMetrics.totalExpenses}
+        monthlySavings={financialMetrics.currentSavings}
+        savingsGoal={financialData.monthlySavingsGoal}
+        averagePerShift={financialMetrics.averagePerShift}
+        shiftsWorkedThisMonth={financialMetrics.shiftsWorkedThisMonth}
+      />
     </div>
   );
 };
