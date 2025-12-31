@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { TipEntry } from '@/hooks/useTipEntries';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, Cell } from 'recharts';
 import { format, getDay } from 'date-fns';
-import { DollarSign, Clock, Users, Percent, HandCoins, Calendar, CalendarRange, ArrowUp, ArrowDown, X, Banknote, CreditCard, Wine } from 'lucide-react';
+import { DollarSign, Clock, Users, Percent, HandCoins, Calendar, CalendarRange, ArrowUp, ArrowDown, X, Banknote, CreditCard, Wine, ShoppingBag } from 'lucide-react';
 
 export type MetricType = 
   | 'totalEarnings' 
@@ -17,6 +17,7 @@ export type MetricType =
   | 'totalCashTips'
   | 'totalCreditTips'
   | 'totalAlcoholSales'
+  | 'totalMiscSales'
   | 'tipsPerHour' 
   | 'avgPerGuest' 
   | 'avgTipPercent' 
@@ -61,6 +62,7 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
       const liquorSales = entry.salesBreakdown?.liquor || 0;
       const beerSales = entry.salesBreakdown?.beer || 0;
       const wineSales = entry.salesBreakdown?.wine || 0;
+      const miscSales = entry.salesBreakdown?.misc || 0;
 
       return {
         date: format(entry.date, 'MMM d'),
@@ -72,6 +74,7 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
         liquorSales,
         beerSales,
         wineSales,
+        miscSales,
         wages,
         earnings,
         hoursWorked: entry.hoursWorked,
@@ -97,13 +100,14 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
       liquorSales: acc.liquorSales + entry.liquorSales,
       beerSales: acc.beerSales + entry.beerSales,
       wineSales: acc.wineSales + entry.wineSales,
+      miscSales: acc.miscSales + entry.miscSales,
       wages: acc.wages + entry.wages,
       earnings: acc.earnings + entry.earnings,
       hours: acc.hours + entry.hoursWorked,
       guests: acc.guests + entry.guestCount,
       sales: acc.sales + entry.totalSales,
       shifts: acc.shifts + entry.shiftCount,
-    }), { tips: 0, cashTips: 0, creditTips: 0, alcoholSales: 0, liquorSales: 0, beerSales: 0, wineSales: 0, wages: 0, earnings: 0, hours: 0, guests: 0, sales: 0, shifts: 0 });
+    }), { tips: 0, cashTips: 0, creditTips: 0, alcoholSales: 0, liquorSales: 0, beerSales: 0, wineSales: 0, miscSales: 0, wages: 0, earnings: 0, hours: 0, guests: 0, sales: 0, shifts: 0 });
 
     // Calculate stats by day of week
     const byDayOfWeek = dayNames.map(day => {
@@ -134,6 +138,9 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
           break;
         case 'totalAlcoholSales':
           value = dayEntries.reduce((sum, e) => sum + e.alcoholSales, 0) / totalShifts;
+          break;
+        case 'totalMiscSales':
+          value = dayEntries.reduce((sum, e) => sum + e.miscSales, 0) / totalShifts;
           break;
         case 'tipsPerHour':
           const tipTotal = dayEntries.reduce((sum, e) => sum + e.tips, 0);
@@ -340,6 +347,22 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
             beer: totals.beerSales,
             wine: totals.wineSales,
           } : undefined,
+        };
+      case 'totalMiscSales':
+        return {
+          title: 'Total Misc Sales',
+          icon: ShoppingBag,
+          mainValue: `$${totals.miscSales.toFixed(2)}`,
+          subtitle: `${totals.sales > 0 ? ((totals.miscSales / totals.sales) * 100).toFixed(1) : 0}% of total sales`,
+          color: 'amber',
+          chartDataKey: 'miscSales',
+          chartColor: '#F59E0B',
+          formatValue: (v: number) => `$${v.toFixed(2)}`,
+          breakdown: [
+            { label: 'Average per Shift', value: `$${(totals.miscSales / totals.shifts).toFixed(2)}` },
+            { label: 'Total Sales', value: `$${totals.sales.toFixed(2)}` },
+            { label: 'Best Day', value: detailData.best ? `$${detailData.best.miscSales.toFixed(2)}` : '-' },
+          ],
         };
       case 'tipsPerHour':
         const tph = totals.hours > 0 ? totals.tips / totals.hours : 0;

@@ -5,7 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, DollarSign, Users, Percent, Calendar, HandCoins, Clock, CalendarRange, Banknote, CreditCard, Wine } from 'lucide-react';
+import { TrendingUp, DollarSign, Users, Percent, Calendar, HandCoins, Clock, CalendarRange, Banknote, CreditCard, Wine, ShoppingBag } from 'lucide-react';
 import { TipEntry } from '@/hooks/useTipEntries';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, subDays, isWithinInterval, getDay, getYear, addWeeks, differenceInCalendarWeeks } from 'date-fns';
 import { MetricDetailModal, MetricType } from './MetricDetailModal';
@@ -151,6 +151,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         totalCreditTips: 0,
         totalSales: 0,
         totalAlcoholSales: 0,
+        totalMiscSales: 0,
         totalEarnings: 0,
         averageTipPercentage: 0,
         averagePerGuest: 0,
@@ -159,7 +160,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         earningsPerHour: 0,
         totalHours: 0,
         shiftsWorked: 0,
-        hasAlcoholData: false
+        hasAlcoholData: false,
+        hasMiscData: false
       };
     }
 
@@ -168,13 +170,15 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
     const totalTips = totalCashTips + totalCreditTips;
     const totalSales = filteredEntries.reduce((sum, entry) => sum + entry.totalSales, 0);
     const totalAlcoholSales = filteredEntries.reduce((sum, entry) => sum + (entry.alcoholSales || 0), 0);
+    const totalMiscSales = filteredEntries.reduce((sum, entry) => sum + (entry.salesBreakdown?.misc || 0), 0);
     const totalGuests = filteredEntries.reduce((sum, entry) => sum + entry.guestCount, 0);
     const totalHours = filteredEntries.reduce((sum, entry) => sum + entry.hoursWorked, 0);
     const totalWages = filteredEntries.reduce((sum, entry) => sum + (entry.hoursWorked * entry.hourlyRate), 0);
     const totalEarnings = totalTips + totalWages;
     
-    // Check if any entry has alcohol sales data
+    // Check if any entry has alcohol or misc sales data
     const hasAlcoholData = filteredEntries.some(entry => entry.alcoholSales && entry.alcoholSales > 0);
+    const hasMiscData = filteredEntries.some(entry => entry.salesBreakdown?.misc && entry.salesBreakdown.misc > 0);
     
     // Count doubles as 2 shifts for averaging
     const shiftsWorked = filteredEntries.reduce((sum, entry) => {
@@ -187,6 +191,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       totalCreditTips,
       totalSales,
       totalAlcoholSales,
+      totalMiscSales,
       totalEarnings,
       averageTipPercentage: totalSales > 0 ? (totalTips / totalSales) * 100 : 0,
       averagePerGuest: totalGuests > 0 ? totalTips / totalGuests : 0,
@@ -195,7 +200,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       tipsPerHour: totalHours > 0 ? totalTips / totalHours : 0,
       earningsPerHour: totalHours > 0 ? totalEarnings / totalHours : 0,
       totalHours,
-      hasAlcoholData
+      hasAlcoholData,
+      hasMiscData
     };
   }, [filteredEntries]);
 
@@ -564,7 +570,27 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
               </Card>
             )}
             
-            <Card 
+            {stats.hasMiscData && (
+              <Card 
+                className="col-span-2 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.99]"
+                onClick={() => setSelectedMetric('totalMiscSales')}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Misc Sales</p>
+                      <p className="text-xl font-bold text-amber-600">${stats.totalMiscSales.toFixed(2)}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {stats.totalSales > 0 ? ((stats.totalMiscSales / stats.totalSales) * 100).toFixed(1) : 0}% of total sales
+                      </p>
+                    </div>
+                    <ShoppingBag className="h-6 w-6 text-amber-600" />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            
+            <Card
               className="cursor-pointer hover:shadow-md transition-shadow active:scale-[0.99]"
               onClick={() => setSelectedMetric('totalCashTips')}
             >
