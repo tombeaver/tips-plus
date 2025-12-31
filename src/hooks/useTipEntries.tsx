@@ -4,18 +4,17 @@ import { useToast } from '@/hooks/use-toast';
 import { format, parseISO } from 'date-fns';
 
 export interface SalesBreakdown {
-  food: number;
   liquor: number;
   beer: number;
   wine: number;
-  cocktails: number;
+  misc: number;
 }
 
 export interface TipEntry {
   id: string;
   date: Date;
   totalSales: number;
-  alcoholSales?: number; // Computed: liquor + beer + wine + cocktails
+  alcoholSales?: number; // Computed: liquor + beer + wine (not misc)
   salesBreakdown?: SalesBreakdown;
   creditTips: number;
   cashTips: number;
@@ -57,15 +56,14 @@ export const useTipEntries = () => {
         
         // Build sales breakdown
         const salesBreakdown: SalesBreakdown = {
-          food: Number(entry.food_sales) || 0,
           liquor: Number(entry.liquor_sales) || 0,
           beer: Number(entry.beer_sales) || 0,
           wine: Number(entry.wine_sales) || 0,
-          cocktails: Number(entry.cocktail_sales) || 0,
+          misc: Number(entry.cocktail_sales) || 0, // Using cocktail_sales column for misc
         };
         
-        // Calculate alcohol sales as sum of liquor, beer, wine, cocktails
-        const alcoholSales = salesBreakdown.liquor + salesBreakdown.beer + salesBreakdown.wine + salesBreakdown.cocktails;
+        // Calculate alcohol sales as sum of liquor, beer, wine (not misc)
+        const alcoholSales = salesBreakdown.liquor + salesBreakdown.beer + salesBreakdown.wine;
         
         return {
           id: entry.id,
@@ -116,9 +114,9 @@ export const useTipEntries = () => {
       });
       console.log('Shift value being saved:', entry.shift, 'Type:', typeof entry.shift);
 
-      // Calculate alcohol sales from breakdown
+      // Calculate alcohol sales from breakdown (liquor + beer + wine, not misc)
       const alcoholSales = entry.salesBreakdown 
-        ? (entry.salesBreakdown.liquor + entry.salesBreakdown.beer + entry.salesBreakdown.wine + entry.salesBreakdown.cocktails)
+        ? (entry.salesBreakdown.liquor + entry.salesBreakdown.beer + entry.salesBreakdown.wine)
         : (entry.alcoholSales || 0);
 
       const { data, error } = await supabase
@@ -128,11 +126,11 @@ export const useTipEntries = () => {
           date: dateString,
           sales: entry.totalSales,
           alcohol_sales: alcoholSales,
-          food_sales: entry.salesBreakdown?.food || 0,
+          food_sales: 0, // No longer tracking food separately
           liquor_sales: entry.salesBreakdown?.liquor || 0,
           beer_sales: entry.salesBreakdown?.beer || 0,
           wine_sales: entry.salesBreakdown?.wine || 0,
-          cocktail_sales: entry.salesBreakdown?.cocktails || 0,
+          cocktail_sales: entry.salesBreakdown?.misc || 0, // Using cocktail_sales column for misc
           tips: entry.creditTips,
           cash_tips: entry.cashTips,
           guest_count: entry.guestCount,
@@ -153,14 +151,13 @@ export const useTipEntries = () => {
       
       // Build sales breakdown from response
       const salesBreakdown: SalesBreakdown = {
-        food: Number(data.food_sales) || 0,
         liquor: Number(data.liquor_sales) || 0,
         beer: Number(data.beer_sales) || 0,
         wine: Number(data.wine_sales) || 0,
-        cocktails: Number(data.cocktail_sales) || 0,
+        misc: Number(data.cocktail_sales) || 0,
       };
       
-      const newAlcoholSales = salesBreakdown.liquor + salesBreakdown.beer + salesBreakdown.wine + salesBreakdown.cocktails;
+      const newAlcoholSales = salesBreakdown.liquor + salesBreakdown.beer + salesBreakdown.wine;
       
       const newEntry: TipEntry = {
         id: data.id,
@@ -207,15 +204,14 @@ export const useTipEntries = () => {
       }
       if (updates.totalSales !== undefined) updateData.sales = updates.totalSales;
       if (updates.salesBreakdown) {
-        updateData.food_sales = updates.salesBreakdown.food || 0;
+        updateData.food_sales = 0;
         updateData.liquor_sales = updates.salesBreakdown.liquor || 0;
         updateData.beer_sales = updates.salesBreakdown.beer || 0;
         updateData.wine_sales = updates.salesBreakdown.wine || 0;
-        updateData.cocktail_sales = updates.salesBreakdown.cocktails || 0;
+        updateData.cocktail_sales = updates.salesBreakdown.misc || 0; // misc uses cocktail_sales column
         updateData.alcohol_sales = (updates.salesBreakdown.liquor || 0) + 
                                    (updates.salesBreakdown.beer || 0) + 
-                                   (updates.salesBreakdown.wine || 0) + 
-                                   (updates.salesBreakdown.cocktails || 0);
+                                   (updates.salesBreakdown.wine || 0); // misc excluded from alcohol
       } else if (updates.alcoholSales !== undefined) {
         updateData.alcohol_sales = updates.alcoholSales;
       }
