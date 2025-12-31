@@ -235,6 +235,11 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
             { label: 'Total Wages', value: `$${totals.wages.toFixed(2)}` },
             { label: 'Tip Ratio', value: `${((totals.tips / totals.earnings) * 100).toFixed(1)}%` },
           ],
+          earningsSubcategories: {
+            wages: totals.wages,
+            creditTips: totals.creditTips,
+            cashTips: totals.cashTips,
+          },
         };
       case 'avgHourlyRate':
         const avgHourly = totals.hours > 0 ? totals.earnings / totals.hours : 0;
@@ -688,8 +693,48 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
               </div>
             )}
 
+            {/* Earnings Subcategory Bar Chart (only for total earnings) */}
+            {metricType === 'totalEarnings' && (config as any).earningsSubcategories && (
+              <div className="bg-muted/30 rounded-lg p-4">
+                <p className="text-sm font-medium mb-3 text-muted-foreground">Earnings Breakdown</p>
+                <div className="h-40">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart 
+                      data={[
+                        { name: 'Wages', value: (config as any).earningsSubcategories.wages, fill: '#3B82F6' },
+                        { name: 'Credit Tips', value: (config as any).earningsSubcategories.creditTips, fill: '#8B5CF6' },
+                        { name: 'Cash Tips', value: (config as any).earningsSubcategories.cashTips, fill: '#F97316' },
+                      ]}
+                      layout="vertical"
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis type="number" fontSize={10} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => `$${v}`} />
+                      <YAxis type="category" dataKey="name" fontSize={10} stroke="hsl(var(--muted-foreground))" width={80} />
+                      <Tooltip 
+                        formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Amount']}
+                        contentStyle={{
+                          backgroundColor: 'hsl(var(--background))',
+                          border: '1px solid hsl(var(--border))',
+                          borderRadius: '8px',
+                        }}
+                      />
+                      <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                        {[
+                          { name: 'Wages', fill: '#3B82F6' },
+                          { name: 'Credit Tips', fill: '#8B5CF6' },
+                          { name: 'Cash Tips', fill: '#F97316' },
+                        ].map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.fill} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
+
             {/* Best & Worst */}
-            {detailData.best && detailData.worst && detailData.entries.length > 1 && (
+            {detailData.best && detailData.worst && detailData.entries.length > 1 && metricType !== 'totalEarnings' && (
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-emerald-500/10 rounded-lg p-3">
                   <div className="flex items-center gap-1 text-emerald-600 mb-1">
