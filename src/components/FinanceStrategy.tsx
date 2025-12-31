@@ -8,7 +8,7 @@ import { FinancialHealthScoreModal } from '@/components/FinancialHealthScoreModa
 import { BudgetInput } from '@/components/BudgetInput';
 import { ShiftRecommendations } from '@/components/ShiftRecommendations';
 import { ContextualFinanceTips } from '@/components/ContextualFinanceTips';
-import { startOfMonth, endOfMonth, isWithinInterval, differenceInDays, endOfWeek } from 'date-fns';
+import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, isWithinInterval, differenceInDays } from 'date-fns';
 
 interface FinanceStrategyProps {
   financialData: FinancialData;
@@ -54,18 +54,22 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
     const allMonthEntries = allEntries.filter(entry => isWithinInterval(entry.date, { start: monthStart, end: monthEnd }));
     const projectedMonthTotal = allMonthEntries.reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
     
+    // Monthly expenses and target
+    const totalExpenses = financialData.monthlyExpenses;
+    const monthlyTargetIncome = totalExpenses + financialData.monthlySavingsGoal;
+    
     // Calculate days left in week (through Saturday) - more relevant for service industry
-    const weekEnd = endOfWeek(now, { weekStartsOn: 0 }); // Week ends on Saturday (day 6)
+    const weekStart = startOfWeek(now, { weekStartsOn: 0 });
+    const weekEnd = endOfWeek(now, { weekStartsOn: 0 });
     const daysLeftInWeek = Math.max(0, differenceInDays(weekEnd, now) + 1); // +1 to include today
+    
+    // Calculate weekly earnings and target
+    const weekEntries = realEntries.filter(entry => isWithinInterval(entry.date, { start: weekStart, end: weekEnd }));
+    const weeklyEarned = weekEntries.reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
+    const weeklyTarget = monthlyTargetIncome / (52 / 12); // Monthly target divided into weeks
     
     // Calculate shifts worked this month (count doubles as 2)
     const shiftsWorkedThisMonth = monthEntries.reduce((sum, entry) => sum + (entry.shift === 'Double' ? 2 : 1), 0);
-    
-    // Monthly expenses (no longer adding spending limit since it was removed)
-    const totalExpenses = financialData.monthlyExpenses;
-    
-    // Monthly target income = expenses + savings goal
-    const monthlyTargetIncome = totalExpenses + financialData.monthlySavingsGoal;
     
     // Calculate current savings (income - total expenses)
     const currentSavings = Math.max(0, monthTotal - totalExpenses);
@@ -79,6 +83,8 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
       currentSavings,
       totalExpenses,
       monthlyTargetIncome,
+      weeklyTarget,
+      weeklyEarned,
     };
   }, [realEntries, tipEntries, financialData.monthlyExpenses, financialData.monthlySavingsGoal]);
 
@@ -139,6 +145,8 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
           averagePerShift={financialMetrics.averagePerShift}
           shiftsWorkedThisMonth={financialMetrics.shiftsWorkedThisMonth}
           daysLeftInWeek={financialMetrics.daysLeftInWeek}
+          weeklyTarget={financialMetrics.weeklyTarget}
+          weeklyEarned={financialMetrics.weeklyEarned}
         />
       )}
 
