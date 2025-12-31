@@ -7,16 +7,14 @@ import {
   TrendingUp, 
   Target, 
   BarChart3, 
-  CloudSun, 
-  Lightbulb,
-  ArrowRight,
-  Star,
   Download,
   Check,
   DollarSign,
   Clock,
   Shield,
-  Zap
+  Zap,
+  Apple,
+  Star
 } from 'lucide-react';
 import { PrivacyPolicy } from '@/components/PrivacyPolicy';
 import appIcon from '@/assets/app-icon-new.png';
@@ -32,34 +30,22 @@ const Landing = () => {
       color: "from-emerald-500 to-teal-600"
     },
     {
-      icon: Target,
-      title: "Smart Goal Setting",
-      description: "Set daily, weekly, monthly, or yearly earning goals with progress tracking and achievement badges.",
-      color: "from-violet-500 to-purple-600"
-    },
-    {
       icon: BarChart3,
       title: "Analytics Dashboard",
       description: "Beautiful charts and insights reveal your earning patterns and help you optimize your schedule.",
       color: "from-blue-500 to-indigo-600"
     },
     {
-      icon: CloudSun,
-      title: "Weather Correlation",
-      description: "Discover how weather impacts your tips and identify the best days to work.",
-      color: "from-amber-500 to-orange-600"
-    },
-    {
-      icon: Lightbulb,
-      title: "Predictive Planning",
-      description: "AI-powered predictions help you plan your schedule for maximum earnings.",
-      color: "from-pink-500 to-rose-600"
-    },
-    {
       icon: TrendingUp,
-      title: "Performance Insights",
-      description: "Get actionable insights to maximize your tip income with detailed performance breakdowns.",
-      color: "from-cyan-500 to-blue-600"
+      title: "Financial Strategies",
+      description: "Smart budgeting tools and spending insights to help you manage and grow your income.",
+      color: "from-violet-500 to-purple-600"
+    },
+    {
+      icon: Target,
+      title: "Goal Tracking",
+      description: "Set daily, weekly, monthly, or yearly earning goals with progress tracking and achievement badges.",
+      color: "from-amber-500 to-orange-600"
     }
   ];
 
@@ -72,7 +58,7 @@ const Landing = () => {
 
   const testimonials = [
     {
-      quote: "TipTracker helped me increase my tips by 30% just by understanding my best-performing days.",
+      quote: "Tips+ helped me understand my best-performing days and plan my schedule better.",
       author: "Sarah M.",
       role: "Server, 3 years"
     },
@@ -82,7 +68,7 @@ const Landing = () => {
       role: "Bartender, 5 years"
     },
     {
-      quote: "The analytics blew my mind. I had no idea weather affected my tips so much!",
+      quote: "The analytics are incredible. I love seeing my progress over time!",
       author: "Jessica L.",
       role: "Waitress, 2 years"
     }
@@ -95,9 +81,9 @@ const Landing = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <img src={appIcon} alt="TipTracker" className="w-10 h-10 rounded-xl shadow-md" />
+              <img src={appIcon} alt="Tips+" className="w-10 h-10 rounded-xl shadow-md" />
               <span className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                TipTracker
+                Tips+
               </span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
@@ -106,7 +92,8 @@ const Landing = () => {
               <a href="#testimonials" className="text-slate-600 hover:text-slate-900 transition-colors font-medium">Reviews</a>
             </div>
             <Button className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/25">
-              Download Free
+              <Apple className="mr-2 h-4 w-4" />
+              Download for iOS
             </Button>
           </div>
         </div>
@@ -120,14 +107,13 @@ const Landing = () => {
             <div className="flex justify-center mb-8">
               <img 
                 src={appIcon} 
-                alt="TipTracker App Icon" 
+                alt="Tips+ App Icon" 
                 className="w-28 h-28 rounded-3xl shadow-2xl shadow-emerald-500/30 ring-4 ring-white"
               />
             </div>
             
             <Badge className="mb-6 bg-emerald-100 text-emerald-700 border-emerald-200 px-4 py-1.5">
-              <Star className="h-3.5 w-3.5 mr-1.5 fill-current" />
-              #1 Tip Tracking App for Service Workers
+              Tip Tracking Made Simple
             </Badge>
             
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 mb-6">
@@ -139,17 +125,13 @@ const Landing = () => {
             
             <p className="text-xl text-slate-600 mb-8 max-w-2xl mx-auto leading-relaxed">
               The smartest way for servers, bartenders, and service workers to track earnings, 
-              set goals, and discover insights that boost your tip income.
+              set goals, and discover insights that help grow your tip income.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <div className="flex justify-center mb-12">
               <Button size="lg" className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-xl shadow-emerald-500/30 text-lg px-8 py-6 h-auto">
-                <Download className="mr-2 h-5 w-5" />
+                <Apple className="mr-2 h-5 w-5" />
                 Download for iOS
-              </Button>
-              <Button size="lg" variant="outline" className="border-2 border-slate-300 hover:border-emerald-500 hover:bg-emerald-50 text-lg px-8 py-6 h-auto">
-                Download for Android
-                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </div>
 
@@ -166,26 +148,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 border-y border-slate-200/60 bg-white/50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-              { number: "$2M+", label: "Tips Tracked" },
-              { number: "10K+", label: "Active Users" },
-              { number: "25%", label: "Avg. Income Boost" },
-              { number: "4.9★", label: "App Store Rating" }
-            ].map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-1">
-                  {stat.number}
-                </div>
-                <div className="text-slate-600 font-medium">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Features Section */}
       <section id="features" className="py-20 lg:py-28">
@@ -200,7 +162,7 @@ const Landing = () => {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
@@ -288,8 +250,8 @@ const Landing = () => {
                 Built for the service industry
               </h2>
               <p className="text-lg text-slate-600 mb-8">
-                Whether you're a server, bartender, delivery driver, or any tipped worker, 
-                TipTracker has everything you need.
+                Whether you're a server, bartender, or any tipped worker, 
+                Tips+ has everything you need.
               </p>
               
               <ul className="space-y-4">
@@ -297,7 +259,6 @@ const Landing = () => {
                   "Track tips, wages, and total earnings",
                   "Set and monitor financial goals",
                   "Visualize trends with beautiful charts",
-                  "Weather correlation insights",
                   "Shift performance analysis",
                   "Budget planning tools",
                   "Achievement badges & gamification",
@@ -318,7 +279,7 @@ const Landing = () => {
                 <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-3xl blur-3xl opacity-20"></div>
                 <img 
                   src={appIcon} 
-                  alt="TipTracker App" 
+                  alt="Tips+ App" 
                   className="relative w-64 h-64 rounded-3xl shadow-2xl ring-4 ring-white"
                 />
               </div>
@@ -335,16 +296,13 @@ const Landing = () => {
               Ready to maximize your tips?
             </h2>
             <p className="text-xl text-emerald-100 mb-8 max-w-2xl mx-auto">
-              Join thousands of service workers who've boosted their earnings with TipTracker. 
+              Start tracking your earnings and reaching your financial goals. 
               Download free today.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex justify-center">
               <Button size="lg" className="bg-white text-emerald-600 hover:bg-emerald-50 shadow-xl text-lg px-8 py-6 h-auto font-semibold">
-                <Download className="mr-2 h-5 w-5" />
+                <Apple className="mr-2 h-5 w-5" />
                 Download for iOS
-              </Button>
-              <Button size="lg" variant="outline" className="border-2 border-white/40 text-white hover:bg-white/10 text-lg px-8 py-6 h-auto">
-                Download for Android
               </Button>
             </div>
           </div>
@@ -356,11 +314,11 @@ const Landing = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center space-y-4">
             <div className="flex items-center justify-center space-x-3">
-              <img src={appIcon} alt="TipTracker" className="w-8 h-8 rounded-lg shadow-sm" />
-              <span className="font-semibold text-slate-900">TipTracker</span>
+              <img src={appIcon} alt="Tips+" className="w-8 h-8 rounded-lg shadow-sm" />
+              <span className="font-semibold text-slate-900">Tips+</span>
             </div>
             <p className="text-sm text-slate-500">
-              © {new Date().getFullYear()} TipTracker. All rights reserved.
+              © {new Date().getFullYear()} Tips+. All rights reserved.
             </p>
             <div className="flex justify-center gap-6 text-sm">
               <button
