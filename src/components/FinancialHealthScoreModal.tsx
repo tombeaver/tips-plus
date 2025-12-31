@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Progress } from '@/components/ui/progress';
-import { TrendingUp, TrendingDown, Minus, Target, ShoppingBag, Save, Home, Zap, ShoppingCart, Car, CreditCard, MoreHorizontal, ChevronDown, ChevronUp, Pencil, X } from 'lucide-react';
+import { Target, ShoppingBag, Save, Home, Zap, ShoppingCart, Car, CreditCard, MoreHorizontal, ChevronDown, ChevronUp, Pencil, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { FinancialData } from '@/hooks/useGoals';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 interface FinancialHealthScoreModalProps {
   isOpen: boolean;
@@ -83,13 +84,13 @@ export const FinancialHealthScoreModal: React.FC<FinancialHealthScoreModalProps>
     if (monthlyIncome === 0) return 0;
     
     const incomeExpenseRatio = Math.min((monthlyIncome - monthlyExpenses) / monthlyIncome * 100, 100);
-    const incomeExpensePoints = (incomeExpenseRatio / 100) * 40;
+    const incomeExpensePoints = Math.max(0, (incomeExpenseRatio / 100) * 40);
     
-    const savingsRate = (monthlySavings / monthlyIncome) * 100;
-    const savingsPoints = Math.min((savingsRate / 20) * 30, 30);
+    const savingsRate = monthlyIncome > 0 ? (monthlySavings / monthlyIncome) * 100 : 0;
+    const savingsPoints = Math.min(Math.max(0, (savingsRate / 20) * 30), 30);
     
     const goalProgress = savingsGoal > 0 ? (monthlySavings / savingsGoal) * 100 : 100;
-    const goalPoints = Math.min((goalProgress / 100) * 30, 30);
+    const goalPoints = Math.min(Math.max(0, (goalProgress / 100) * 30), 30);
     
     return Math.round(incomeExpensePoints + savingsPoints + goalPoints);
   };
@@ -97,18 +98,6 @@ export const FinancialHealthScoreModal: React.FC<FinancialHealthScoreModalProps>
   const score = calculateScore();
   const netIncome = monthlyIncome - monthlyExpenses;
   const currentMonth = format(new Date(), 'MMMM');
-  
-  const getScoreColor = () => {
-    if (score >= 80) return 'text-emerald-500';
-    if (score >= 60) return 'text-yellow-500';
-    return 'text-red-500';
-  };
-
-  const getScoreBgColor = () => {
-    if (score >= 80) return 'bg-emerald-500';
-    if (score >= 60) return 'bg-yellow-500';
-    return 'bg-red-500';
-  };
   
   const getScoreLabel = () => {
     if (score >= 80) return 'Excellent';
@@ -143,262 +132,303 @@ export const FinancialHealthScoreModal: React.FC<FinancialHealthScoreModalProps>
   };
 
   const savingsProgress = savingsGoal > 0 ? Math.min((monthlySavings / savingsGoal) * 100, 100) : 0;
-  const expenseRatio = monthlyIncome > 0 ? (monthlyExpenses / monthlyIncome) * 100 : 0;
+
+  // Score breakdown calculations
+  const incomeExpenseRatio = monthlyIncome > 0 ? Math.min((monthlyIncome - monthlyExpenses) / monthlyIncome * 100, 100) : 0;
+  const incomeExpensePoints = Math.round(Math.max(0, (incomeExpenseRatio / 100) * 40));
+  const savingsRate = monthlyIncome > 0 ? (monthlySavings / monthlyIncome) * 100 : 0;
+  const savingsPoints = Math.round(Math.min(Math.max(0, (savingsRate / 20) * 30), 30));
+  const goalPoints = Math.round(Math.min(Math.max(0, (savingsProgress / 100) * 30), 30));
+
+  // Chart data for income breakdown
+  const incomeBreakdownData = [
+    { name: 'Income', value: monthlyIncome, fill: '#10B981' },
+    { name: 'Expenses', value: monthlyExpenses, fill: '#EF4444' },
+    { name: 'Savings', value: monthlySavings, fill: '#3B82F6' },
+  ];
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto" hideCloseButton>
-        <DialogHeader className="bg-gradient-to-r from-emerald-500 to-emerald-600 -m-6 mb-0 p-6 rounded-t-lg">
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl font-bold text-white">
-              {currentMonth} Financial Health
-            </DialogTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onClose}
-              className="text-white hover:bg-white/20"
-            >
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
-        </DialogHeader>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="w-screen h-screen max-w-none p-0 gap-0 border-0 flex flex-col" hideCloseButton>
+        {/* Gradient Header */}
+        <div className="sticky top-0 z-10 h-[130px] bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600 px-6 pt-[50px] flex items-center justify-between">
+          <h2 className="text-2xl font-semibold text-white">
+            {currentMonth} Financial Health
+          </h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 text-white"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
 
-        <div className="space-y-4 pt-4">
-          {/* Score Display */}
-          <div className="text-center py-6">
-            <div className={`text-7xl font-bold ${getScoreColor()}`}>
-              {score}
+        {/* Scrollable Content */}
+        <div className="overflow-y-auto flex-1 bg-background">
+          <div className="p-4 space-y-4">
+            {/* Main Score */}
+            <div className="text-center py-2">
+              <p className="text-5xl font-bold text-foreground">{score}</p>
+              <p className="text-muted-foreground text-sm mt-1">{getScoreLabel()}</p>
+              <div className="mt-4 mx-auto max-w-xs">
+                <Progress value={score} className="h-2" />
+              </div>
             </div>
-            <p className="text-lg text-muted-foreground mt-2">{getScoreLabel()}</p>
-            <div className="mt-4 mx-auto max-w-xs">
-              <Progress value={score} className={`h-2 ${getScoreBgColor()}`} />
+
+            {/* Income Breakdown Chart */}
+            <div className="bg-muted/30 rounded-lg p-4">
+              <p className="text-sm font-medium mb-3 text-muted-foreground">Monthly Overview</p>
+              <div className="h-40">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart 
+                    data={incomeBreakdownData}
+                    layout="vertical"
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis type="number" fontSize={10} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => `$${v}`} />
+                    <YAxis type="category" dataKey="name" fontSize={10} stroke="hsl(var(--muted-foreground))" width={70} />
+                    <Tooltip 
+                      formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Amount']}
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--background))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                      }}
+                    />
+                    <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                      {incomeBreakdownData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
-          </div>
 
-          {/* Metrics Grid */}
-          <div className="grid grid-cols-2 gap-3">
-            <Card className="bg-muted/30">
-              <CardContent className="p-4 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Monthly Income</p>
-                <p className="text-xl font-bold text-emerald-500">${monthlyIncome.toFixed(0)}</p>
-              </CardContent>
-            </Card>
-            <Card className="bg-muted/30">
-              <CardContent className="p-4 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Monthly Expenses</p>
-                <p className="text-xl font-bold text-red-500">${monthlyExpenses.toFixed(0)}</p>
-              </CardContent>
-            </Card>
-            <Card className="bg-muted/30">
-              <CardContent className="p-4 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Net Income</p>
-                <p className={`text-xl font-bold ${netIncome >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-                  ${netIncome.toFixed(0)}
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="bg-muted/30">
-              <CardContent className="p-4 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Current Savings</p>
-                <p className="text-xl font-bold text-blue-500">${monthlySavings.toFixed(0)}</p>
-              </CardContent>
-            </Card>
-          </div>
+            {/* Metrics Grid */}
+            <div className="grid grid-cols-2 gap-3">
+              <Card className="bg-muted/30">
+                <CardContent className="p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">Monthly Income</p>
+                  <p className="text-xl font-bold text-emerald-500">${monthlyIncome.toFixed(0)}</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-muted/30">
+                <CardContent className="p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">Monthly Expenses</p>
+                  <p className="text-xl font-bold text-red-500">${monthlyExpenses.toFixed(0)}</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-muted/30">
+                <CardContent className="p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">Net Income</p>
+                  <p className={`text-xl font-bold ${netIncome >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                    ${netIncome.toFixed(0)}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className="bg-muted/30">
+                <CardContent className="p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">Current Savings</p>
+                  <p className="text-xl font-bold text-blue-500">${monthlySavings.toFixed(0)}</p>
+                </CardContent>
+              </Card>
+            </div>
 
-          {/* Savings Goal Progress */}
-          {savingsGoal > 0 && (
-            <Card className="bg-muted/30">
-              <CardContent className="p-4">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm text-muted-foreground">Savings Goal Progress</span>
-                  <span className="text-sm font-medium">${monthlySavings.toFixed(0)} / ${savingsGoal.toFixed(0)}</span>
-                </div>
-                <Progress value={savingsProgress} className="h-2" />
-                <p className="text-xs text-muted-foreground mt-1">{savingsProgress.toFixed(0)}% of goal</p>
-              </CardContent>
-            </Card>
-          )}
+            {/* Savings Goal Progress */}
+            {savingsGoal > 0 && (
+              <Card className="bg-muted/30">
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm text-muted-foreground">Savings Goal Progress</span>
+                    <span className="text-sm font-medium">${monthlySavings.toFixed(0)} / ${savingsGoal.toFixed(0)}</span>
+                  </div>
+                  <Progress value={savingsProgress} className="h-2" />
+                  <p className="text-xs text-muted-foreground mt-1">{savingsProgress.toFixed(0)}% of goal</p>
+                </CardContent>
+              </Card>
+            )}
 
-          {/* Score Breakdown */}
-          <Card className="bg-muted/30">
-            <CardContent className="p-4 space-y-3">
+            {/* Score Breakdown */}
+            <div className="space-y-2">
               <p className="text-sm font-medium text-muted-foreground">Score Breakdown</p>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span>Income vs Expenses</span>
-                  <span className="font-medium">{Math.round((Math.min((monthlyIncome - monthlyExpenses) / monthlyIncome * 100, 100) / 100) * 40)}/40 pts</span>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center py-2 border-b border-border/50">
+                  <span className="text-sm text-muted-foreground">Income vs Expenses</span>
+                  <span className="font-medium">{incomeExpensePoints}/40 pts</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Savings Rate</span>
-                  <span className="font-medium">{Math.round(Math.min(((monthlySavings / monthlyIncome) * 100 / 20) * 30, 30))}/30 pts</span>
+                <div className="flex justify-between items-center py-2 border-b border-border/50">
+                  <span className="text-sm text-muted-foreground">Savings Rate</span>
+                  <span className="font-medium">{savingsPoints}/30 pts</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Savings Goal Progress</span>
-                  <span className="font-medium">{Math.round(Math.min((savingsProgress / 100) * 30, 30))}/30 pts</span>
+                <div className="flex justify-between items-center py-2 border-b border-border/50 last:border-0">
+                  <span className="text-sm text-muted-foreground">Savings Goal Progress</span>
+                  <span className="font-medium">{goalPoints}/30 pts</span>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
 
-          {/* Edit Budget Button / Form */}
-          {!isEditing ? (
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => setIsEditing(true)}
-            >
-              <Pencil className="h-4 w-4 mr-2" />
-              Edit Budget
-            </Button>
-          ) : (
-            <Card className="border-primary/50">
-              <CardContent className="p-4 space-y-4">
-                <div className="flex items-center justify-between">
-                  <p className="font-medium">Edit Budget</p>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsEditing(false)}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-
-                {/* Main Expenses Field */}
-                <div className="space-y-2">
-                  <Label htmlFor="modal-expenses" className="flex items-center gap-2">
-                    <ShoppingBag className="h-4 w-4" />
-                    Monthly Expenses
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      id="modal-expenses"
-                      type="number"
-                      step="0.01"
-                      placeholder="Enter total monthly expenses"
-                      value={useDetailedMode ? categoryTotal.toFixed(2) : simpleExpenses}
-                      onChange={(e) => handleSimpleExpenseChange(e.target.value)}
-                      className={useDetailedMode ? 'bg-muted/50' : ''}
-                      readOnly={useDetailedMode}
-                    />
-                    {useDetailedMode && (
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                        Auto-calculated
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Collapsible Expense Categories */}
-                <Collapsible open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-                  <CollapsibleTrigger asChild>
-                    <Button 
-                      variant="outline" 
-                      className="w-full justify-between"
-                      type="button"
+            {/* Edit Budget Button / Form */}
+            {!isEditing ? (
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => setIsEditing(true)}
+              >
+                <Pencil className="h-4 w-4 mr-2" />
+                Edit Budget
+              </Button>
+            ) : (
+              <Card className="border-primary/50">
+                <CardContent className="p-4 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <p className="font-medium">Edit Budget</p>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsEditing(false)}
                     >
-                      <span className="flex items-center gap-2">
-                        <MoreHorizontal className="h-4 w-4" />
-                        Expense Details
-                      </span>
-                      {isDetailsOpen ? (
-                        <ChevronUp className="h-4 w-4" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4" />
-                      )}
+                      Cancel
                     </Button>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="pt-4">
-                    <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border/50">
-                      {expenseCategoryConfig.map(({ key, label, icon: Icon }) => (
-                        <div key={key} className="grid grid-cols-[1fr_100px] gap-3 items-center">
-                          <Label className="flex items-center gap-2 text-sm">
-                            <Icon className="h-4 w-4 text-muted-foreground" />
-                            {label}
-                          </Label>
-                          <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              placeholder="0"
-                              value={categories[key] || ''}
-                              onChange={(e) => handleCategoryChange(key, e.target.value)}
-                              className="pl-7 h-9 text-right"
-                            />
-                          </div>
-                        </div>
-                      ))}
-                      
-                      <div className="pt-3 mt-3 border-t border-border/50">
-                        <div className="grid grid-cols-[1fr_100px] gap-3 items-center">
-                          <span className="font-medium text-sm">Total</span>
-                          <div className="text-right font-bold text-primary">
-                            ${categoryTotal.toFixed(2)}
-                          </div>
-                        </div>
-                      </div>
+                  </div>
 
+                  {/* Main Expenses Field */}
+                  <div className="space-y-2">
+                    <Label htmlFor="modal-expenses" className="flex items-center gap-2">
+                      <ShoppingBag className="h-4 w-4" />
+                      Monthly Expenses
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="modal-expenses"
+                        type="number"
+                        step="0.01"
+                        placeholder="Enter total monthly expenses"
+                        value={useDetailedMode ? categoryTotal.toFixed(2) : simpleExpenses}
+                        onChange={(e) => handleSimpleExpenseChange(e.target.value)}
+                        className={useDetailedMode ? 'bg-muted/50' : ''}
+                        readOnly={useDetailedMode}
+                      />
                       {useDetailedMode && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="w-full mt-2 text-muted-foreground"
-                          onClick={() => {
-                            setUseDetailedMode(false);
-                            setCategories({
-                              rent: 0,
-                              utilities: 0,
-                              groceries: 0,
-                              transportation: 0,
-                              subscriptions: 0,
-                              other: 0,
-                            });
-                          }}
-                        >
-                          Clear categories & use simple total
-                        </Button>
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                          Auto-calculated
+                        </span>
                       )}
                     </div>
-                  </CollapsibleContent>
-                </Collapsible>
-
-                {/* Savings Goal */}
-                <div className="space-y-2">
-                  <Label htmlFor="modal-savingsGoal" className="flex items-center gap-2">
-                    <Target className="h-4 w-4" />
-                    Savings Goal
-                  </Label>
-                  <Input
-                    id="modal-savingsGoal"
-                    type="number"
-                    step="0.01"
-                    placeholder="How much to save per month"
-                    value={savingsGoalInput}
-                    onChange={(e) => setSavingsGoalInput(e.target.value)}
-                  />
-                </div>
-
-                {/* Summary */}
-                <div className="p-3 bg-primary/5 rounded-lg border border-primary/20">
-                  <div className="text-sm text-muted-foreground mb-1">Monthly Target Income</div>
-                  <div className="text-2xl font-bold text-primary">
-                    ${(effectiveExpenses + (parseFloat(savingsGoalInput) || 0)).toFixed(2)}
                   </div>
-                </div>
 
-                <Button 
-                  onClick={handleSave} 
-                  disabled={isSaving}
-                  className="w-full"
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  {isSaving ? 'Saving...' : 'Save Budget'}
-                </Button>
-              </CardContent>
-            </Card>
-          )}
+                  {/* Collapsible Expense Categories */}
+                  <Collapsible open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+                    <CollapsibleTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-between"
+                        type="button"
+                      >
+                        <span className="flex items-center gap-2">
+                          <MoreHorizontal className="h-4 w-4" />
+                          Expense Details
+                        </span>
+                        {isDetailsOpen ? (
+                          <ChevronUp className="h-4 w-4" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="pt-4">
+                      <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border/50">
+                        {expenseCategoryConfig.map(({ key, label, icon: Icon }) => (
+                          <div key={key} className="grid grid-cols-[1fr_100px] gap-3 items-center">
+                            <Label className="flex items-center gap-2 text-sm">
+                              <Icon className="h-4 w-4 text-muted-foreground" />
+                              {label}
+                            </Label>
+                            <div className="relative">
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                placeholder="0"
+                                value={categories[key] || ''}
+                                onChange={(e) => handleCategoryChange(key, e.target.value)}
+                                className="pl-7 h-9 text-right"
+                              />
+                            </div>
+                          </div>
+                        ))}
+                        
+                        <div className="pt-3 mt-3 border-t border-border/50">
+                          <div className="grid grid-cols-[1fr_100px] gap-3 items-center">
+                            <span className="font-medium text-sm">Total</span>
+                            <div className="text-right font-bold text-primary">
+                              ${categoryTotal.toFixed(2)}
+                            </div>
+                          </div>
+                        </div>
+
+                        {useDetailedMode && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full mt-2 text-muted-foreground"
+                            onClick={() => {
+                              setUseDetailedMode(false);
+                              setCategories({
+                                rent: 0,
+                                utilities: 0,
+                                groceries: 0,
+                                transportation: 0,
+                                subscriptions: 0,
+                                other: 0,
+                              });
+                            }}
+                          >
+                            Clear categories & use simple total
+                          </Button>
+                        )}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+
+                  {/* Savings Goal */}
+                  <div className="space-y-2">
+                    <Label htmlFor="modal-savingsGoal" className="flex items-center gap-2">
+                      <Target className="h-4 w-4" />
+                      Savings Goal
+                    </Label>
+                    <Input
+                      id="modal-savingsGoal"
+                      type="number"
+                      step="0.01"
+                      placeholder="How much to save per month"
+                      value={savingsGoalInput}
+                      onChange={(e) => setSavingsGoalInput(e.target.value)}
+                    />
+                  </div>
+
+                  {/* Summary */}
+                  <div className="p-3 bg-primary/5 rounded-lg border border-primary/20">
+                    <div className="text-sm text-muted-foreground mb-1">Monthly Target Income</div>
+                    <div className="text-2xl font-bold text-primary">
+                      ${(effectiveExpenses + (parseFloat(savingsGoalInput) || 0)).toFixed(2)}
+                    </div>
+                  </div>
+
+                  <Button 
+                    onClick={handleSave} 
+                    disabled={isSaving}
+                    className="w-full"
+                  >
+                    <Save className="h-4 w-4 mr-2" />
+                    {isSaving ? 'Saving...' : 'Save Budget'}
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>
