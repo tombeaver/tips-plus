@@ -34,7 +34,16 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
   sections,
   onUpdateSections
 }) => {
-  const [totalSales, setTotalSales] = useState(existingEntry?.totalSales.toString() || '');
+  // Food sales is the main input (was totalSales)
+  const [foodSales, setFoodSales] = useState(() => {
+    // If editing and we have breakdown, calculate food from total - alcohol - misc
+    if (existingEntry?.salesBreakdown) {
+      const breakdown = existingEntry.salesBreakdown;
+      const additionalSales = breakdown.liquor + breakdown.beer + breakdown.wine + breakdown.misc;
+      return (existingEntry.totalSales - additionalSales).toString();
+    }
+    return existingEntry?.totalSales.toString() || '';
+  });
   const [salesBreakdownOpen, setSalesBreakdownOpen] = useState(false);
   const [salesCategories, setSalesCategories] = useState({
     liquor: existingEntry?.salesBreakdown?.liquor || 0,
@@ -61,32 +70,35 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
   const [showSectionDeleteConfirm, setShowSectionDeleteConfirm] = useState(false);
   const [sectionToDelete, setSectionToDelete] = useState<string>('');
 
-  // Alcohol total (liquor + beer + wine - misc is NOT alcohol)
+  // Alcohol total (liquor + beer + wine)
   const alcoholTotal = useMemo(() => {
     return salesCategories.liquor + salesCategories.beer + salesCategories.wine;
   }, [salesCategories]);
 
-  // Additional sales total (all categories including misc)
+  // Additional sales total (alcohol + misc)
   const additionalTotal = useMemo(() => {
     return salesCategories.liquor + salesCategories.beer + 
            salesCategories.wine + salesCategories.misc;
   }, [salesCategories]);
 
-  // Effective total sales - always from the total sales input
-  const effectiveTotalSales = parseFloat(totalSales) || 0;
+  // Food sales value
+  const foodSalesValue = parseFloat(foodSales) || 0;
 
-  // Implied food sales
-  const impliedFoodSales = useMemo(() => {
-    return Math.max(0, effectiveTotalSales - additionalTotal);
-  }, [effectiveTotalSales, additionalTotal]);
+  // Total sales = food + alcohol + misc
+  const calculatedTotalSales = useMemo(() => {
+    return foodSalesValue + additionalTotal;
+  }, [foodSalesValue, additionalTotal]);
+
+  // Whether we have any additional categories
+  const hasAdditionalSales = additionalTotal > 0;
 
   const handleCategoryChange = (key: keyof typeof salesCategories, value: string) => {
     const numValue = parseFloat(value) || 0;
     setSalesCategories(prev => ({ ...prev, [key]: numValue }));
   };
 
-  const handleTotalSalesChange = (value: string) => {
-    setTotalSales(value);
+  const handleFoodSalesChange = (value: string) => {
+    setFoodSales(value);
   };
 
   const addNewSection = () => {
@@ -146,7 +158,7 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
     
     const entry = {
       date: selectedDate,
-      totalSales: effectiveTotalSales,
+      totalSales: calculatedTotalSales,
       alcoholSales: alcoholSales > 0 ? alcoholSales : undefined,
       salesBreakdown: salesBreakdownOpen ? salesBreakdown : undefined,
       creditTips: parseFloat(creditTips) || 0,
@@ -162,7 +174,7 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
     onSave(entry);
   };
 
-  const isValid = effectiveTotalSales > 0 && creditTips !== undefined && cashTips !== undefined && 
+  const isValid = calculatedTotalSales > 0 && creditTips !== undefined && cashTips !== undefined && 
                   guestCount && section && hoursWorked && hourlyRate;
 
   const totalTips = (parseFloat(creditTips) || 0) + (parseFloat(cashTips) || 0);
@@ -188,18 +200,20 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
             {selectedDate.toLocaleDateString()}
           </p>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Total Sales with Collapsible Breakdown */}
+            {/* Food Sales (becomes Total Sales label when additional categories added) */}
             <div className="space-y-2">
-              <Label htmlFor="totalSales">Total Sales ($)</Label>
+              <Label htmlFor="foodSales">
+                {hasAdditionalSales ? 'Food Sales ($)' : 'Total Sales ($)'}
+              </Label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <Input
-                    id="totalSales"
+                    id="foodSales"
                     type="number"
                     step="0.01"
                     placeholder="0.00"
-                    value={totalSales}
-                    onChange={(e) => handleTotalSalesChange(e.target.value)}
+                    value={foodSales}
+                    onChange={(e) => handleFoodSalesChange(e.target.value)}
                     required
                   />
                 </div>
@@ -212,7 +226,7 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
                 </Collapsible>
               </div>
               <p className="text-xs text-muted-foreground">
-                Tap arrow to add alcohol &amp; misc sales
+                Tap arrow to add alcohol &amp; other sales
               </p>
             </div>
 
@@ -221,7 +235,7 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
               <CollapsibleContent>
                 <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border/50">
                   <p className="text-xs text-muted-foreground mb-2">
-                    Additional sales breakdown (food is implied from remaining)
+                    Additional sales (added to food sales for total)
                   </p>
                   
                   {/* Alcohol Categories */}
@@ -287,9 +301,9 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
                       </div>
                     )}
                     <div className="grid grid-cols-[1fr_120px] gap-3 items-center mt-2">
-                      <span className="text-sm text-muted-foreground">Implied Food Sales</span>
-                      <div className="text-right text-sm text-emerald-600 font-medium">
-                        ${impliedFoodSales.toFixed(2)}
+                      <span className="font-medium text-sm">Total Sales</span>
+                      <div className="text-right text-sm text-primary font-bold">
+                        ${calculatedTotalSales.toFixed(2)}
                       </div>
                     </div>
                   </div>
@@ -545,7 +559,7 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
 
 
             {/* Enhanced Calculated Statistics */}
-            {totalSales && (creditTips || cashTips) && hoursWorked && hourlyRate && (
+            {calculatedTotalSales > 0 && (creditTips || cashTips) && hoursWorked && hourlyRate && (
               <div className="bg-gray-50 p-3 rounded-lg space-y-2">
                 <h4 className="font-medium text-sm text-gray-700">Quick Stats</h4>
                 <div className="grid grid-cols-2 gap-2 text-sm">
@@ -558,7 +572,7 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
                   <div>
                     <span className="text-gray-600">Tip %:</span>
                     <span className="font-medium ml-2">
-                      {totalSales ? (totalTips / parseFloat(totalSales) * 100).toFixed(1) : 0}%
+                      {calculatedTotalSales ? (totalTips / calculatedTotalSales * 100).toFixed(1) : 0}%
                     </span>
                   </div>
                   <div>
