@@ -57,11 +57,10 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
       const earnings = tips + wages;
       const shiftCount = entry.shift === 'Double' ? 2 : 1;
       
-      // Extract alcohol subcategories
+      // Extract alcohol subcategories (misc is not alcohol)
       const liquorSales = entry.salesBreakdown?.liquor || 0;
       const beerSales = entry.salesBreakdown?.beer || 0;
       const wineSales = entry.salesBreakdown?.wine || 0;
-      const cocktailSales = entry.salesBreakdown?.cocktails || 0;
 
       return {
         date: format(entry.date, 'MMM d'),
@@ -73,7 +72,6 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
         liquorSales,
         beerSales,
         wineSales,
-        cocktailSales,
         wages,
         earnings,
         hoursWorked: entry.hoursWorked,
@@ -99,14 +97,13 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
       liquorSales: acc.liquorSales + entry.liquorSales,
       beerSales: acc.beerSales + entry.beerSales,
       wineSales: acc.wineSales + entry.wineSales,
-      cocktailSales: acc.cocktailSales + entry.cocktailSales,
       wages: acc.wages + entry.wages,
       earnings: acc.earnings + entry.earnings,
       hours: acc.hours + entry.hoursWorked,
       guests: acc.guests + entry.guestCount,
       sales: acc.sales + entry.totalSales,
       shifts: acc.shifts + entry.shiftCount,
-    }), { tips: 0, cashTips: 0, creditTips: 0, alcoholSales: 0, liquorSales: 0, beerSales: 0, wineSales: 0, cocktailSales: 0, wages: 0, earnings: 0, hours: 0, guests: 0, sales: 0, shifts: 0 });
+    }), { tips: 0, cashTips: 0, creditTips: 0, alcoholSales: 0, liquorSales: 0, beerSales: 0, wineSales: 0, wages: 0, earnings: 0, hours: 0, guests: 0, sales: 0, shifts: 0 });
 
     // Calculate stats by day of week
     const byDayOfWeek = dayNames.map(day => {
@@ -316,14 +313,12 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
         };
       case 'totalAlcoholSales':
         // Check if we have subcategory data
-        const hasSubcategories = totals.liquorSales > 0 || totals.beerSales > 0 || 
-                                 totals.wineSales > 0 || totals.cocktailSales > 0;
+        const hasSubcategories = totals.liquorSales > 0 || totals.beerSales > 0 || totals.wineSales > 0;
         
         const alcoholBreakdown = hasSubcategories ? [
           { label: 'Liquor', value: `$${totals.liquorSales.toFixed(2)}` },
           { label: 'Beer', value: `$${totals.beerSales.toFixed(2)}` },
           { label: 'Wine', value: `$${totals.wineSales.toFixed(2)}` },
-          { label: 'Cocktails', value: `$${totals.cocktailSales.toFixed(2)}` },
         ] : [
           { label: 'Average per Shift', value: `$${(totals.alcoholSales / totals.shifts).toFixed(2)}` },
           { label: 'Total Sales', value: `$${totals.sales.toFixed(2)}` },
@@ -344,7 +339,6 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
             liquor: totals.liquorSales,
             beer: totals.beerSales,
             wine: totals.wineSales,
-            cocktails: totals.cocktailSales,
           } : undefined,
         };
       case 'tipsPerHour':
@@ -571,7 +565,6 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
                         { name: 'Liquor', value: (config as any).alcoholSubcategories.liquor, fill: '#8B5CF6' },
                         { name: 'Beer', value: (config as any).alcoholSubcategories.beer, fill: '#F59E0B' },
                         { name: 'Wine', value: (config as any).alcoholSubcategories.wine, fill: '#E11D48' },
-                        { name: 'Cocktails', value: (config as any).alcoholSubcategories.cocktails, fill: '#06B6D4' },
                       ]}
                       layout="vertical"
                     >
@@ -591,7 +584,6 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
                           { name: 'Liquor', fill: '#8B5CF6' },
                           { name: 'Beer', fill: '#F59E0B' },
                           { name: 'Wine', fill: '#E11D48' },
-                          { name: 'Cocktails', fill: '#06B6D4' },
                         ].map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.fill} />
                         ))}

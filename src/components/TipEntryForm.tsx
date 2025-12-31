@@ -8,7 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Trash2, Save, X, Edit2, Plus, Frown, Meh, Smile, Laugh, Zap, ChevronDown, ChevronUp, Utensils, Wine, Beer, GlassWater } from 'lucide-react';
+import { Trash2, Save, X, Edit2, Plus, Frown, Meh, Smile, Laugh, Zap, ChevronDown, ChevronUp, Wine, Beer, GlassWater, ShoppingBag } from 'lucide-react';
 import { TipEntry, SalesBreakdown } from '@/hooks/useTipEntries';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { PurpleModalHeader } from '@/components/PurpleModalHeader';
@@ -36,20 +36,11 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
 }) => {
   const [totalSales, setTotalSales] = useState(existingEntry?.totalSales.toString() || '');
   const [salesBreakdownOpen, setSalesBreakdownOpen] = useState(false);
-  const [useDetailedSales, setUseDetailedSales] = useState(() => {
-    // Check if any breakdown values exist
-    if (existingEntry?.salesBreakdown) {
-      const { food, liquor, beer, wine, cocktails } = existingEntry.salesBreakdown;
-      return (food + liquor + beer + wine + cocktails) > 0;
-    }
-    return false;
-  });
   const [salesCategories, setSalesCategories] = useState({
-    food: existingEntry?.salesBreakdown?.food || 0,
     liquor: existingEntry?.salesBreakdown?.liquor || 0,
     beer: existingEntry?.salesBreakdown?.beer || 0,
     wine: existingEntry?.salesBreakdown?.wine || 0,
-    cocktails: existingEntry?.salesBreakdown?.cocktails || 0,
+    misc: existingEntry?.salesBreakdown?.misc || 0,
   });
   const [creditTips, setCreditTips] = useState(existingEntry?.creditTips.toString() || '');
   const [cashTips, setCashTips] = useState(existingEntry?.cashTips.toString() || '');
@@ -70,40 +61,32 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
   const [showSectionDeleteConfirm, setShowSectionDeleteConfirm] = useState(false);
   const [sectionToDelete, setSectionToDelete] = useState<string>('');
 
-  // Alcohol total (liquor + beer + wine + cocktails)
+  // Alcohol total (liquor + beer + wine - misc is NOT alcohol)
   const alcoholTotal = useMemo(() => {
-    return salesCategories.liquor + salesCategories.beer + 
-           salesCategories.wine + salesCategories.cocktails;
+    return salesCategories.liquor + salesCategories.beer + salesCategories.wine;
   }, [salesCategories]);
 
-  // Calculated food from total minus alcohol (when total is set first)
-  const calculatedFood = useMemo(() => {
-    const total = parseFloat(totalSales) || 0;
-    return Math.max(0, total - alcoholTotal);
-  }, [totalSales, alcoholTotal]);
+  // Additional sales total (all categories including misc)
+  const additionalTotal = useMemo(() => {
+    return salesCategories.liquor + salesCategories.beer + 
+           salesCategories.wine + salesCategories.misc;
+  }, [salesCategories]);
 
   // Effective total sales - always from the total sales input
   const effectiveTotalSales = parseFloat(totalSales) || 0;
 
+  // Implied food sales
+  const impliedFoodSales = useMemo(() => {
+    return Math.max(0, effectiveTotalSales - additionalTotal);
+  }, [effectiveTotalSales, additionalTotal]);
+
   const handleCategoryChange = (key: keyof typeof salesCategories, value: string) => {
     const numValue = parseFloat(value) || 0;
-    
-    if (key === 'food') {
-      // User is manually setting food, so enable detailed mode
-      setSalesCategories(prev => ({ ...prev, food: numValue }));
-      setUseDetailedSales(true);
-    } else {
-      // Alcohol category changed - food auto-adjusts if not in detailed mode
-      setSalesCategories(prev => ({ ...prev, [key]: numValue }));
-    }
+    setSalesCategories(prev => ({ ...prev, [key]: numValue }));
   };
 
   const handleTotalSalesChange = (value: string) => {
     setTotalSales(value);
-    // When total changes and breakdown is open, recalculate food
-    if (salesBreakdownOpen && !useDetailedSales) {
-      // Food will auto-recalculate via calculatedFood
-    }
   };
 
   const addNewSection = () => {
@@ -145,24 +128,21 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
       getDate: selectedDate.getDate()
     });
     
-    // Build sales breakdown - use calculated food when breakdown is open but not manually set
-    const finalFood = useDetailedSales ? salesCategories.food : (salesBreakdownOpen ? calculatedFood : 0);
+    // Build sales breakdown
     const salesBreakdown: SalesBreakdown = salesBreakdownOpen ? {
-      food: finalFood,
       liquor: salesCategories.liquor,
       beer: salesCategories.beer,
       wine: salesCategories.wine,
-      cocktails: salesCategories.cocktails,
+      misc: salesCategories.misc,
     } : {
-      food: 0,
       liquor: 0,
       beer: 0,
       wine: 0,
-      cocktails: 0,
+      misc: 0,
     };
     
-    // Calculate alcohol sales from breakdown
-    const alcoholSales = salesBreakdown.liquor + salesBreakdown.beer + salesBreakdown.wine + salesBreakdown.cocktails;
+    // Calculate alcohol sales from breakdown (liquor + beer + wine, not misc)
+    const alcoholSales = salesBreakdown.liquor + salesBreakdown.beer + salesBreakdown.wine;
     
     const entry = {
       date: selectedDate,
@@ -188,13 +168,11 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
   const totalTips = (parseFloat(creditTips) || 0) + (parseFloat(cashTips) || 0);
   const totalEarnings = totalTips + ((parseFloat(hoursWorked) || 0) * (parseFloat(hourlyRate) || 0));
   
-  // Sales category config
-  const salesCategoryConfig = [
-    { key: 'food' as const, label: 'Food', icon: Utensils },
+  // Sales category config - alcohol categories
+  const alcoholCategoryConfig = [
     { key: 'liquor' as const, label: 'Liquor', icon: GlassWater },
     { key: 'beer' as const, label: 'Beer', icon: Beer },
     { key: 'wine' as const, label: 'Wine', icon: Wine },
-    { key: 'cocktails' as const, label: 'Cocktails', icon: GlassWater },
   ];
 
   return (
@@ -234,7 +212,7 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
                 </Collapsible>
               </div>
               <p className="text-xs text-muted-foreground">
-                Tap arrow to break down by category
+                Tap arrow to add alcohol &amp; misc sales
               </p>
             </div>
 
@@ -242,21 +220,18 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
             <Collapsible open={salesBreakdownOpen} onOpenChange={setSalesBreakdownOpen}>
               <CollapsibleContent>
                 <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border/50">
-                  {salesCategoryConfig.map(({ key, label, icon: Icon }) => {
-                    // Food shows calculated value unless manually edited
-                    const displayValue = key === 'food' && !useDetailedSales 
-                      ? calculatedFood 
-                      : salesCategories[key];
-                    const isAutoFood = key === 'food' && !useDetailedSales;
-                    
-                    return (
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Additional sales breakdown (food is implied from remaining)
+                  </p>
+                  
+                  {/* Alcohol Categories */}
+                  <div className="space-y-2">
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Alcohol</span>
+                    {alcoholCategoryConfig.map(({ key, label, icon: Icon }) => (
                       <div key={key} className="grid grid-cols-[1fr_120px] gap-3 items-center">
                         <Label className="flex items-center gap-2 text-sm">
                           <Icon className="h-4 w-4 text-muted-foreground" />
                           {label}
-                          {isAutoFood && (
-                            <span className="text-xs text-muted-foreground">(auto)</span>
-                          )}
                         </Label>
                         <div className="relative">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
@@ -264,50 +239,78 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
                             type="number"
                             step="0.01"
                             placeholder="0"
-                            value={displayValue || ''}
+                            value={salesCategories[key] || ''}
                             onChange={(e) => handleCategoryChange(key, e.target.value)}
-                            className={`pl-7 h-9 text-right ${isAutoFood ? 'bg-muted/50' : ''}`}
+                            className="pl-7 h-9 text-right"
                           />
                         </div>
                       </div>
-                    );
-                  })}
-                  
-                  {/* Category Total */}
-                  <div className="pt-3 mt-3 border-t border-border/50">
+                    ))}
+                  </div>
+
+                  {/* Misc Category - separate section */}
+                  <div className="pt-3 mt-3 border-t border-border/50 space-y-2">
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Other</span>
                     <div className="grid grid-cols-[1fr_120px] gap-3 items-center">
-                      <span className="font-medium text-sm">Total Sales</span>
-                      <div className="text-right font-bold text-primary">
-                        ${effectiveTotalSales.toFixed(2)}
+                      <Label className="flex items-center gap-2 text-sm">
+                        <ShoppingBag className="h-4 w-4 text-muted-foreground" />
+                        Misc
+                      </Label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="0"
+                          value={salesCategories.misc || ''}
+                          onChange={(e) => handleCategoryChange('misc', e.target.value)}
+                          className="pl-7 h-9 text-right"
+                        />
                       </div>
                     </div>
-                    <div className="grid grid-cols-[1fr_120px] gap-3 items-center mt-1">
+                  </div>
+                  
+                  {/* Totals */}
+                  <div className="pt-3 mt-3 border-t border-border/50">
+                    <div className="grid grid-cols-[1fr_120px] gap-3 items-center">
                       <span className="text-sm text-muted-foreground">Alcohol Total</span>
-                      <div className="text-right text-sm text-rose-600">
+                      <div className="text-right text-sm text-rose-600 font-medium">
                         ${alcoholTotal.toFixed(2)}
+                      </div>
+                    </div>
+                    {salesCategories.misc > 0 && (
+                      <div className="grid grid-cols-[1fr_120px] gap-3 items-center mt-1">
+                        <span className="text-sm text-muted-foreground">Misc Total</span>
+                        <div className="text-right text-sm text-amber-600 font-medium">
+                          ${salesCategories.misc.toFixed(2)}
+                        </div>
+                      </div>
+                    )}
+                    <div className="grid grid-cols-[1fr_120px] gap-3 items-center mt-2">
+                      <span className="text-sm text-muted-foreground">Implied Food Sales</span>
+                      <div className="text-right text-sm text-emerald-600 font-medium">
+                        ${impliedFoodSales.toFixed(2)}
                       </div>
                     </div>
                   </div>
 
-                  {/* Reset to simple mode */}
-                  {useDetailedSales && (
+                  {/* Reset button */}
+                  {additionalTotal > 0 && (
                     <Button
                       variant="ghost"
                       size="sm"
                       className="w-full mt-2 text-muted-foreground"
                       type="button"
                       onClick={() => {
-                        setUseDetailedSales(false);
                         setSalesCategories({
-                          food: 0,
                           liquor: 0,
                           beer: 0,
                           wine: 0,
-                          cocktails: 0,
+                          misc: 0,
                         });
                       }}
                     >
-                      Clear categories & use simple total
+                      Clear all categories
                     </Button>
                   )}
                 </div>
