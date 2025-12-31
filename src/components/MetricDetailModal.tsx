@@ -466,6 +466,8 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
         return 'bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600';
       case 'orange':
         return 'bg-gradient-to-r from-orange-600 via-orange-500 to-orange-600';
+      case 'amber':
+        return 'bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600';
       case 'indigo':
         return 'bg-gradient-to-r from-indigo-600 via-indigo-500 to-indigo-600';
       case 'slate':
