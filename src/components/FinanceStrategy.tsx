@@ -130,24 +130,28 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
         onNavigateToGoal={onNavigateToGoal}
       />
 
-      {/* Shift Recommendations */}
-      <ShiftRecommendations
-        monthlyIncome={financialMetrics.monthlyIncome}
-        monthlyTargetIncome={financialMetrics.monthlyTargetIncome}
-        averagePerShift={financialMetrics.averagePerShift}
-        shiftsWorkedThisMonth={financialMetrics.shiftsWorkedThisMonth}
-        daysLeftInMonth={financialMetrics.daysLeftInMonth}
-      />
+      {/* Shift Recommendations - only show when budget is set */}
+      {hasBudgetSet && (
+        <ShiftRecommendations
+          monthlyIncome={financialMetrics.monthlyIncome}
+          monthlyTargetIncome={financialMetrics.monthlyTargetIncome}
+          averagePerShift={financialMetrics.averagePerShift}
+          shiftsWorkedThisMonth={financialMetrics.shiftsWorkedThisMonth}
+          daysLeftInMonth={financialMetrics.daysLeftInMonth}
+        />
+      )}
 
-      {/* Contextual Tips */}
-      <ContextualFinanceTips
-        monthlyIncome={financialMetrics.monthlyIncome}
-        monthlyExpenses={financialMetrics.totalExpenses}
-        monthlySavings={financialMetrics.currentSavings}
-        savingsGoal={financialData.monthlySavingsGoal}
-        averagePerShift={financialMetrics.averagePerShift}
-        shiftsWorkedThisMonth={financialMetrics.shiftsWorkedThisMonth}
-      />
+      {/* Contextual Tips - only show when budget is set */}
+      {hasBudgetSet && (
+        <ContextualFinanceTips
+          monthlyIncome={financialMetrics.monthlyIncome}
+          monthlyExpenses={financialMetrics.totalExpenses}
+          monthlySavings={financialMetrics.currentSavings}
+          savingsGoal={financialData.monthlySavingsGoal}
+          averagePerShift={financialMetrics.averagePerShift}
+          shiftsWorkedThisMonth={financialMetrics.shiftsWorkedThisMonth}
+        />
+      )}
     </div>
   );
 };
