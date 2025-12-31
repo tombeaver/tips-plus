@@ -281,7 +281,10 @@ export const FinancialHealthScoreModal: React.FC<FinancialHealthScoreModalProps>
 
             {/* Score Breakdown */}
             <div className="space-y-2">
-              <p className="text-sm font-medium text-muted-foreground">Score Breakdown</p>
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-muted-foreground">Score Breakdown</p>
+                <span className="text-xs text-muted-foreground">Day {dayOfMonth} of {daysInMonth}</span>
+              </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center py-2 border-b border-border/50">
                   <span className="text-sm text-muted-foreground">Income vs Expenses</span>
@@ -291,11 +294,14 @@ export const FinancialHealthScoreModal: React.FC<FinancialHealthScoreModalProps>
                   <span className="text-sm text-muted-foreground">Savings Rate</span>
                   <span className="font-medium">{savingsPoints}/30 pts</span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-border/50 last:border-0">
+                <div className="flex justify-between items-center py-2 border-b border-border/50">
                   <span className="text-sm text-muted-foreground">Savings Goal Progress</span>
                   <span className="font-medium">{goalPoints}/30 pts</span>
                 </div>
               </div>
+              <p className="text-xs text-muted-foreground pt-2">
+                Expenses and savings goals are pro-rated based on how far into the month you are, so your score reflects a fair comparison at any point.
+              </p>
             </div>
 
             {/* Goal Setup Prompt (if goal not set) */}
