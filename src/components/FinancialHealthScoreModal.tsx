@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Progress } from '@/components/ui/progress';
-import { Target, ShoppingBag, Save, Home, Zap, ShoppingCart, Car, CreditCard, MoreHorizontal, ChevronDown, ChevronUp, Pencil, X } from 'lucide-react';
+import { Target, ShoppingBag, Save, Home, Zap, ShoppingCart, Car, CreditCard, MoreHorizontal, ChevronDown, ChevronUp, Pencil, X, TrendingUp } from 'lucide-react';
 import { format } from 'date-fns';
 import { FinancialData } from '@/hooks/useGoals';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
@@ -20,6 +20,9 @@ interface FinancialHealthScoreModalProps {
   savingsGoal: number;
   financialData: FinancialData;
   onUpdateFinancialData: (data: FinancialData) => Promise<void>;
+  // Cross-linking props
+  hasGoalSet?: boolean;
+  onNavigateToGoal?: () => void;
 }
 
 interface ExpenseCategories {
@@ -49,6 +52,8 @@ export const FinancialHealthScoreModal: React.FC<FinancialHealthScoreModalProps>
   savingsGoal,
   financialData,
   onUpdateFinancialData,
+  hasGoalSet = false,
+  onNavigateToGoal,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -269,6 +274,35 @@ export const FinancialHealthScoreModal: React.FC<FinancialHealthScoreModalProps>
                 </div>
               </div>
             </div>
+
+            {/* Goal Setup Prompt (if goal not set) */}
+            {!hasGoalSet && (
+              <Card className="border-purple-500/50 bg-purple-500/10">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <TrendingUp className="h-5 w-5 text-purple-500 mt-0.5 shrink-0" />
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">Set Your Income Goal</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Set an annual income goal to see if your earnings can cover your budget and savings targets.
+                      </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-3"
+                        onClick={() => {
+                          onClose();
+                          onNavigateToGoal?.();
+                        }}
+                      >
+                        <Target className="h-4 w-4 mr-2" />
+                        Set Income Goal
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Edit Budget Button / Form */}
             {!isEditing ? (
