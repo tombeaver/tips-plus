@@ -1,9 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wallet } from 'lucide-react';
 import { FinancialData } from '@/hooks/useGoals';
 import { TipEntry } from '@/hooks/useTipEntries';
 import { FinancialHealthScore } from '@/components/FinancialHealthScore';
+import { FinancialHealthScoreModal } from '@/components/FinancialHealthScoreModal';
 import { IncomeExpenseChart } from '@/components/IncomeExpenseChart';
 import { BudgetInput } from '@/components/BudgetInput';
 import { ShiftRecommendations } from '@/components/ShiftRecommendations';
@@ -20,6 +21,7 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
   onUpdateFinancialData,
   tipEntries 
 }) => {
+  const [isHealthScoreModalOpen, setIsHealthScoreModalOpen] = useState(false);
   const realEntries = tipEntries.filter(entry => !entry.isPlaceholder);
 
   const financialMetrics = useMemo(() => {
@@ -75,6 +77,8 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
     };
   }, [realEntries, tipEntries, financialData.monthlyExpenses, financialData.monthlySavingsGoal]);
 
+  const hasBudgetSet = financialMetrics.totalExpenses > 0;
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -90,22 +94,34 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
         </CardHeader>
       </Card>
 
-      {/* Financial Health Score - only show if budget is set */}
-      {financialMetrics.totalExpenses > 0 && (
+      {/* Financial Health Score OR Budget Input based on whether budget is set */}
+      {hasBudgetSet ? (
         <FinancialHealthScore
           monthlyIncome={financialMetrics.monthlyIncome}
           monthlyExpenses={financialMetrics.totalExpenses}
           monthlySavings={financialMetrics.currentSavings}
           savingsGoal={financialData.monthlySavingsGoal}
+          onClick={() => setIsHealthScoreModalOpen(true)}
+        />
+      ) : (
+        <BudgetInput
+          monthlyExpenses={financialData.monthlyExpenses}
+          monthlySavingsGoal={financialData.monthlySavingsGoal}
+          monthlySpendingLimit={financialData.monthlySpendingLimit}
+          onSave={onUpdateFinancialData}
         />
       )}
 
-      {/* Budget Input */}
-      <BudgetInput
-        monthlyExpenses={financialData.monthlyExpenses}
-        monthlySavingsGoal={financialData.monthlySavingsGoal}
-        monthlySpendingLimit={financialData.monthlySpendingLimit}
-        onSave={onUpdateFinancialData}
+      {/* Health Score Modal */}
+      <FinancialHealthScoreModal
+        isOpen={isHealthScoreModalOpen}
+        onClose={() => setIsHealthScoreModalOpen(false)}
+        monthlyIncome={financialMetrics.monthlyIncome}
+        monthlyExpenses={financialMetrics.totalExpenses}
+        monthlySavings={financialMetrics.currentSavings}
+        savingsGoal={financialData.monthlySavingsGoal}
+        financialData={financialData}
+        onUpdateFinancialData={onUpdateFinancialData}
       />
 
       {/* Shift Recommendations */}

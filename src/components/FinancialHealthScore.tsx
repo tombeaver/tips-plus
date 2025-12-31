@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface FinancialHealthScoreProps {
@@ -7,6 +7,7 @@ interface FinancialHealthScoreProps {
   monthlyExpenses: number;
   monthlySavings: number;
   savingsGoal: number;
+  onClick?: () => void;
 }
 
 export const FinancialHealthScore: React.FC<FinancialHealthScoreProps> = ({
@@ -14,6 +15,7 @@ export const FinancialHealthScore: React.FC<FinancialHealthScoreProps> = ({
   monthlyExpenses,
   monthlySavings,
   savingsGoal,
+  onClick,
 }) => {
   // Calculate financial health score (0-100)
   const calculateScore = () => {
@@ -40,9 +42,9 @@ export const FinancialHealthScore: React.FC<FinancialHealthScoreProps> = ({
   const currentMonth = format(new Date(), 'MMMM');
   
   const getScoreColor = () => {
-    if (score >= 80) return 'text-green-600';
-    if (score >= 60) return 'text-yellow-600';
-    return 'text-red-600';
+    if (score >= 80) return 'text-emerald-400';
+    if (score >= 60) return 'text-yellow-400';
+    return 'text-red-400';
   };
   
   const getScoreLabel = () => {
@@ -53,17 +55,23 @@ export const FinancialHealthScore: React.FC<FinancialHealthScoreProps> = ({
   };
 
   const getTrendIcon = () => {
-    if (netIncome > savingsGoal) return <TrendingUp className="h-5 w-5 text-green-600" />;
-    if (netIncome < 0) return <TrendingDown className="h-5 w-5 text-red-600" />;
-    return <Minus className="h-5 w-5 text-yellow-600" />;
+    if (netIncome > savingsGoal) return <TrendingUp className="h-5 w-5 text-emerald-400" />;
+    if (netIncome < 0) return <TrendingDown className="h-5 w-5 text-red-400" />;
+    return <Minus className="h-5 w-5 text-yellow-400" />;
   };
 
   return (
-    <Card className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
+    <Card 
+      className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground cursor-pointer hover:shadow-lg transition-shadow"
+      onClick={onClick}
+    >
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>{currentMonth} Health Score</span>
-          {getTrendIcon()}
+          <div className="flex items-center gap-2">
+            {getTrendIcon()}
+            <ChevronRight className="h-5 w-5 opacity-70" />
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -88,6 +96,8 @@ export const FinancialHealthScore: React.FC<FinancialHealthScoreProps> = ({
             <p className="font-semibold">${monthlySavings.toFixed(0)}</p>
           </div>
         </div>
+        
+        <p className="text-xs text-center opacity-60">Tap for details & edit budget</p>
       </CardContent>
     </Card>
   );
