@@ -241,49 +241,36 @@ const Landing = () => {
       </section>
 
       {/* Feature Checklist */}
-      <section className="py-20 lg:py-28 bg-gradient-to-b from-emerald-50/50 to-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="lg:grid lg:grid-cols-2 lg:gap-16 items-center">
-            <div>
-              <Badge className="mb-4 bg-emerald-100 text-emerald-700 border-emerald-200">Complete Solution</Badge>
-              <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-6">
-                Built for the service industry
-              </h2>
-              <p className="text-lg text-slate-600 mb-8">
-                Whether you're a server, bartender, or any tipped worker, 
-                Tips+ has everything you need.
-              </p>
-              
-              <ul className="space-y-4">
-                {[
-                  "Track tips, wages, and total earnings",
-                  "Set and monitor financial goals",
-                  "Visualize trends with beautiful charts",
-                  "Shift performance analysis",
-                  "Budget planning tools",
-                  "Achievement badges & gamification",
-                  "Cloud backup & sync"
-                ].map((item, index) => (
-                  <li key={index} className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                      <Check className="h-4 w-4 text-emerald-600" />
-                    </div>
-                    <span className="text-slate-700">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            
-            <div className="mt-12 lg:mt-0 flex justify-center">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-3xl blur-3xl opacity-20"></div>
-                <img 
-                  src={appIcon} 
-                  alt="Tips+ App" 
-                  className="relative w-64 h-64 rounded-3xl shadow-2xl ring-4 ring-white"
-                />
+      <section className="py-16 lg:py-20 bg-gradient-to-b from-emerald-50/50 to-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <Badge className="mb-4 bg-emerald-100 text-emerald-700 border-emerald-200">Complete Solution</Badge>
+            <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4">
+              Built for the service industry
+            </h2>
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+              Whether you're a server, bartender, or any tipped worker, 
+              Tips+ has everything you need.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {[
+              "Track tips, wages, and total earnings",
+              "Set and monitor financial goals",
+              "Visualize trends with beautiful charts",
+              "Shift performance analysis",
+              "Budget planning tools",
+              "Achievement badges & gamification",
+              "Cloud backup & sync"
+            ].map((item, index) => (
+              <div key={index} className="flex items-center gap-3 bg-white/60 rounded-lg px-4 py-3 border border-slate-100">
+                <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                  <Check className="h-3 w-3 text-white" />
+                </div>
+                <span className="text-slate-700 font-medium">{item}</span>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
