@@ -14,12 +14,16 @@ interface FinanceStrategyProps {
   financialData: FinancialData;
   onUpdateFinancialData: (data: FinancialData) => Promise<void>;
   tipEntries: TipEntry[];
+  hasGoalSet?: boolean;
+  onNavigateToGoal?: () => void;
 }
 
 export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({ 
   financialData,
   onUpdateFinancialData,
-  tipEntries 
+  tipEntries,
+  hasGoalSet = false,
+  onNavigateToGoal,
 }) => {
   const [isHealthScoreModalOpen, setIsHealthScoreModalOpen] = useState(false);
   const realEntries = tipEntries.filter(entry => !entry.isPlaceholder);
@@ -122,6 +126,8 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
         savingsGoal={financialData.monthlySavingsGoal}
         financialData={financialData}
         onUpdateFinancialData={onUpdateFinancialData}
+        hasGoalSet={hasGoalSet}
+        onNavigateToGoal={onNavigateToGoal}
       />
 
       {/* Shift Recommendations */}

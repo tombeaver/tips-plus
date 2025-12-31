@@ -463,6 +463,8 @@ const Index = () => {
               financialData={financialData}
               onUpdateFinancialData={updateFinancialData}
               tipEntries={tipEntries}
+              hasGoalSet={goals.some(g => g.type === 'yearly')}
+              onNavigateToGoal={() => setActiveTab('goals')}
             />
           </TabsContent>
 
@@ -475,6 +477,7 @@ const Index = () => {
               onUpdateGoal={async (goalId, goal) => { await updateGoal(goalId, goal); }}
               onDeleteGoal={deleteGoal}
               tipEntries={tipEntries}
+              onNavigateToBudget={() => setActiveTab('finance')}
             />
           </TabsContent>
         </Tabs>

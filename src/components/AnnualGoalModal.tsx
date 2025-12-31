@@ -5,8 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Target, Calendar, Clock, Pencil, X, Save, Trash2 } from 'lucide-react';
-import { Goal } from '@/hooks/useGoals';
+import { Target, Calendar, Clock, Pencil, X, Save, Trash2, Wallet, AlertTriangle, TrendingUp, TrendingDown } from 'lucide-react';
+import { Goal, FinancialData } from '@/hooks/useGoals';
 import { TipEntry } from '@/hooks/useTipEntries';
 import { 
   differenceInDays, 
@@ -29,6 +29,10 @@ interface AnnualGoalModalProps {
   onUpdateGoal: (goalId: string, goal: Omit<Goal, 'id'>) => Promise<void>;
   onDeleteGoal: (goalId: string) => Promise<void>;
   onAddGoal: (goal: Omit<Goal, 'id'>) => Promise<void>;
+  // Cross-linking props
+  financialData?: FinancialData;
+  hasBudgetSet?: boolean;
+  onNavigateToBudget?: () => void;
 }
 
 export const AnnualGoalModal: React.FC<AnnualGoalModalProps> = ({
@@ -42,6 +46,9 @@ export const AnnualGoalModal: React.FC<AnnualGoalModalProps> = ({
   onUpdateGoal,
   onDeleteGoal,
   onAddGoal,
+  financialData,
+  hasBudgetSet = false,
+  onNavigateToBudget,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [goalAmount, setGoalAmount] = useState('');
@@ -118,6 +125,21 @@ export const AnnualGoalModal: React.FC<AnnualGoalModalProps> = ({
   const shiftsNeededWeekly = averagePerShift > 0 ? Math.ceil(weeklyNeeded / averagePerShift) : 0;
   const shiftsNeededMonthly = averagePerShift > 0 ? Math.ceil(monthlyNeeded / averagePerShift) : 0;
 
+  // Budget sustainability check
+  const monthlyExpenses = financialData?.monthlyExpenses || 0;
+  const monthlySavingsGoal = financialData?.monthlySavingsGoal || 0;
+  const monthlyBudgetNeeded = monthlyExpenses + monthlySavingsGoal;
+  const isBudgetUnsustainable = hasBudgetSet && monthlyTarget > 0 && monthlyBudgetNeeded > monthlyTarget;
+  const budgetGap = monthlyBudgetNeeded - monthlyTarget;
+  const annualGapAdjustment = budgetGap * 12;
+
+  const handleIncreaseGoal = async () => {
+    if (yearlyGoal) {
+      const newAmount = yearlyGoal.amount + annualGapAdjustment;
+      await onUpdateGoal(yearlyGoal.id, { type: 'yearly', amount: newAmount, period: 'yearly' });
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-screen h-screen max-w-none p-0 gap-0 border-0 flex flex-col" hideCloseButton>
@@ -183,6 +205,72 @@ export const AnnualGoalModal: React.FC<AnnualGoalModalProps> = ({
               </Card>
             </div>
 
+            {/* Budget Setup Prompt (if budget not set) */}
+            {!hasBudgetSet && (
+              <Card className="border-amber-500/50 bg-amber-500/10">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <Wallet className="h-5 w-5 text-amber-500 mt-0.5 shrink-0" />
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">Set Up Your Budget</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Track your expenses and savings goals to see if your income goal covers your needs.
+                      </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-3"
+                        onClick={() => {
+                          onClose();
+                          onNavigateToBudget?.();
+                        }}
+                      >
+                        <Wallet className="h-4 w-4 mr-2" />
+                        Set Up Budget
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Budget Sustainability Warning */}
+            {isBudgetUnsustainable && (
+              <Card className="border-red-500/50 bg-red-500/10">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="h-5 w-5 text-red-500 mt-0.5 shrink-0" />
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">Budget Exceeds Income Target</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Your monthly expenses (${monthlyExpenses.toFixed(0)}) + savings goal (${monthlySavingsGoal.toFixed(0)}) = ${monthlyBudgetNeeded.toFixed(0)}/mo exceeds your monthly target of ${monthlyTarget.toFixed(0)}.
+                      </p>
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleIncreaseGoal}
+                        >
+                          <TrendingUp className="h-4 w-4 mr-2" />
+                          Increase Goal +${annualGapAdjustment.toLocaleString()}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            onClose();
+                            onNavigateToBudget?.();
+                          }}
+                        >
+                          <TrendingDown className="h-4 w-4 mr-2" />
+                          Edit Budget
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Breakdown Summary */}
             <div className="space-y-2">

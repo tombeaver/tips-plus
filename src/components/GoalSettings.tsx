@@ -17,6 +17,7 @@ interface GoalSettingsProps {
   onUpdateGoal: (goalId: string, goal: Omit<Goal, 'id'>) => Promise<void>;
   onDeleteGoal: (goalId: string) => Promise<void>;
   tipEntries: TipEntry[];
+  onNavigateToBudget?: () => void;
 }
 
 export const GoalSettings: React.FC<GoalSettingsProps> = ({ 
@@ -25,7 +26,8 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
   onAddGoal, 
   onUpdateGoal, 
   onDeleteGoal,
-  tipEntries 
+  tipEntries,
+  onNavigateToBudget,
 }) => {
   const [showForm, setShowForm] = useState(false);
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
@@ -170,6 +172,9 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
         onUpdateGoal={onUpdateGoal}
         onDeleteGoal={onDeleteGoal}
         onAddGoal={onAddGoal}
+        financialData={financialData}
+        hasBudgetSet={financialData.monthlyExpenses > 0}
+        onNavigateToBudget={onNavigateToBudget}
       />
     </div>
   );
