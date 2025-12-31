@@ -200,10 +200,10 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
             {selectedDate.toLocaleDateString()}
           </p>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Food Sales (becomes Total Sales label when additional categories added) */}
+            {/* Food Sales by default, becomes Total Sales when additional categories added */}
             <div className="space-y-2">
               <Label htmlFor="foodSales">
-                {hasAdditionalSales ? 'Food Sales ($)' : 'Total Sales ($)'}
+                {hasAdditionalSales ? 'Total Sales ($)' : 'Food Sales ($)'}
               </Label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
