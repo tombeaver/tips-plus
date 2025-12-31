@@ -183,39 +183,6 @@ export const AnnualGoalModal: React.FC<AnnualGoalModalProps> = ({
               </Card>
             </div>
 
-            {/* Shift Strategy */}
-            {averagePerShift > 0 && (
-              <Card className="bg-muted/30">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Target className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Shift Strategy</span>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center py-2 border-b border-border/50">
-                      <span className="text-sm text-muted-foreground">To hit weekly target</span>
-                      {weeklyNeeded > 0 ? (
-                        <span className="font-medium text-primary">{shiftsNeededWeekly} shift{shiftsNeededWeekly !== 1 ? 's' : ''}</span>
-                      ) : (
-                        <span className="text-emerald-500 font-medium">✓ Done!</span>
-                      )}
-                    </div>
-                    <div className="flex justify-between items-center py-2 border-b border-border/50">
-                      <span className="text-sm text-muted-foreground">To hit monthly target</span>
-                      {monthlyNeeded > 0 ? (
-                        <span className="font-medium text-primary">{shiftsNeededMonthly} shift{shiftsNeededMonthly !== 1 ? 's' : ''}</span>
-                      ) : (
-                        <span className="text-emerald-500 font-medium">✓ Done!</span>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Based on ${averagePerShift.toFixed(0)} average per shift
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
 
             {/* Breakdown Summary */}
             <div className="space-y-2">
