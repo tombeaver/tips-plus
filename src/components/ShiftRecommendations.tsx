@@ -121,29 +121,6 @@ export const ShiftRecommendations: React.FC<ShiftRecommendationsProps> = ({
                 Shift Pace: <span className="capitalize text-foreground">{paceDescription}</span>
               </span>
             </div>
-            
-            {/* Visual timeline */}
-            <div className="flex gap-1">
-              {shiftsSpreadAcrossDays.slice(0, Math.min(shiftsNeeded, 10)).map((day, i) => (
-                <div
-                  key={i}
-                  className="flex-1 h-8 rounded bg-primary/20 flex items-center justify-center"
-                >
-                  <span className="text-xs font-medium text-primary">{i + 1}</span>
-                </div>
-              ))}
-              {shiftsNeeded > 10 && (
-                <div className="flex-1 h-8 rounded bg-muted flex items-center justify-center">
-                  <span className="text-xs text-muted-foreground">+{shiftsNeeded - 10}</span>
-                </div>
-              )}
-            </div>
-            <p className="text-xs text-muted-foreground mt-2 text-center">
-              {shiftsPerDayNeeded < 1 
-                ? `About 1 shift every ${Math.round(1 / shiftsPerDayNeeded)} days`
-                : `About ${shiftsPerDayNeeded.toFixed(1)} shifts per day`
-              }
-            </p>
           </div>
         )}
 
