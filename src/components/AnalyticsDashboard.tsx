@@ -456,49 +456,13 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                 </div>
               </div>
               
-              {/* Monochromatic Stack Bar Chart */}
-              <div className="h-48" onClick={(e) => e.stopPropagation()}>
+              {/* Monochromatic Stack Bar Chart - Non-interactive */}
+              <div className="h-48 pointer-events-none">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={trendData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.2)" />
                     <XAxis dataKey="period" stroke="rgba(255,255,255,0.8)" fontSize={12} />
                     <YAxis stroke="rgba(255,255,255,0.8)" fontSize={12} />
-                    <Tooltip 
-                      formatter={(value, name) => {
-                        if (name === 'tips') return [`${Number(value).toFixed(2)}`, 'Tips'];
-                        if (name === 'wages') return [`${Number(value).toFixed(2)}`, 'Wages'];
-                        return [`${value}`, name];
-                      }}
-                      labelFormatter={(label, payload) => {
-                        if (!payload || payload.length === 0) return `Period: ${label}`;
-                        
-                        const data = payload[0]?.payload;
-                        if (!data) return `Period: ${label}`;
-                        
-                        const totalTips = data.tips || 0;
-                        const totalWages = data.wages || 0;
-                        const totalEarnings = totalTips + totalWages;
-                        
-                        return (
-                          <div className="space-y-1">
-                            <div className="font-medium">{label}</div>
-                            <div className="text-sm space-y-0.5">
-                              <div>Tips: ${totalTips.toFixed(2)}</div>
-                              <div>Wages: ${totalWages.toFixed(2)}</div>
-                              <div className="border-t pt-1 mt-1">
-                                <div className="font-medium">Total Earnings: ${totalEarnings.toFixed(2)}</div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      }}
-                      contentStyle={{
-                        backgroundColor: 'rgba(255,255,255,0.95)',
-                        border: 'none',
-                        borderRadius: '8px',
-                        color: '#374151'
-                      }}
-                    />
                     <Bar dataKey="tips" stackId="earnings" fill="rgba(255,255,255,0.9)" name="tips" />
                     <Bar dataKey="wages" stackId="earnings" fill="rgba(255,255,255,0.6)" name="wages" />
                   </BarChart>
