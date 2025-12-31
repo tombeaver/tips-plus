@@ -1,5 +1,5 @@
 import { Card, CardContent } from '@/components/ui/card';
-import { Lightbulb, TrendingUp, PiggyBank, AlertTriangle, Target, Sparkles, Clock } from 'lucide-react';
+import { Lightbulb, TrendingUp, PiggyBank, AlertTriangle, Target, Sparkles } from 'lucide-react';
 
 interface ContextualFinanceTipsProps {
   monthlyIncome: number;
@@ -8,9 +8,6 @@ interface ContextualFinanceTipsProps {
   savingsGoal: number;
   averagePerShift: number;
   shiftsWorkedThisMonth: number;
-  weeklyTarget: number;
-  weeklyEarned: number;
-  daysLeftInWeek: number;
 }
 
 interface Tip {
@@ -27,22 +24,11 @@ export const ContextualFinanceTips: React.FC<ContextualFinanceTipsProps> = ({
   savingsGoal,
   averagePerShift,
   shiftsWorkedThisMonth,
-  weeklyTarget,
-  weeklyEarned,
-  daysLeftInWeek,
 }) => {
   const savingsRate = monthlyIncome > 0 ? (monthlySavings / monthlyIncome) * 100 : 0;
   const expenseRatio = monthlyIncome > 0 ? (monthlyExpenses / monthlyIncome) * 100 : 0;
   const savingsGoalProgress = savingsGoal > 0 ? (monthlySavings / savingsGoal) * 100 : 0;
   const netIncome = monthlyIncome - monthlyExpenses;
-
-  // Weekly shift pace calculation
-  const weeklyShortfall = Math.max(0, weeklyTarget - weeklyEarned);
-  const weeklyShiftsNeeded = averagePerShift > 0 ? Math.ceil(weeklyShortfall / averagePerShift) : 0;
-  const shiftsPerDayNeeded = daysLeftInWeek > 0 ? weeklyShiftsNeeded / daysLeftInWeek : 0;
-  const shiftPace = weeklyEarned >= weeklyTarget ? 'on track' : 
-    shiftsPerDayNeeded <= 0.5 ? 'relaxed' : 
-    shiftsPerDayNeeded <= 1 ? 'steady' : 'aggressive';
 
   const tips: Tip[] = [];
 
@@ -157,37 +143,12 @@ export const ContextualFinanceTips: React.FC<ContextualFinanceTipsProps> = ({
     }
   };
 
-  const getPaceStyles = () => {
-    switch (shiftPace) {
-      case 'on track':
-        return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400';
-      case 'relaxed':
-        return 'bg-blue-500/10 text-blue-600 dark:text-blue-400';
-      case 'steady':
-        return 'bg-amber-500/10 text-amber-600 dark:text-amber-400';
-      case 'aggressive':
-        return 'bg-red-500/10 text-red-600 dark:text-red-400';
-      default:
-        return 'bg-muted text-muted-foreground';
-    }
-  };
-
   return (
     <Card>
       <CardContent className="p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Lightbulb className="h-4 w-4" />
-            <span className="text-sm font-medium">Insights</span>
-          </div>
-          
-          {/* Shift Pace Token */}
-          {weeklyTarget > 0 && (
-            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${getPaceStyles()}`}>
-              <Clock className="h-3 w-3" />
-              <span className="capitalize">{shiftPace}</span>
-            </div>
-          )}
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Lightbulb className="h-4 w-4" />
+          <span className="text-sm font-medium">Insights</span>
         </div>
         
         {displayTips.map((tip, index) => (
