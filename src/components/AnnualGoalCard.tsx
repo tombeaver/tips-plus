@@ -7,6 +7,10 @@ interface AnnualGoalCardProps {
   yearlyGoal: number;
   yearlyAchieved: number;
   yearlyPercentage: number;
+  weeklyTarget: number;
+  weeklyEarned: number;
+  monthlyTarget: number;
+  monthlyEarned: number;
   onClick?: () => void;
 }
 
@@ -14,6 +18,10 @@ export const AnnualGoalCard: React.FC<AnnualGoalCardProps> = ({
   yearlyGoal,
   yearlyAchieved,
   yearlyPercentage,
+  weeklyTarget,
+  weeklyEarned,
+  monthlyTarget,
+  monthlyEarned,
   onClick,
 }) => {
   const now = new Date();
@@ -24,6 +32,9 @@ export const AnnualGoalCard: React.FC<AnnualGoalCardProps> = ({
   
   const isOnTrack = yearlyPercentage >= (weeksPassed / weeksInYear) * 100;
   const isComplete = yearlyPercentage >= 100;
+
+  const weeklyProgress = weeklyTarget > 0 ? Math.min((weeklyEarned / weeklyTarget) * 100, 100) : 0;
+  const monthlyProgress = monthlyTarget > 0 ? Math.min((monthlyEarned / monthlyTarget) * 100, 100) : 0;
 
   return (
     <Card 
@@ -48,7 +59,7 @@ export const AnnualGoalCard: React.FC<AnnualGoalCardProps> = ({
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-4">
         {/* Progress bar with amount */}
         <div className="space-y-2">
           <div className="flex justify-between items-end">
@@ -64,7 +75,33 @@ export const AnnualGoalCard: React.FC<AnnualGoalCardProps> = ({
           <Progress value={yearlyPercentage} className="h-3 bg-white/20" />
         </div>
         
-        <p className="text-xs text-center text-white/60">Tap for details & breakdown</p>
+        {/* Weekly & Monthly breakdown */}
+        <div className="grid grid-cols-2 gap-3 pt-3 border-t border-white/20">
+          <div className="text-center">
+            <p className="text-xs text-white/60 mb-1">This Week</p>
+            <p className="font-semibold">${weeklyEarned.toFixed(0)}</p>
+            <p className="text-xs text-white/60">of ${weeklyTarget.toFixed(0)}</p>
+            <div className="mt-1.5 h-1 bg-white/20 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-green-300 rounded-full transition-all" 
+                style={{ width: `${weeklyProgress}%` }}
+              />
+            </div>
+          </div>
+          <div className="text-center">
+            <p className="text-xs text-white/60 mb-1">This Month</p>
+            <p className="font-semibold">${monthlyEarned.toFixed(0)}</p>
+            <p className="text-xs text-white/60">of ${monthlyTarget.toFixed(0)}</p>
+            <div className="mt-1.5 h-1 bg-white/20 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-green-300 rounded-full transition-all" 
+                style={{ width: `${monthlyProgress}%` }}
+              />
+            </div>
+          </div>
+        </div>
+        
+        <p className="text-xs text-center text-white/60">Tap for details</p>
       </CardContent>
     </Card>
   );
