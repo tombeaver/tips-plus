@@ -512,34 +512,91 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
             {detailData.entries.length > 1 && (
               <div className="bg-muted/30 rounded-lg p-3">
                 <p className="text-sm font-medium mb-2 text-muted-foreground">Trend Over Time</p>
-                <div className="h-32">
+                <div className={metricType === 'totalEarnings' ? "h-48" : "h-32"}>
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={detailData.entries}>
-                      <defs>
-                        <linearGradient id={`gradient-${metricType}`} x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor={config.chartColor} stopOpacity={0.3}/>
-                          <stop offset="95%" stopColor={config.chartColor} stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                      <XAxis dataKey="date" fontSize={10} stroke="hsl(var(--muted-foreground))" />
-                      <YAxis fontSize={10} stroke="hsl(var(--muted-foreground))" />
-                      <Tooltip 
-                        formatter={(value) => [config.formatValue(Number(value)), config.title]}
-                        contentStyle={{
-                          backgroundColor: 'hsl(var(--background))',
-                          border: '1px solid hsl(var(--border))',
-                          borderRadius: '8px',
-                        }}
-                      />
-                      <Area 
-                        type="monotone" 
-                        dataKey={config.chartDataKey} 
-                        stroke={config.chartColor} 
-                        fill={`url(#gradient-${metricType})`}
-                        strokeWidth={2}
-                      />
-                    </AreaChart>
+                    {metricType === 'totalEarnings' ? (
+                      <AreaChart data={detailData.entries}>
+                        <defs>
+                          <linearGradient id="gradient-wages" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                          </linearGradient>
+                          <linearGradient id="gradient-creditTips" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
+                          </linearGradient>
+                          <linearGradient id="gradient-cashTips" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                        <XAxis dataKey="date" fontSize={10} stroke="hsl(var(--muted-foreground))" />
+                        <YAxis fontSize={10} stroke="hsl(var(--muted-foreground))" />
+                        <Tooltip 
+                          formatter={(value, name) => {
+                            const labels: Record<string, string> = { wages: 'Wages', creditTips: 'Credit Tips', cashTips: 'Cash Tips' };
+                            return [`$${Number(value).toFixed(2)}`, labels[name as string] || name];
+                          }}
+                          contentStyle={{
+                            backgroundColor: 'hsl(var(--background))',
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '8px',
+                          }}
+                        />
+                        <Area 
+                          type="monotone" 
+                          dataKey="wages" 
+                          stroke="#3B82F6" 
+                          fill="url(#gradient-wages)"
+                          strokeWidth={2}
+                          name="wages"
+                        />
+                        <Area 
+                          type="monotone" 
+                          dataKey="creditTips" 
+                          stroke="#8B5CF6" 
+                          fill="url(#gradient-creditTips)"
+                          strokeWidth={2}
+                          name="creditTips"
+                        />
+                        <Area 
+                          type="monotone" 
+                          dataKey="cashTips" 
+                          stroke="#10B981" 
+                          fill="url(#gradient-cashTips)"
+                          strokeWidth={2}
+                          name="cashTips"
+                        />
+                      </AreaChart>
+                    ) : (
+                      <AreaChart data={detailData.entries}>
+                        <defs>
+                          <linearGradient id={`gradient-${metricType}`} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor={config.chartColor} stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor={config.chartColor} stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                        <XAxis dataKey="date" fontSize={10} stroke="hsl(var(--muted-foreground))" />
+                        <YAxis fontSize={10} stroke="hsl(var(--muted-foreground))" />
+                        <Tooltip 
+                          formatter={(value) => [config.formatValue(Number(value)), config.title]}
+                          contentStyle={{
+                            backgroundColor: 'hsl(var(--background))',
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '8px',
+                          }}
+                        />
+                        <Area 
+                          type="monotone" 
+                          dataKey={config.chartDataKey} 
+                          stroke={config.chartColor} 
+                          fill={`url(#gradient-${metricType})`}
+                          strokeWidth={2}
+                        />
+                      </AreaChart>
+                    )}
                   </ResponsiveContainer>
                 </div>
               </div>
