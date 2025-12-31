@@ -183,7 +183,7 @@ export const FinancialHealthScoreModal: React.FC<FinancialHealthScoreModalProps>
 
         {/* Scrollable Content */}
         <div className="overflow-y-auto flex-1 bg-background">
-          <div className="p-4 space-y-4">
+          <div className="p-4 pb-[50px] space-y-4">
             {/* Main Score */}
             <div className="text-center py-2">
               <p className="text-5xl font-bold text-foreground">{score}</p>

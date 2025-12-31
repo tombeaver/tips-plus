@@ -160,7 +160,7 @@ export const AnnualGoalModal: React.FC<AnnualGoalModalProps> = ({
 
         {/* Scrollable Content */}
         <div className="overflow-y-auto flex-1 bg-background">
-          <div className="p-4 space-y-4">
+          <div className="p-4 pb-[50px] space-y-4">
             {/* Main Progress */}
             <div className="text-center py-4">
               <p className="text-4xl font-bold text-foreground">
