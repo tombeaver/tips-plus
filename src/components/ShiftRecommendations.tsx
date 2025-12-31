@@ -112,10 +112,10 @@ export const ShiftRecommendations: React.FC<ShiftRecommendationsProps> = ({
           </div>
         </div>
 
-        {/* Timeline visualization */}
+        {/* Shift Pace */}
         {!isOnTrack && daysLeftInWeek > 0 && shiftsNeeded > 0 && (
-          <div className="p-4 border-b">
-            <div className="flex items-center gap-2 mb-3">
+          <div className="px-4 py-3 border-b">
+            <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm font-medium text-muted-foreground">
                 Shift Pace: <span className="capitalize text-foreground">{paceDescription}</span>
