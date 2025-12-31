@@ -518,16 +518,16 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
                       <AreaChart data={detailData.entries}>
                         <defs>
                           <linearGradient id="gradient-wages" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                          </linearGradient>
+                          <linearGradient id="gradient-creditTips" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
                             <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
                           </linearGradient>
-                          <linearGradient id="gradient-creditTips" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
-                          </linearGradient>
                           <linearGradient id="gradient-cashTips" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                            <stop offset="5%" stopColor="#F97316" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#F97316" stopOpacity={0}/>
                           </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -547,7 +547,7 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
                         <Area 
                           type="monotone" 
                           dataKey="wages" 
-                          stroke="#3B82F6" 
+                          stroke="#10B981" 
                           fill="url(#gradient-wages)"
                           strokeWidth={2}
                           name="wages"
@@ -555,7 +555,7 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
                         <Area 
                           type="monotone" 
                           dataKey="creditTips" 
-                          stroke="#8B5CF6" 
+                          stroke="#3B82F6" 
                           fill="url(#gradient-creditTips)"
                           strokeWidth={2}
                           name="creditTips"
@@ -563,7 +563,7 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
                         <Area 
                           type="monotone" 
                           dataKey="cashTips" 
-                          stroke="#10B981" 
+                          stroke="#F97316" 
                           fill="url(#gradient-cashTips)"
                           strokeWidth={2}
                           name="cashTips"
