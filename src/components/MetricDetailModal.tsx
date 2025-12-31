@@ -517,13 +517,17 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
                     {metricType === 'totalEarnings' ? (
                       <AreaChart data={detailData.entries}>
                         <defs>
-                          <linearGradient id="gradient-wages" x1="0" y1="0" x2="0" y2="1">
+                          <linearGradient id="gradient-earnings" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
                             <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
                           </linearGradient>
-                          <linearGradient id="gradient-creditTips" x1="0" y1="0" x2="0" y2="1">
+                          <linearGradient id="gradient-wages" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
                             <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                          </linearGradient>
+                          <linearGradient id="gradient-creditTips" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
                           </linearGradient>
                           <linearGradient id="gradient-cashTips" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="#F97316" stopOpacity={0.3}/>
@@ -535,7 +539,7 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
                         <YAxis fontSize={10} stroke="hsl(var(--muted-foreground))" />
                         <Tooltip 
                           formatter={(value, name) => {
-                            const labels: Record<string, string> = { wages: 'Wages', creditTips: 'Credit Tips', cashTips: 'Cash Tips' };
+                            const labels: Record<string, string> = { earnings: 'Total Earnings', wages: 'Wages', creditTips: 'Credit Tips', cashTips: 'Cash Tips' };
                             return [`$${Number(value).toFixed(2)}`, labels[name as string] || name];
                           }}
                           contentStyle={{
@@ -546,8 +550,16 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
                         />
                         <Area 
                           type="monotone" 
-                          dataKey="wages" 
+                          dataKey="earnings" 
                           stroke="#10B981" 
+                          fill="url(#gradient-earnings)"
+                          strokeWidth={2}
+                          name="earnings"
+                        />
+                        <Area 
+                          type="monotone" 
+                          dataKey="wages" 
+                          stroke="#3B82F6" 
                           fill="url(#gradient-wages)"
                           strokeWidth={2}
                           name="wages"
@@ -555,7 +567,7 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
                         <Area 
                           type="monotone" 
                           dataKey="creditTips" 
-                          stroke="#3B82F6" 
+                          stroke="#8B5CF6" 
                           fill="url(#gradient-creditTips)"
                           strokeWidth={2}
                           name="creditTips"
