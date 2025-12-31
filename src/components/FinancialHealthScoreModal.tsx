@@ -321,7 +321,13 @@ export const FinancialHealthScoreModal: React.FC<FinancialHealthScoreModalProps>
                 <Button
                   variant="outline"
                   className="flex-1"
-                  onClick={() => setIsEditing(true)}
+                  onClick={() => {
+                    // Reset form values to current saved data before editing
+                    setSimpleExpenses(financialData.monthlyExpenses.toString());
+                    setSavingsGoalInput(financialData.monthlySavingsGoal.toString());
+                    setUseDetailedMode(false);
+                    setIsEditing(true);
+                  }}
                 >
                   <Pencil className="h-4 w-4 mr-2" />
                   Edit Budget
