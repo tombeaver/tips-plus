@@ -6,7 +6,6 @@ import { TipEntry } from '@/hooks/useTipEntries';
 import { FinancialHealthScore } from '@/components/FinancialHealthScore';
 import { FinancialHealthScoreModal } from '@/components/FinancialHealthScoreModal';
 import { BudgetInput } from '@/components/BudgetInput';
-import { ShiftRecommendations } from '@/components/ShiftRecommendations';
 import { ContextualFinanceTips } from '@/components/ContextualFinanceTips';
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, isWithinInterval, differenceInDays } from 'date-fns';
 
@@ -137,19 +136,6 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
         onNavigateToGoal={onNavigateToGoal}
       />
 
-      {/* Shift Recommendations - only show when budget is set */}
-      {hasBudgetSet && (
-        <ShiftRecommendations
-          monthlyIncome={financialMetrics.monthlyIncome}
-          monthlyTargetIncome={financialMetrics.monthlyTargetIncome}
-          averagePerShift={financialMetrics.averagePerShift}
-          shiftsWorkedThisMonth={financialMetrics.shiftsWorkedThisMonth}
-          daysLeftInWeek={financialMetrics.daysLeftInWeek}
-          weeklyTarget={financialMetrics.weeklyTarget}
-          weeklyEarned={financialMetrics.weeklyEarned}
-        />
-      )}
-
       {/* Contextual Tips - only show when budget is set */}
       {hasBudgetSet && (
         <ContextualFinanceTips
@@ -159,6 +145,9 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
           savingsGoal={financialData.monthlySavingsGoal}
           averagePerShift={financialMetrics.averagePerShift}
           shiftsWorkedThisMonth={financialMetrics.shiftsWorkedThisMonth}
+          weeklyTarget={financialMetrics.weeklyTarget}
+          weeklyEarned={financialMetrics.weeklyEarned}
+          daysLeftInWeek={financialMetrics.daysLeftInWeek}
         />
       )}
     </div>
