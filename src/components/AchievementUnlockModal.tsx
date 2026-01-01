@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Trophy, Sparkles, Star } from "lucide-react";
+import { AchievementTier } from "@/lib/achievements";
 
 interface AchievementUnlockModalProps {
   isOpen: boolean;
@@ -9,35 +10,39 @@ interface AchievementUnlockModalProps {
   achievement?: {
     title: string;
     description: string;
-    rarity: "common" | "rare" | "epic" | "legendary";
+    tier: AchievementTier;
     icon?: React.ReactNode;
   };
 }
 
-const rarityConfig = {
-  common: {
-    gradient: "from-zinc-400 via-zinc-300 to-zinc-400",
-    glow: "shadow-[0_0_60px_rgba(161,161,170,0.5)]",
-    badge: "bg-zinc-500",
-    text: "text-zinc-400",
+const tierModalConfig = {
+  bronze: {
+    gradient: "from-amber-700 via-amber-600 to-amber-700",
+    glow: "shadow-[0_0_60px_rgba(180,83,9,0.5)]",
+    badge: "bg-amber-600",
+    text: "text-amber-500",
+    confettiColors: ["#b45309", "#d97706", "#f59e0b", "#ffffff"],
   },
-  rare: {
-    gradient: "from-blue-500 via-cyan-400 to-blue-500",
-    glow: "shadow-[0_0_60px_rgba(59,130,246,0.6)]",
-    badge: "bg-blue-500",
-    text: "text-blue-400",
+  silver: {
+    gradient: "from-slate-400 via-slate-300 to-slate-400",
+    glow: "shadow-[0_0_60px_rgba(148,163,184,0.6)]",
+    badge: "bg-slate-400",
+    text: "text-slate-400",
+    confettiColors: ["#94a3b8", "#cbd5e1", "#e2e8f0", "#ffffff"],
   },
-  epic: {
-    gradient: "from-purple-500 via-fuchsia-400 to-purple-500",
-    glow: "shadow-[0_0_60px_rgba(168,85,247,0.6)]",
-    badge: "bg-purple-500",
-    text: "text-purple-400",
+  gold: {
+    gradient: "from-yellow-500 via-yellow-400 to-yellow-500",
+    glow: "shadow-[0_0_60px_rgba(234,179,8,0.6)]",
+    badge: "bg-yellow-500",
+    text: "text-yellow-500",
+    confettiColors: ["#eab308", "#facc15", "#fde047", "#ffffff"],
   },
   legendary: {
-    gradient: "from-amber-400 via-yellow-300 to-orange-400",
-    glow: "shadow-[0_0_80px_rgba(251,191,36,0.7)]",
-    badge: "bg-gradient-to-r from-amber-400 to-orange-500",
-    text: "text-amber-400",
+    gradient: "from-purple-500 via-fuchsia-400 to-purple-500",
+    glow: "shadow-[0_0_80px_rgba(168,85,247,0.7)]",
+    badge: "bg-gradient-to-r from-purple-500 to-fuchsia-500",
+    text: "text-purple-400",
+    confettiColors: ["#a855f7", "#d946ef", "#c084fc", "#ffffff"],
   },
 };
 
@@ -45,13 +50,13 @@ export function AchievementUnlockModal({
   isOpen,
   onClose,
   achievement = {
-    title: "Century of Tips!",
-    description: "You've logged tips for 100 days! Your dedication to tracking is truly legendary.",
-    rarity: "legendary",
+    title: "Century Club",
+    description: "You've logged 100 shifts! Your dedication to tracking is truly legendary.",
+    tier: "legendary",
   },
 }: AchievementUnlockModalProps) {
   const [showContent, setShowContent] = useState(false);
-  const config = rarityConfig[achievement.rarity];
+  const config = tierModalConfig[achievement.tier];
 
   useEffect(() => {
     if (isOpen) {
@@ -64,14 +69,7 @@ export function AchievementUnlockModal({
         // Trigger confetti burst
         const duration = 3000;
         const end = Date.now() + duration;
-
-        const colors = achievement.rarity === "legendary" 
-          ? ["#fbbf24", "#f59e0b", "#fcd34d", "#ffffff"]
-          : achievement.rarity === "epic"
-          ? ["#a855f7", "#d946ef", "#c084fc", "#ffffff"]
-          : achievement.rarity === "rare"
-          ? ["#3b82f6", "#06b6d4", "#60a5fa", "#ffffff"]
-          : ["#71717a", "#a1a1aa", "#d4d4d8", "#ffffff"];
+        const colors = config.confettiColors;
 
         const frame = () => {
           confetti({
@@ -109,7 +107,14 @@ export function AchievementUnlockModal({
       // Show content after initial animation
       setTimeout(() => setShowContent(true), 200);
     }
-  }, [isOpen, achievement.rarity]);
+  }, [isOpen, achievement.tier, config.confettiColors]);
+
+  const tierLabels: Record<AchievementTier, string> = {
+    bronze: "Bronze",
+    silver: "Silver",
+    gold: "Gold",
+    legendary: "Legendary"
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -187,13 +192,13 @@ export function AchievementUnlockModal({
             {achievement.title}
           </h2>
 
-          {/* Rarity badge */}
+          {/* Tier badge */}
           <div
             className={`${config.badge} text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-6 transition-all duration-500 delay-700 ${
               showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             }`}
           >
-            {achievement.rarity}
+            {tierLabels[achievement.tier]}
           </div>
 
           {/* Description */}
