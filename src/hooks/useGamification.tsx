@@ -57,9 +57,9 @@ const XP_REWARDS = {
   weeklyGoalMet: 50,
   monthlyGoalMet: 100,
   achievementUnlocked: {
-    common: 25,
-    rare: 50,
-    epic: 100,
+    bronze: 25,
+    silver: 50,
+    gold: 100,
     legendary: 200,
   },
   streakBonus: {
@@ -94,7 +94,7 @@ export function useGamification(
     // XP from achievements
     const unlockedAchievements = achievements.filter(a => a.unlocked);
     unlockedAchievements.forEach(achievement => {
-      totalXP += XP_REWARDS.achievementUnlocked[achievement.rarity];
+      totalXP += XP_REWARDS.achievementUnlocked[achievement.tier];
     });
     
     // XP from streaks

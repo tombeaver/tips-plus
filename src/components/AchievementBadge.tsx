@@ -1,75 +1,34 @@
+import * as React from "react";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
-
-export type BadgeRarity = "common" | "rare" | "epic" | "legendary";
-export type BadgeCategory = "earnings" | "consistency" | "milestone" | "special";
+import { AchievementTier, AchievementCategory, tierConfig } from "@/lib/achievements";
 
 interface AchievementBadgeProps {
   icon: LucideIcon;
   title: string;
   description: string;
-  rarity: BadgeRarity;
-  category: BadgeCategory;
+  tier: AchievementTier;
+  category: AchievementCategory;
   unlocked: boolean;
   unlockedDate?: Date;
   progress?: number; // 0-100 for in-progress achievements
   className?: string;
 }
 
-const rarityConfig = {
-  common: {
-    gradient: "from-cyan-500 to-emerald-500",
-    bgGradient: "from-cyan-500/10 to-emerald-500/5",
-    border: "border-cyan-500/30",
-    glow: "shadow-cyan-500/15",
-    iconColor: "text-cyan-600",
-    progressColor: "bg-cyan-500",
-    overlayGradient: "from-cyan-600 via-emerald-500 to-cyan-600",
-  },
-  rare: {
-    gradient: "from-blue-500 to-indigo-500",
-    bgGradient: "from-blue-500/10 to-indigo-500/5",
-    border: "border-blue-500/30",
-    glow: "shadow-blue-500/20",
-    iconColor: "text-blue-600",
-    progressColor: "bg-blue-500",
-    overlayGradient: "from-blue-600 via-indigo-500 to-blue-600",
-  },
-  epic: {
-    gradient: "from-purple-500 to-fuchsia-500",
-    bgGradient: "from-purple-500/10 to-fuchsia-500/5",
-    border: "border-purple-500/35",
-    glow: "shadow-purple-500/25",
-    iconColor: "text-purple-600",
-    progressColor: "bg-purple-500",
-    overlayGradient: "from-purple-600 via-fuchsia-500 to-purple-600",
-  },
-  legendary: {
-    gradient: "from-amber-400 to-orange-500",
-    bgGradient: "from-amber-500/15 to-orange-500/10",
-    border: "border-amber-500/40",
-    glow: "shadow-amber-500/30",
-    iconColor: "text-amber-600",
-    progressColor: "bg-gradient-to-r from-amber-400 to-orange-500",
-    overlayGradient: "from-amber-500 via-yellow-400 to-orange-500",
-  },
-};
-
 export function AchievementBadge({
   icon: Icon,
   title,
   description,
-  rarity,
+  tier,
   category,
   unlocked,
   unlockedDate,
   progress,
   className,
 }: AchievementBadgeProps) {
-  const [showOverlay, setShowOverlay] = useState(false);
-  const config = rarityConfig[rarity];
+  const [showOverlay, setShowOverlay] = React.useState(false);
+  const config = tierConfig[tier];
 
   return (
     <div
@@ -83,7 +42,7 @@ export function AchievementBadge({
         className={cn(
           "relative w-full h-full rounded-xl border-2 p-4 overflow-hidden",
           "bg-gradient-to-br",
-          unlocked ? config.bgGradient : "from-muted/10 to-muted/5",
+          unlocked ? config.gradient : "from-muted/10 to-muted/5",
           unlocked ? config.border : "border-muted/20",
           unlocked && `shadow-md ${config.glow}`,
           !unlocked && "opacity-60 grayscale",
@@ -91,14 +50,13 @@ export function AchievementBadge({
           "hover:shadow-lg"
         )}
       >
-
         {/* Subtle particles for legendary */}
-        {unlocked && rarity === "legendary" && !showOverlay && (
+        {unlocked && tier === "legendary" && !showOverlay && (
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             {[...Array(3)].map((_, i) => (
               <div
                 key={i}
-                className="absolute w-1 h-1 bg-amber-400/60 rounded-full animate-ping"
+                className="absolute w-1 h-1 bg-purple-400/60 rounded-full animate-ping"
                 style={{
                   left: `${20 + i * 25}%`,
                   top: `${25 + (i % 2) * 30}%`,
@@ -152,8 +110,8 @@ export function AchievementBadge({
                 <div className="h-2 bg-muted rounded-full overflow-hidden">
                   <div
                     className={cn(
-                      "h-full transition-all duration-700 ease-out rounded-full",
-                      config.progressColor
+                      "h-full transition-all duration-700 ease-out rounded-full bg-gradient-to-r",
+                      config.gradient.replace("/20", "/80").replace("/10", "/60")
                     )}
                     style={{ width: `${progress}%` }}
                   />
@@ -164,27 +122,31 @@ export function AchievementBadge({
               </div>
             )}
 
-            {/* Rarity Badge */}
+            {/* Tier Badge */}
             <Badge
               variant={unlocked ? "default" : "outline"}
               className={cn(
                 "text-xs capitalize font-medium",
-                unlocked && rarity === "legendary" && "bg-gradient-to-r from-amber-400 to-orange-500 text-black border-0"
+                unlocked && tier === "legendary" && "bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white border-0",
+                unlocked && tier === "gold" && "bg-gradient-to-r from-yellow-500 to-yellow-600 text-black border-0",
+                unlocked && tier === "silver" && "bg-gradient-to-r from-slate-400 to-slate-500 text-white border-0",
+                unlocked && tier === "bronze" && "bg-gradient-to-r from-amber-600 to-amber-700 text-white border-0"
               )}
             >
-              {rarity}
+              {config.label}
             </Badge>
           </div>
         )}
-
 
         {/* Overlay on Click */}
         {showOverlay && (
           <div
             className={cn(
-              "absolute inset-0 rounded-xl bg-gradient-to-br",
-              config.overlayGradient,
-              "flex flex-col justify-center items-center p-4",
+              "absolute inset-0 rounded-xl bg-gradient-to-br flex flex-col justify-center items-center p-4",
+              tier === "legendary" && "from-purple-600 via-fuchsia-500 to-purple-600",
+              tier === "gold" && "from-yellow-500 via-yellow-400 to-yellow-600",
+              tier === "silver" && "from-slate-400 via-slate-300 to-slate-500",
+              tier === "bronze" && "from-amber-600 via-amber-500 to-amber-700",
               "animate-in fade-in zoom-in-95 duration-200"
             )}
           >
@@ -232,3 +194,6 @@ export function AchievementBadge({
     </div>
   );
 }
+
+// Re-export types for backward compatibility
+export type { AchievementTier, AchievementCategory };
