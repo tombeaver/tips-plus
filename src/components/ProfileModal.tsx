@@ -47,16 +47,17 @@ export function ProfileModal({ isOpen, onClose, userEmail, userCreatedAt, tipEnt
         throw new Error("No active session");
       }
 
-      // Call the edge function to delete the account (runs in background)
-      supabase.functions.invoke('delete-account', {
+      // Call the edge function to delete the account
+      const { error } = await supabase.functions.invoke('delete-account', {
         headers: {
           Authorization: `Bearer ${session.access_token}`
         }
       });
 
-      // Sign out immediately
+      if (error) throw error;
+
+      // Sign out after the delete request succeeds
       await supabase.auth.signOut();
-      
       toast.success("Your account has been permanently deleted.", { duration: 6000 });
       onClose();
     } catch (error: any) {
