@@ -40,13 +40,27 @@ export function ProfileModal({ isOpen, onClose, userEmail, userCreatedAt, tipEnt
   const handleDeleteAccount = async () => {
     setIsDeleting(true);
     try {
-      // Sign out the user - actual account deletion would require a server-side function
-      // For now, we sign out and inform the user to contact support for full deletion
-      await supabase.auth.signOut();
-      toast.success("You have been signed out. Contact support to complete account deletion.");
+      // Get the current session for the auth header
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error("No active session");
+      }
+
+      // Call the edge function to delete the account
+      const { data, error } = await supabase.functions.invoke('delete-account', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success("Your account has been permanently deleted.", { duration: 6000 });
       onClose();
     } catch (error: any) {
-      toast.error(error.message || "Failed to process request");
+      console.error("Delete account error:", error);
+      toast.error(error.message || "Failed to delete account");
       setIsDeleting(false);
     }
   };
