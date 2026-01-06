@@ -6,7 +6,15 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { setPageSEO } from '@/lib/seo';
 import { User, Session } from '@supabase/supabase-js';
+
+const isRecoveryUrl = () => {
+  const hashParams = new URLSearchParams(window.location.hash.substring(1));
+  const searchParams = new URLSearchParams(window.location.search);
+  const type = hashParams.get('type') ?? searchParams.get('type');
+  return type === 'recovery';
+};
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -15,51 +23,55 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(() => isRecoveryUrl());
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
+    setPageSEO({
+      title: 'Sign In | Tips+',
+      description: 'Sign in to Tips+ to track tips, earnings, and goals. Create an account or reset your password.',
+      canonicalPath: '/auth',
+    });
+  }, []);
+
+  useEffect(() => {
+    // In case the URL changes before auth initializes
+    if (isRecoveryUrl()) setIsPasswordRecovery(true);
+
     // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        // Check if this is a password recovery event
-        if (event === 'PASSWORD_RECOVERY') {
-          setIsPasswordRecovery(true);
-          return; // Don't redirect, let them reset password
-        }
-        
-        // Redirect authenticated users to main page (unless resetting password)
-        if (session?.user && !isPasswordRecovery) {
-          navigate('/');
-        }
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+
+      const recovery = event === 'PASSWORD_RECOVERY' || isRecoveryUrl();
+      if (recovery) {
+        setIsPasswordRecovery(true);
+        return;
       }
-    );
+
+      if (session?.user) {
+        navigate('/');
+      }
+    });
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
-      // Check URL for recovery token (hash fragment)
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      const type = hashParams.get('type');
-      
-      if (type === 'recovery') {
+
+      if (isRecoveryUrl()) {
         setIsPasswordRecovery(true);
         return;
       }
-      
-      if (session?.user && !isPasswordRecovery) {
+
+      if (session?.user) {
         navigate('/');
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, isPasswordRecovery]);
+  }, [navigate]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,10 +143,10 @@ const Auth = () => {
     }
 
     setLoading(true);
-    const redirectUrl = `${window.location.origin}/auth`;
-    
+    const redirectUrl = `${window.location.origin}/reset-password`;
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: redirectUrl
+      redirectTo: redirectUrl,
     });
 
     if (error) {
