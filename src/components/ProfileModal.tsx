@@ -29,7 +29,7 @@ export function ProfileModal({ isOpen, onClose, userEmail, userCreatedAt, tipEnt
       
       if (error) throw error;
       
-      toast.success("Password reset email sent! Check your inbox.");
+      toast.success("A password reset link has been sent to your email. Please check your inbox and spam folder.", { duration: 6000 });
     } catch (error: any) {
       toast.error(error.message || "Failed to send reset email");
     } finally {
