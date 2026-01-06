@@ -27,22 +27,32 @@ Deno.serve(async (req) => {
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
-    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } }
     })
 
-    // Get the user from the token
-    const { data: { user }, error: userError } = await userClient.auth.getUser()
+    // Validate the token using getClaims
+    const token = authHeader.replace('Bearer ', '')
+    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token)
     
-    if (userError || !user) {
-      console.error('Failed to get user:', userError)
+    if (claimsError || !claimsData?.claims) {
+      console.error('Failed to validate token:', claimsError)
       return new Response(
         JSON.stringify({ error: 'Invalid user token' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    console.log(`Deleting account for user: ${user.id}`)
+    const userId = claimsData.claims.sub as string
+    if (!userId) {
+      console.error('No user ID in token claims')
+      return new Response(
+        JSON.stringify({ error: 'Invalid user token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    console.log(`Deleting account for user: ${userId}`)
 
     // Create admin client to delete user data and auth record
     const adminClient = createClient(supabaseUrl, supabaseServiceKey)
@@ -54,7 +64,7 @@ Deno.serve(async (req) => {
       const { error: deleteError } = await adminClient
         .from(table)
         .delete()
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
       
       if (deleteError) {
         console.error(`Error deleting from ${table}:`, deleteError)
@@ -64,7 +74,7 @@ Deno.serve(async (req) => {
     }
 
     // Delete the user from auth.users
-    const { error: authDeleteError } = await adminClient.auth.admin.deleteUser(user.id)
+    const { error: authDeleteError } = await adminClient.auth.admin.deleteUser(userId)
     
     if (authDeleteError) {
       console.error('Error deleting auth user:', authDeleteError)
@@ -74,7 +84,7 @@ Deno.serve(async (req) => {
       )
     }
 
-    console.log(`Successfully deleted account for user: ${user.id}`)
+    console.log(`Successfully deleted account for user: ${userId}`)
 
     return new Response(
       JSON.stringify({ success: true, message: 'Account deleted successfully' }),
