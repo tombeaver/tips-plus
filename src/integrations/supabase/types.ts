@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievement_progress: {
+        Row: {
+          achievement_id: string
+          created_at: string
+          current_value: number
+          id: string
+          is_unlocked: boolean
+          target_value: number
+          unlocked_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          created_at?: string
+          current_value?: number
+          id?: string
+          is_unlocked?: boolean
+          target_value?: number
+          unlocked_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          created_at?: string
+          current_value?: number
+          id?: string
+          is_unlocked?: boolean
+          target_value?: number
+          unlocked_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       achievements: {
         Row: {
           achievement_id: string

@@ -15,9 +15,10 @@ import { EarningsCalendar } from '@/components/EarningsCalendar';
 import { PrivacyPolicy } from '@/components/PrivacyPolicy';
 import { AchievementsGallery } from '@/components/AchievementsGallery';
 import { AchievementsModal } from '@/components/AchievementsModal';
+import { ProfileModal } from '@/components/ProfileModal';
 import { AchievementUnlockModal } from '@/components/AchievementUnlockModal';
 import { YearInReviewModal, shouldShowYearInReview, markYearInReviewShown, getReviewYear } from '@/components/YearInReviewModal';
-import { CalendarDays, TrendingUp, Target, Plus, Wallet, LogOut, MessageCircle, Frown, Meh, Smile, Laugh, Zap, DollarSign, CreditCard, Clock, Receipt, Users, Trophy } from 'lucide-react';
+import { CalendarDays, TrendingUp, Target, Plus, Wallet, LogOut, MessageCircle, Frown, Meh, Smile, Laugh, Zap, DollarSign, CreditCard, Clock, Receipt, Users, Trophy, User as UserIcon } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
 import { useTipEntries, type TipEntry } from '@/hooks/useTipEntries';
 import { useGoals, type Goal } from '@/hooks/useGoals';
@@ -57,6 +58,7 @@ const Index = () => {
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const [showAchievementUnlock, setShowAchievementUnlock] = useState(false);
   const [showYearInReview, setShowYearInReview] = useState(false);
   const [entryToDelete, setEntryToDelete] = useState<string>('');
@@ -215,11 +217,11 @@ const Index = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setShowAchievements(true)}
+                onClick={() => setShowProfile(true)}
                 className="text-muted-foreground hover:text-foreground"
-                aria-label="View achievements"
+                aria-label="View profile"
               >
-                <Trophy className="h-4 w-4" />
+                <UserIcon className="h-4 w-4" />
               </Button>
             </div>
           </div>
@@ -569,6 +571,15 @@ const Index = () => {
           onClose={() => setShowAchievements(false)}
           achievements={achievements}
           loading={achievementsLoading}
+        />
+
+        {/* Profile Modal */}
+        <ProfileModal
+          isOpen={showProfile}
+          onClose={() => setShowProfile(false)}
+          userEmail={user?.email || ""}
+          userCreatedAt={user?.created_at || ""}
+          tipEntries={tipEntries}
         />
 
         {/* Achievement Unlock Celebration Modal */}
