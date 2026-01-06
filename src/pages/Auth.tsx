@@ -72,11 +72,6 @@ const Auth = () => {
         description: error.message,
         variant: "destructive"
       });
-    } else {
-      toast({
-        title: "Success!",
-        description: "Please check your email to confirm your account",
-      });
     }
     setLoading(false);
   };
