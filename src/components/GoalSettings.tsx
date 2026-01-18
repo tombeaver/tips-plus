@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Target, Plus } from 'lucide-react';
@@ -8,7 +8,8 @@ import { GoalSettingsForm } from '@/components/GoalSettingsForm';
 import { AnnualGoalCard } from '@/components/AnnualGoalCard';
 import { AnnualGoalModal } from '@/components/AnnualGoalModal';
 import { GoalShiftStrategy } from '@/components/GoalShiftStrategy';
-import { startOfYear, endOfYear, isWithinInterval, startOfMonth, endOfMonth, startOfWeek, endOfWeek } from 'date-fns';
+import { GoalCelebrationModal } from '@/components/GoalCelebrationModal';
+import { startOfYear, endOfYear, isWithinInterval, startOfMonth, endOfMonth, startOfWeek, endOfWeek, format } from 'date-fns';
 
 interface GoalSettingsProps {
   goals: Goal[];
@@ -31,6 +32,8 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
 }) => {
   const [showForm, setShowForm] = useState(false);
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
+  const [celebrationType, setCelebrationType] = useState<'weekly' | 'monthly' | null>(null);
+  const celebrationCheckedRef = useRef(false);
 
   const realEntries = tipEntries.filter(entry => !entry.isPlaceholder);
 
@@ -78,6 +81,49 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
       monthlyData: { target: monthlyTarget, earned: monthlyEarned },
     };
   }, [yearlyGoal, realEntries]);
+
+  // Check for goal achievements when component mounts or data changes
+  useEffect(() => {
+    if (!yearlyGoal || celebrationCheckedRef.current) return;
+    
+    const now = new Date();
+    const weekKey = format(startOfWeek(now), 'yyyy-ww');
+    const monthKey = format(startOfMonth(now), 'yyyy-MM');
+    
+    // Check localStorage for already celebrated periods
+    const celebratedWeeks = JSON.parse(localStorage.getItem('celebratedWeeks') || '[]');
+    const celebratedMonths = JSON.parse(localStorage.getItem('celebratedMonths') || '[]');
+    
+    const weeklyMet = weeklyData.earned >= weeklyData.target && weeklyData.target > 0;
+    const monthlyMet = monthlyData.earned >= monthlyData.target && monthlyData.target > 0;
+    
+    // Prioritize monthly celebration over weekly
+    if (monthlyMet && !celebratedMonths.includes(monthKey)) {
+      setCelebrationType('monthly');
+      celebrationCheckedRef.current = true;
+    } else if (weeklyMet && !celebratedWeeks.includes(weekKey)) {
+      setCelebrationType('weekly');
+      celebrationCheckedRef.current = true;
+    } else {
+      celebrationCheckedRef.current = true;
+    }
+  }, [yearlyGoal, weeklyData, monthlyData]);
+
+  const handleCloseCelebration = () => {
+    const now = new Date();
+    
+    if (celebrationType === 'weekly') {
+      const weekKey = format(startOfWeek(now), 'yyyy-ww');
+      const celebratedWeeks = JSON.parse(localStorage.getItem('celebratedWeeks') || '[]');
+      localStorage.setItem('celebratedWeeks', JSON.stringify([...celebratedWeeks, weekKey]));
+    } else if (celebrationType === 'monthly') {
+      const monthKey = format(startOfMonth(now), 'yyyy-MM');
+      const celebratedMonths = JSON.parse(localStorage.getItem('celebratedMonths') || '[]');
+      localStorage.setItem('celebratedMonths', JSON.stringify([...celebratedMonths, monthKey]));
+    }
+    
+    setCelebrationType(null);
+  };
 
   const averagePerShift = useMemo(() => {
     if (realEntries.length === 0) return 0;
@@ -175,6 +221,19 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
         financialData={financialData}
         hasBudgetSet={financialData.monthlyExpenses > 0}
         onNavigateToBudget={onNavigateToBudget}
+        weeklyEarned={weeklyData.earned}
+        weeklyTarget={weeklyData.target}
+        monthlyEarned={monthlyData.earned}
+        monthlyTarget={monthlyData.target}
+      />
+
+      {/* Goal Celebration Modal */}
+      <GoalCelebrationModal
+        isOpen={celebrationType !== null}
+        onClose={handleCloseCelebration}
+        type={celebrationType || 'weekly'}
+        earned={celebrationType === 'monthly' ? monthlyData.earned : weeklyData.earned}
+        target={celebrationType === 'monthly' ? monthlyData.target : weeklyData.target}
       />
     </div>
   );
