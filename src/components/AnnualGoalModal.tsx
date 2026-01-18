@@ -80,6 +80,13 @@ export const AnnualGoalModal: React.FC<AnnualGoalModalProps> = ({
   const weeksPassed = Math.floor(differenceInDays(now, yearStart) / 7);
   const weeksRemaining = Math.max(0, weeksInYear - weeksPassed);
 
+  // Calculate annual progress tracking
+  const daysPassed = differenceInDays(now, yearStart);
+  const daysInYear = 365;
+  const expectedProgress = yearlyGoal ? (daysPassed / daysInYear) * yearlyGoal.amount : 0;
+  const annualSurplus = yearlyAchieved - expectedProgress;
+  const isOnTrackAnnually = annualSurplus >= 0 || yearlyPercentage >= 100;
+
   // Use passed values if available, otherwise calculate
   const calculatedMonthlyTarget = yearlyGoal ? yearlyGoal.amount / 12 : 0;
   const calculatedWeeklyTarget = calculatedMonthlyTarget / (52 / 12);
@@ -181,12 +188,33 @@ export const AnnualGoalModal: React.FC<AnnualGoalModalProps> = ({
           <div className="p-4 pb-[50px] space-y-4">
             {/* Main Progress */}
             <div className="text-center py-4">
-              <p className="text-4xl font-bold text-foreground">
-                ${yearlyAchieved.toLocaleString()}
-              </p>
+              <div className="flex items-center justify-center gap-2">
+                <p className="text-4xl font-bold text-foreground">
+                  ${yearlyAchieved.toLocaleString()}
+                </p>
+                {yearlyPercentage >= 100 ? (
+                  <TrendingUp className="h-7 w-7 text-emerald-500" />
+                ) : isOnTrackAnnually ? (
+                  <TrendingUp className="h-7 w-7 text-emerald-500" />
+                ) : (
+                  <TrendingDown className="h-7 w-7 text-amber-500" />
+                )}
+              </div>
               <p className="text-muted-foreground text-sm mt-1">
                 of ${yearlyGoal?.amount.toLocaleString() || '0'} annual goal
               </p>
+              {/* Annual Surplus/Deficit */}
+              {yearlyGoal && (
+                <div className={`mt-2 flex items-center justify-center gap-1 text-sm font-medium ${
+                  isOnTrackAnnually ? 'text-emerald-600' : 'text-amber-600'
+                }`}>
+                  {isOnTrackAnnually ? (
+                    <span>+${Math.abs(annualSurplus).toLocaleString(undefined, { maximumFractionDigits: 0 })} ahead of schedule</span>
+                  ) : (
+                    <span>${Math.abs(annualSurplus).toLocaleString(undefined, { maximumFractionDigits: 0 })} behind schedule</span>
+                  )}
+                </div>
+              )}
               <div className="mt-4 mx-auto max-w-xs">
                 <Progress value={yearlyPercentage} className="h-3" />
                 <div className="flex justify-between text-xs text-muted-foreground mt-1">
