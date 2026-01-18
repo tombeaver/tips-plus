@@ -33,6 +33,11 @@ interface AnnualGoalModalProps {
   financialData?: FinancialData;
   hasBudgetSet?: boolean;
   onNavigateToBudget?: () => void;
+  // Surplus/deficit props
+  weeklyEarned?: number;
+  weeklyTarget?: number;
+  monthlyEarned?: number;
+  monthlyTarget?: number;
 }
 
 export const AnnualGoalModal: React.FC<AnnualGoalModalProps> = ({
@@ -49,6 +54,10 @@ export const AnnualGoalModal: React.FC<AnnualGoalModalProps> = ({
   financialData,
   hasBudgetSet = false,
   onNavigateToBudget,
+  weeklyEarned: passedWeeklyEarned,
+  weeklyTarget: passedWeeklyTarget,
+  monthlyEarned: passedMonthlyEarned,
+  monthlyTarget: passedMonthlyTarget,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [goalAmount, setGoalAmount] = useState('');
@@ -71,9 +80,12 @@ export const AnnualGoalModal: React.FC<AnnualGoalModalProps> = ({
   const weeksPassed = Math.floor(differenceInDays(now, yearStart) / 7);
   const weeksRemaining = Math.max(0, weeksInYear - weeksPassed);
 
-  // Calculate targets
-  const monthlyTarget = yearlyGoal ? yearlyGoal.amount / 12 : 0;
-  const weeklyTarget = monthlyTarget / (52 / 12);
+  // Use passed values if available, otherwise calculate
+  const calculatedMonthlyTarget = yearlyGoal ? yearlyGoal.amount / 12 : 0;
+  const calculatedWeeklyTarget = calculatedMonthlyTarget / (52 / 12);
+  
+  const weeklyTarget = passedWeeklyTarget ?? calculatedWeeklyTarget;
+  const monthlyTarget = passedMonthlyTarget ?? calculatedMonthlyTarget;
 
   // Calculate current period earnings
   const calculateTotalEarnings = (entry: TipEntry) => {
@@ -87,16 +99,20 @@ export const AnnualGoalModal: React.FC<AnnualGoalModalProps> = ({
   const monthStart = startOfMonth(now);
   const monthEnd = endOfMonth(now);
 
-  const currentWeekEarnings = realEntries
+  const calculatedWeeklyEarnings = realEntries
     .filter(entry => isWithinInterval(entry.date, { start: weekStart, end: weekEnd }))
     .reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
 
-  const currentMonthEarnings = realEntries
+  const calculatedMonthlyEarnings = realEntries
     .filter(entry => isWithinInterval(entry.date, { start: monthStart, end: monthEnd }))
     .reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
 
-  const weeklyNeeded = Math.max(0, weeklyTarget - currentWeekEarnings);
-  const monthlyNeeded = Math.max(0, monthlyTarget - currentMonthEarnings);
+  const currentWeekEarnings = passedWeeklyEarned ?? calculatedWeeklyEarnings;
+  const currentMonthEarnings = passedMonthlyEarned ?? calculatedMonthlyEarnings;
+
+  // Calculate surplus/deficit
+  const weeklySurplus = currentWeekEarnings - weeklyTarget;
+  const monthlySurplus = currentMonthEarnings - monthlyTarget;
   const weeklyProgress = weeklyTarget > 0 ? Math.min((currentWeekEarnings / weeklyTarget) * 100, 100) : 0;
   const monthlyProgress = monthlyTarget > 0 ? Math.min((currentMonthEarnings / monthlyTarget) * 100, 100) : 0;
 
@@ -122,6 +138,8 @@ export const AnnualGoalModal: React.FC<AnnualGoalModalProps> = ({
     }
   };
 
+  const weeklyNeeded = Math.max(0, -weeklySurplus);
+  const monthlyNeeded = Math.max(0, -monthlySurplus);
   const shiftsNeededWeekly = averagePerShift > 0 ? Math.ceil(weeklyNeeded / averagePerShift) : 0;
   const shiftsNeededMonthly = averagePerShift > 0 ? Math.ceil(monthlyNeeded / averagePerShift) : 0;
 
@@ -180,7 +198,7 @@ export const AnnualGoalModal: React.FC<AnnualGoalModalProps> = ({
 
             {/* Weekly & Monthly Breakdown */}
             <div className="grid grid-cols-2 gap-3">
-              <Card className="bg-muted/30">
+              <Card className={`${weeklySurplus >= 0 ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-muted/30'}`}>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Clock className="h-4 w-4 text-muted-foreground" />
@@ -189,10 +207,28 @@ export const AnnualGoalModal: React.FC<AnnualGoalModalProps> = ({
                   <p className="text-xl font-bold">${currentWeekEarnings.toFixed(0)}</p>
                   <p className="text-xs text-muted-foreground">of ${weeklyTarget.toFixed(0)}</p>
                   <Progress value={weeklyProgress} className="h-1.5 mt-2" />
+                  {/* Surplus/Deficit indicator */}
+                  {weeklyTarget > 0 && (
+                    <div className={`mt-2 flex items-center gap-1 text-xs font-medium ${
+                      weeklySurplus >= 0 ? 'text-emerald-600' : 'text-amber-600'
+                    }`}>
+                      {weeklySurplus >= 0 ? (
+                        <>
+                          <TrendingUp className="h-3 w-3" />
+                          <span>+${weeklySurplus.toFixed(0)} surplus</span>
+                        </>
+                      ) : (
+                        <>
+                          <TrendingDown className="h-3 w-3" />
+                          <span>${Math.abs(weeklySurplus).toFixed(0)} to go</span>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
-              <Card className="bg-muted/30">
+              <Card className={`${monthlySurplus >= 0 ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-muted/30'}`}>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -201,6 +237,24 @@ export const AnnualGoalModal: React.FC<AnnualGoalModalProps> = ({
                   <p className="text-xl font-bold">${currentMonthEarnings.toFixed(0)}</p>
                   <p className="text-xs text-muted-foreground">of ${monthlyTarget.toFixed(0)}</p>
                   <Progress value={monthlyProgress} className="h-1.5 mt-2" />
+                  {/* Surplus/Deficit indicator */}
+                  {monthlyTarget > 0 && (
+                    <div className={`mt-2 flex items-center gap-1 text-xs font-medium ${
+                      monthlySurplus >= 0 ? 'text-emerald-600' : 'text-amber-600'
+                    }`}>
+                      {monthlySurplus >= 0 ? (
+                        <>
+                          <TrendingUp className="h-3 w-3" />
+                          <span>+${monthlySurplus.toFixed(0)} surplus</span>
+                        </>
+                      ) : (
+                        <>
+                          <TrendingDown className="h-3 w-3" />
+                          <span>${Math.abs(monthlySurplus).toFixed(0)} to go</span>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
