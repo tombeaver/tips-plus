@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { TrendingUp, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { TrendingUp, TrendingDown, ChevronRight, CheckCircle2 } from 'lucide-react';
 import { differenceInDays, startOfYear } from 'date-fns';
 
 interface AnnualGoalCardProps {
@@ -64,7 +64,16 @@ export const AnnualGoalCard: React.FC<AnnualGoalCardProps> = ({
         <div className="space-y-2">
           <div className="flex justify-between items-end">
             <div>
-              <p className="text-3xl font-bold">${yearlyAchieved.toLocaleString()}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-3xl font-bold">${yearlyAchieved.toLocaleString()}</p>
+                {isComplete ? (
+                  <TrendingUp className="h-6 w-6 text-green-300" />
+                ) : isOnTrack ? (
+                  <TrendingUp className="h-6 w-6 text-green-300" />
+                ) : (
+                  <TrendingDown className="h-6 w-6 text-amber-300" />
+                )}
+              </div>
               <p className="text-sm text-white/70">of ${yearlyGoal.toLocaleString()}</p>
             </div>
             <div className="text-right">
