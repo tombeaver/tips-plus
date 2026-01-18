@@ -8,7 +8,7 @@ import { FinancialHealthScoreModal } from '@/components/FinancialHealthScoreModa
 import { BudgetInput } from '@/components/BudgetInput';
 import { ShiftRecommendations } from '@/components/ShiftRecommendations';
 import { ContextualFinanceTips } from '@/components/ContextualFinanceTips';
-import { startOfMonth, endOfMonth, isWithinInterval, differenceInDays, endOfWeek } from 'date-fns';
+import { startOfMonth, endOfMonth, isWithinInterval, differenceInDays } from 'date-fns';
 
 interface FinanceStrategyProps {
   financialData: FinancialData;
@@ -54,9 +54,8 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
     const allMonthEntries = allEntries.filter(entry => isWithinInterval(entry.date, { start: monthStart, end: monthEnd }));
     const projectedMonthTotal = allMonthEntries.reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
     
-    // Calculate days left in week (through Saturday) - more relevant for service industry
-    const weekEnd = endOfWeek(now, { weekStartsOn: 0 }); // Week ends on Saturday (day 6)
-    const daysLeftInWeek = Math.max(0, differenceInDays(weekEnd, now) + 1); // +1 to include today
+    // Calculate days left in month (including today)
+    const daysLeftInMonth = Math.max(0, differenceInDays(monthEnd, now) + 1);
     
     // Calculate shifts worked this month (count doubles as 2)
     const shiftsWorkedThisMonth = monthEntries.reduce((sum, entry) => sum + (entry.shift === 'Double' ? 2 : 1), 0);
@@ -75,7 +74,7 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
       monthlyIncome: monthTotal,
       projectedMonthlyIncome: projectedMonthTotal,
       shiftsWorkedThisMonth,
-      daysLeftInWeek,
+      daysLeftInMonth,
       currentSavings,
       totalExpenses,
       monthlyTargetIncome,
@@ -138,7 +137,7 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
           monthlyTargetIncome={financialMetrics.monthlyTargetIncome}
           averagePerShift={financialMetrics.averagePerShift}
           shiftsWorkedThisMonth={financialMetrics.shiftsWorkedThisMonth}
-          daysLeftInWeek={financialMetrics.daysLeftInWeek}
+          daysLeftInMonth={financialMetrics.daysLeftInMonth}
         />
       )}
 
