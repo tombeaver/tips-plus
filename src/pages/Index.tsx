@@ -18,7 +18,7 @@ import { AchievementsModal } from '@/components/AchievementsModal';
 import { ProfileModal } from '@/components/ProfileModal';
 import { AchievementUnlockModal } from '@/components/AchievementUnlockModal';
 import { YearInReviewModal, shouldShowYearInReview, markYearInReviewShown, getReviewYear } from '@/components/YearInReviewModal';
-import { WelcomeModal } from '@/components/WelcomeModal';
+import { useDemoData } from '@/hooks/useDemoData';
 import { OnboardingTour } from '@/components/OnboardingTour';
 import { useOnboarding, type TabKey } from '@/hooks/useOnboarding';
 import { CalendarDays, TrendingUp, Target, Plus, Wallet, LogOut, MessageCircle, Frown, Meh, Smile, Laugh, Zap, DollarSign, CreditCard, Clock, Receipt, Users, Trophy, User as UserIcon } from 'lucide-react';
@@ -50,16 +50,23 @@ const Index = () => {
   const tabsRef = React.useRef<HTMLDivElement>(null);
   const stickyTriggerRef = React.useRef<HTMLDivElement>(null);
   
-  const { tipEntries, loading: tipEntriesLoading, addTipEntry, updateTipEntry, deleteTipEntry } = useTipEntries();
-  const { goals, financialData, loading: goalsLoading, addGoal, updateGoal, deleteGoal, updateFinancialData } = useGoals();
-  const { achievements, loading: achievementsLoading } = useAchievements(tipEntries, goals, financialData);
+  const { tipEntries: realTipEntries, loading: tipEntriesLoading, addTipEntry, updateTipEntry, deleteTipEntry } = useTipEntries();
+  const { goals: realGoals, financialData: realFinancialData, loading: goalsLoading, addGoal, updateGoal, deleteGoal, updateFinancialData } = useGoals();
   const {
-    showWelcome,
+    isOnboardingActive,
     currentOnboardingTab,
-    completeWelcome,
     checkTabOnboarding,
     completeTabOnboarding,
+    skipAllOnboarding,
   } = useOnboarding();
+  const { demoEntries, demoGoals, demoFinancialData } = useDemoData();
+  
+  // Use demo data during onboarding, real data after
+  const tipEntries = isOnboardingActive ? demoEntries : realTipEntries;
+  const goals = isOnboardingActive ? demoGoals : realGoals;
+  const financialData = isOnboardingActive ? demoFinancialData : realFinancialData;
+  
+  const { achievements, loading: achievementsLoading } = useAchievements(tipEntries, goals, financialData);
   const [showEntryForm, setShowEntryForm] = useState(false);
   const [activeTab, setActiveTab] = useState<TabKey>("calendar");
   const [sections, setSections] = useState<{ [key: string]: string }>(createDefaultSections());
@@ -614,15 +621,11 @@ const Index = () => {
           year={getReviewYear()}
         />
 
-        {/* Onboarding */}
-        <WelcomeModal
-          isOpen={showWelcome}
-          onClose={completeWelcome}
-        />
+        {/* Onboarding Tour */}
         <OnboardingTour
           activeTab={currentOnboardingTab}
           onComplete={() => currentOnboardingTab && completeTabOnboarding(currentOnboardingTab)}
-          onSkip={() => currentOnboardingTab && completeTabOnboarding(currentOnboardingTab)}
+          onSkip={skipAllOnboarding}
         />
       </div>
     </div>
