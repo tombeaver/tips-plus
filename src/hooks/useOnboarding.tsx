@@ -6,33 +6,45 @@ export type TabKey = 'calendar' | 'analytics' | 'finance' | 'goals';
 
 interface OnboardingState {
   completedTabs: TabKey[];
-  hasSeenWelcome: boolean;
+  hasCompletedOnboarding: boolean;
 }
 
 const getInitialState = (): OnboardingState => {
   try {
     const stored = localStorage.getItem(ONBOARDING_KEY);
     if (stored) {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      // Migration: convert old format
+      if ('hasSeenWelcome' in parsed) {
+        return {
+          completedTabs: parsed.completedTabs || [],
+          hasCompletedOnboarding: parsed.hasSeenWelcome && parsed.completedTabs?.length >= 4,
+        };
+      }
+      return parsed;
     }
   } catch (e) {
     console.error('Error reading onboarding state:', e);
   }
   return {
     completedTabs: [],
-    hasSeenWelcome: false,
+    hasCompletedOnboarding: false,
   };
 };
 
 export const useOnboarding = () => {
   const [state, setState] = useState<OnboardingState>(getInitialState);
   const [currentOnboardingTab, setCurrentOnboardingTab] = useState<TabKey | null>(null);
-  const [showWelcome, setShowWelcome] = useState(false);
+  const [isOnboardingActive, setIsOnboardingActive] = useState(false);
 
-  // Check if we need to show welcome on mount
+  // Start onboarding on mount if not completed
   useEffect(() => {
-    if (!state.hasSeenWelcome) {
-      setShowWelcome(true);
+    if (!state.hasCompletedOnboarding) {
+      setIsOnboardingActive(true);
+      // Start with calendar tab onboarding
+      if (!state.completedTabs.includes('calendar')) {
+        setCurrentOnboardingTab('calendar');
+      }
     }
   }, []);
 
@@ -45,35 +57,46 @@ export const useOnboarding = () => {
     }
   }, [state]);
 
-  const completeWelcome = useCallback(() => {
-    setState(prev => ({ ...prev, hasSeenWelcome: true }));
-    setShowWelcome(false);
-    // After welcome, trigger calendar onboarding
-    setCurrentOnboardingTab('calendar');
-  }, []);
-
   const checkTabOnboarding = useCallback((tab: TabKey) => {
-    // Only show tab onboarding if welcome is complete and tab hasn't been onboarded
-    if (state.hasSeenWelcome && !state.completedTabs.includes(tab)) {
+    // Only show tab onboarding if in onboarding mode and tab hasn't been completed
+    if (isOnboardingActive && !state.completedTabs.includes(tab)) {
       setCurrentOnboardingTab(tab);
     }
-  }, [state.hasSeenWelcome, state.completedTabs]);
+  }, [isOnboardingActive, state.completedTabs]);
 
   const completeTabOnboarding = useCallback((tab: TabKey) => {
+    const newCompletedTabs = [...state.completedTabs, tab];
+    const allTabsComplete = newCompletedTabs.length >= 4;
+    
     setState(prev => ({
       ...prev,
-      completedTabs: [...prev.completedTabs, tab],
+      completedTabs: newCompletedTabs,
+      hasCompletedOnboarding: allTabsComplete,
     }));
+    
     setCurrentOnboardingTab(null);
+    
+    if (allTabsComplete) {
+      setIsOnboardingActive(false);
+    }
+  }, [state.completedTabs]);
+
+  const skipAllOnboarding = useCallback(() => {
+    setState({
+      completedTabs: ['calendar', 'analytics', 'finance', 'goals'],
+      hasCompletedOnboarding: true,
+    });
+    setCurrentOnboardingTab(null);
+    setIsOnboardingActive(false);
   }, []);
 
   const resetOnboarding = useCallback(() => {
     setState({
       completedTabs: [],
-      hasSeenWelcome: false,
+      hasCompletedOnboarding: false,
     });
-    setShowWelcome(true);
-    setCurrentOnboardingTab(null);
+    setCurrentOnboardingTab('calendar');
+    setIsOnboardingActive(true);
   }, []);
 
   const isTabOnboarded = useCallback((tab: TabKey) => {
@@ -81,13 +104,13 @@ export const useOnboarding = () => {
   }, [state.completedTabs]);
 
   return {
-    showWelcome,
+    isOnboardingActive,
     currentOnboardingTab,
-    completeWelcome,
     checkTabOnboarding,
     completeTabOnboarding,
+    skipAllOnboarding,
     resetOnboarding,
     isTabOnboarded,
-    hasSeenWelcome: state.hasSeenWelcome,
+    hasCompletedOnboarding: state.hasCompletedOnboarding,
   };
 };
