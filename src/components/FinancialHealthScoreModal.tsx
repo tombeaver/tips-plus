@@ -279,19 +279,46 @@ export const FinancialHealthScoreModal: React.FC<FinancialHealthScoreModalProps>
               </Card>
             )}
 
+            {/* What is this score? Explanation */}
+            <Card className="bg-muted/30 border-primary/30">
+              <CardContent className="p-4 space-y-3">
+                <p className="font-medium text-sm flex items-center gap-2">
+                  <Target className="h-4 w-4 text-primary" />
+                  What is this score?
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Your Financial Health Score (0-100) measures how well you're managing your money this month. It's calculated from three key factors:
+                </p>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-start gap-2">
+                    <span className="text-primary font-bold">40%</span>
+                    <span className="text-muted-foreground"><strong>Income vs Expenses</strong> — Are you earning more than you're spending?</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-primary font-bold">30%</span>
+                    <span className="text-muted-foreground"><strong>Savings Rate</strong> — What percentage of income are you saving?</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-primary font-bold">30%</span>
+                    <span className="text-muted-foreground"><strong>Goal Progress</strong> — Are you on track to hit your savings goal?</span>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground italic pt-1">
+                  Your score is pro-rated based on day {dayOfMonth} of {daysInMonth}, giving you a fair picture at any point in the month.
+                </p>
+              </CardContent>
+            </Card>
+
             {/* Score Breakdown */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-muted-foreground">Score Breakdown</p>
-                <span className="text-xs text-muted-foreground">Day {dayOfMonth} of {daysInMonth}</span>
-              </div>
+              <p className="text-sm font-medium text-muted-foreground">Your Score Breakdown</p>
               <div className="space-y-2">
                 <div className="flex justify-between items-center py-2 border-b border-border/50">
                   <span className="text-sm text-muted-foreground">Income vs Expenses</span>
                   <span className="font-medium">{incomeExpensePoints}/40 pts</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-border/50">
-                  <span className="text-sm text-muted-foreground">Savings Rate</span>
+                  <span className="text-sm text-muted-foreground">Savings Rate ({savingsRate.toFixed(0)}%)</span>
                   <span className="font-medium">{savingsPoints}/30 pts</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-border/50">
@@ -299,9 +326,6 @@ export const FinancialHealthScoreModal: React.FC<FinancialHealthScoreModalProps>
                   <span className="font-medium">{goalPoints}/30 pts</span>
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground pt-2">
-                Expenses and savings goals are pro-rated based on how far into the month you are, so your score reflects a fair comparison at any point.
-              </p>
             </div>
 
             {/* Goal Setup Prompt (if goal not set) */}
