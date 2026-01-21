@@ -19,7 +19,7 @@ import { ProfileModal } from '@/components/ProfileModal';
 import { AchievementUnlockModal } from '@/components/AchievementUnlockModal';
 import { YearInReviewModal, shouldShowYearInReview, markYearInReviewShown, getReviewYear } from '@/components/YearInReviewModal';
 import { WelcomeModal } from '@/components/WelcomeModal';
-import { OnboardingModal } from '@/components/OnboardingModal';
+import { OnboardingTour } from '@/components/OnboardingTour';
 import { useOnboarding, type TabKey } from '@/hooks/useOnboarding';
 import { CalendarDays, TrendingUp, Target, Plus, Wallet, LogOut, MessageCircle, Frown, Meh, Smile, Laugh, Zap, DollarSign, CreditCard, Clock, Receipt, Users, Trophy, User as UserIcon } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
@@ -296,7 +296,7 @@ const Index = () => {
 
           {/* Calendar Tab */}
           <TabsContent value="calendar" className="space-group">
-            <Card className="card-interactive">
+            <Card id="earnings-calendar" className="card-interactive">
               <CardContent className="pt-6">
                 <EarningsCalendar
                   selected={selectedDate}
@@ -318,7 +318,7 @@ const Index = () => {
 
 
             {/* Selected Date Info */}
-            <Card className="card-interactive">
+            <Card id="selected-date-card" className="card-interactive">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div>
@@ -456,6 +456,7 @@ const Index = () => {
                   </div>
                 ) : (
                   <Button 
+                    id="add-entry-button"
                     className="w-full interactive-glow" 
                     size="lg"
                     onClick={() => setShowEntryForm(true)}
@@ -613,15 +614,15 @@ const Index = () => {
           year={getReviewYear()}
         />
 
-        {/* Onboarding Modals */}
+        {/* Onboarding */}
         <WelcomeModal
           isOpen={showWelcome}
           onClose={completeWelcome}
         />
-        <OnboardingModal
-          isOpen={currentOnboardingTab !== null}
-          onClose={() => currentOnboardingTab && completeTabOnboarding(currentOnboardingTab)}
-          tab={currentOnboardingTab}
+        <OnboardingTour
+          activeTab={currentOnboardingTab}
+          onComplete={() => currentOnboardingTab && completeTabOnboarding(currentOnboardingTab)}
+          onSkip={() => currentOnboardingTab && completeTabOnboarding(currentOnboardingTab)}
         />
       </div>
     </div>

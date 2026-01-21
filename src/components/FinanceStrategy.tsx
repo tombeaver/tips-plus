@@ -100,20 +100,24 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
 
       {/* Financial Health Score OR Budget Input based on whether budget is set */}
       {hasBudgetSet ? (
-        <FinancialHealthScore
-          monthlyIncome={financialMetrics.monthlyIncome}
-          monthlyExpenses={financialMetrics.totalExpenses}
-          monthlySavings={financialMetrics.currentSavings}
-          savingsGoal={financialData.monthlySavingsGoal}
-          onClick={() => setIsHealthScoreModalOpen(true)}
-        />
+        <div id="financial-health-score">
+          <FinancialHealthScore
+            monthlyIncome={financialMetrics.monthlyIncome}
+            monthlyExpenses={financialMetrics.totalExpenses}
+            monthlySavings={financialMetrics.currentSavings}
+            savingsGoal={financialData.monthlySavingsGoal}
+            onClick={() => setIsHealthScoreModalOpen(true)}
+          />
+        </div>
       ) : (
-        <BudgetInput
-          monthlyExpenses={financialData.monthlyExpenses}
-          monthlySavingsGoal={financialData.monthlySavingsGoal}
-          monthlySpendingLimit={financialData.monthlySpendingLimit}
-          onSave={onUpdateFinancialData}
-        />
+        <div id="financial-health-score">
+          <BudgetInput
+            monthlyExpenses={financialData.monthlyExpenses}
+            monthlySavingsGoal={financialData.monthlySavingsGoal}
+            monthlySpendingLimit={financialData.monthlySpendingLimit}
+            onSave={onUpdateFinancialData}
+          />
+        </div>
       )}
 
       {/* Health Score Modal */}
@@ -132,25 +136,29 @@ export const FinanceStrategy: React.FC<FinanceStrategyProps> = ({
 
       {/* Shift Recommendations - only show when budget is set */}
       {hasBudgetSet && (
-        <ShiftRecommendations
-          monthlyIncome={financialMetrics.monthlyIncome}
-          monthlyTargetIncome={financialMetrics.monthlyTargetIncome}
-          averagePerShift={financialMetrics.averagePerShift}
-          shiftsWorkedThisMonth={financialMetrics.shiftsWorkedThisMonth}
-          daysLeftInMonth={financialMetrics.daysLeftInMonth}
-        />
+        <div id="shift-recommendations">
+          <ShiftRecommendations
+            monthlyIncome={financialMetrics.monthlyIncome}
+            monthlyTargetIncome={financialMetrics.monthlyTargetIncome}
+            averagePerShift={financialMetrics.averagePerShift}
+            shiftsWorkedThisMonth={financialMetrics.shiftsWorkedThisMonth}
+            daysLeftInMonth={financialMetrics.daysLeftInMonth}
+          />
+        </div>
       )}
 
       {/* Contextual Tips - only show when budget is set */}
       {hasBudgetSet && (
-        <ContextualFinanceTips
-          monthlyIncome={financialMetrics.monthlyIncome}
-          monthlyExpenses={financialMetrics.totalExpenses}
-          monthlySavings={financialMetrics.currentSavings}
-          savingsGoal={financialData.monthlySavingsGoal}
-          averagePerShift={financialMetrics.averagePerShift}
-          shiftsWorkedThisMonth={financialMetrics.shiftsWorkedThisMonth}
-        />
+        <div id="finance-tips">
+          <ContextualFinanceTips
+            monthlyIncome={financialMetrics.monthlyIncome}
+            monthlyExpenses={financialMetrics.totalExpenses}
+            monthlySavings={financialMetrics.currentSavings}
+            savingsGoal={financialData.monthlySavingsGoal}
+            averagePerShift={financialMetrics.averagePerShift}
+            shiftsWorkedThisMonth={financialMetrics.shiftsWorkedThisMonth}
+          />
+        </div>
       )}
     </div>
   );
