@@ -16,6 +16,7 @@ import { PurpleModalHeader } from '@/components/PurpleModalHeader';
 interface TipEntryFormProps {
   selectedDate: Date;
   existingEntry?: TipEntry;
+  prefillData?: Omit<TipEntry, 'id'>;
   onSave: (entry: Omit<TipEntry, 'id'>) => void;
   onCancel: () => void;
   onDelete?: () => void;
@@ -27,6 +28,7 @@ interface TipEntryFormProps {
 export const TipEntryForm: React.FC<TipEntryFormProps> = ({
   selectedDate,
   existingEntry,
+  prefillData,
   onSave,
   onCancel,
   onDelete,
@@ -34,34 +36,36 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
   sections,
   onUpdateSections
 }) => {
+  // Use prefillData for onboarding, existingEntry for editing, or empty for new
+  const initialData = existingEntry || prefillData;
+  
   // Food sales is the main input (was totalSales)
   const [foodSales, setFoodSales] = useState(() => {
-    // If editing and we have breakdown, calculate food from total - alcohol - misc
-    if (existingEntry?.salesBreakdown) {
-      const breakdown = existingEntry.salesBreakdown;
+    if (initialData?.salesBreakdown) {
+      const breakdown = initialData.salesBreakdown;
       const additionalSales = breakdown.liquor + breakdown.beer + breakdown.wine + breakdown.misc;
-      return (existingEntry.totalSales - additionalSales).toString();
+      return (initialData.totalSales - additionalSales).toString();
     }
-    return existingEntry?.totalSales.toString() || '';
+    return initialData?.totalSales.toString() || '';
   });
-  const [salesBreakdownOpen, setSalesBreakdownOpen] = useState(false);
+  const [salesBreakdownOpen, setSalesBreakdownOpen] = useState(!!prefillData?.salesBreakdown);
   const [salesCategories, setSalesCategories] = useState({
-    liquor: existingEntry?.salesBreakdown?.liquor || 0,
-    beer: existingEntry?.salesBreakdown?.beer || 0,
-    wine: existingEntry?.salesBreakdown?.wine || 0,
-    misc: existingEntry?.salesBreakdown?.misc || 0,
+    liquor: initialData?.salesBreakdown?.liquor || 0,
+    beer: initialData?.salesBreakdown?.beer || 0,
+    wine: initialData?.salesBreakdown?.wine || 0,
+    misc: initialData?.salesBreakdown?.misc || 0,
   });
-  const [creditTips, setCreditTips] = useState(existingEntry?.creditTips.toString() || '');
-  const [cashTips, setCashTips] = useState(existingEntry?.cashTips.toString() || '');
-  const [guestCount, setGuestCount] = useState(existingEntry?.guestCount.toString() || '');
-  const [section, setSection] = useState(existingEntry?.section || '');
+  const [creditTips, setCreditTips] = useState(initialData?.creditTips?.toString() || '');
+  const [cashTips, setCashTips] = useState(initialData?.cashTips?.toString() || '');
+  const [guestCount, setGuestCount] = useState(initialData?.guestCount?.toString() || '');
+  const [section, setSection] = useState(initialData?.section || '');
   
-  const [shift, setShift] = useState<'AM' | 'PM' | 'Double'>(existingEntry?.shift || 'PM');
-  const [hoursWorked, setHoursWorked] = useState(existingEntry?.hoursWorked.toString() || '');
+  const [shift, setShift] = useState<'AM' | 'PM' | 'Double'>(initialData?.shift || 'PM');
+  const [hoursWorked, setHoursWorked] = useState(initialData?.hoursWorked?.toString() || '');
   const [hourlyRate, setHourlyRate] = useState(
-    existingEntry?.hourlyRate.toString() || previousEntry?.hourlyRate.toString() || ''
+    initialData?.hourlyRate?.toString() || previousEntry?.hourlyRate?.toString() || ''
   );
-  const [moodRating, setMoodRating] = useState<number | undefined>(existingEntry?.moodRating);
+  const [moodRating, setMoodRating] = useState<number | undefined>(initialData?.moodRating);
   const [showSectionEditor, setShowSectionEditor] = useState(false);
   const [editingSectionId, setEditingSectionId] = useState<string>('');
   const [editingSectionName, setEditingSectionName] = useState('');
