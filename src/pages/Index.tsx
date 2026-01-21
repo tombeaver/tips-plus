@@ -18,6 +18,9 @@ import { AchievementsModal } from '@/components/AchievementsModal';
 import { ProfileModal } from '@/components/ProfileModal';
 import { AchievementUnlockModal } from '@/components/AchievementUnlockModal';
 import { YearInReviewModal, shouldShowYearInReview, markYearInReviewShown, getReviewYear } from '@/components/YearInReviewModal';
+import { WelcomeModal } from '@/components/WelcomeModal';
+import { OnboardingModal } from '@/components/OnboardingModal';
+import { useOnboarding, type TabKey } from '@/hooks/useOnboarding';
 import { CalendarDays, TrendingUp, Target, Plus, Wallet, LogOut, MessageCircle, Frown, Meh, Smile, Laugh, Zap, DollarSign, CreditCard, Clock, Receipt, Users, Trophy, User as UserIcon } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
 import { useTipEntries, type TipEntry } from '@/hooks/useTipEntries';
@@ -50,8 +53,15 @@ const Index = () => {
   const { tipEntries, loading: tipEntriesLoading, addTipEntry, updateTipEntry, deleteTipEntry } = useTipEntries();
   const { goals, financialData, loading: goalsLoading, addGoal, updateGoal, deleteGoal, updateFinancialData } = useGoals();
   const { achievements, loading: achievementsLoading } = useAchievements(tipEntries, goals, financialData);
+  const {
+    showWelcome,
+    currentOnboardingTab,
+    completeWelcome,
+    checkTabOnboarding,
+    completeTabOnboarding,
+  } = useOnboarding();
   const [showEntryForm, setShowEntryForm] = useState(false);
-  const [activeTab, setActiveTab] = useState("calendar");
+  const [activeTab, setActiveTab] = useState<TabKey>("calendar");
   const [sections, setSections] = useState<{ [key: string]: string }>(createDefaultSections());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
@@ -232,7 +242,11 @@ const Index = () => {
         <div ref={stickyTriggerRef} />
         
         {/* Main Navigation */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={(value) => {
+          const tab = value as TabKey;
+          setActiveTab(tab);
+          checkTabOnboarding(tab);
+        }} className="w-full">
           <div 
             ref={tabsRef}
             className={`sticky z-50 transition-all duration-200 ${isSticky ? 'shadow-lg' : ''}`}
@@ -597,6 +611,17 @@ const Index = () => {
           }}
           tipEntries={tipEntries}
           year={getReviewYear()}
+        />
+
+        {/* Onboarding Modals */}
+        <WelcomeModal
+          isOpen={showWelcome}
+          onClose={completeWelcome}
+        />
+        <OnboardingModal
+          isOpen={currentOnboardingTab !== null}
+          onClose={() => currentOnboardingTab && completeTabOnboarding(currentOnboardingTab)}
+          tab={currentOnboardingTab}
         />
       </div>
     </div>
