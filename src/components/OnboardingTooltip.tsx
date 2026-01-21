@@ -172,14 +172,19 @@ export const OnboardingTooltip: React.FC<OnboardingTooltipProps> = ({
     };
   }, []);
 
-  // Lock body scroll during onboarding
+  // Scroll target into view when step changes
   useEffect(() => {
-    if (step && isVisible) {
-      document.body.style.overflow = 'hidden';
+    if (!step || !isVisible) return;
+    
+    const target = document.getElementById(step.targetId);
+    if (target) {
+      const rect = target.getBoundingClientRect();
+      const isInView = rect.top >= 80 && rect.bottom <= window.innerHeight - 100;
+      
+      if (!isInView) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
-    return () => {
-      document.body.style.overflow = '';
-    };
   }, [step, isVisible]);
 
   if (!step || !isVisible) return null;
@@ -196,10 +201,9 @@ export const OnboardingTooltip: React.FC<OnboardingTooltipProps> = ({
 
   return createPortal(
     <>
-      {/* Backdrop - blocks interaction but allows seeing the highlighted element */}
+      {/* Backdrop - semi-transparent, allows scroll but blocks clicks on non-highlighted */}
       <div 
-        className="fixed inset-0 bg-black/50 z-[9998] transition-opacity duration-300" 
-        onClick={(e) => e.stopPropagation()}
+        className="fixed inset-0 bg-black/40 z-[9998] transition-opacity duration-300 pointer-events-none" 
       />
       
       {/* Tooltip */}
