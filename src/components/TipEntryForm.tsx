@@ -612,7 +612,7 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
               </div>
             )}
 
-            <div className="flex gap-2 pt-4">
+            <div id="tip-entry-save-area" className="flex gap-2 pt-4">
               {onDelete && (
                 <Button 
                   type="button" 
@@ -625,6 +625,7 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
                 </Button>
               )}
               <Button 
+                id="tip-entry-save-button"
                 type="submit" 
                 disabled={!isValid}
                 className="flex-1"

@@ -60,9 +60,12 @@ export const OnboardingTooltip: React.FC<OnboardingTooltipProps> = ({
       positionUpdateRef.current = window.setTimeout(updatePosition, 100);
       return;
     }
-
-    // Add highlight to current target
-    target.classList.add('onboarding-highlight');
+    
+    // Skip highlighting for full-screen elements (like modals) to prevent flickering
+    const isFullScreen = rect.width >= window.innerWidth * 0.9 && rect.height >= window.innerHeight * 0.9;
+    if (!isFullScreen) {
+      target.classList.add('onboarding-highlight');
+    }
     previousTargetRef.current = target;
 
     const tooltipWidth = 300;

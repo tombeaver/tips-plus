@@ -69,11 +69,11 @@ const calendarSteps: OnboardingStep[] = [
   },
   {
     id: 'entry-form',
-    targetId: 'tip-entry-form',
-    title: 'Tip Entry Form',
-    description: 'This is where you log your sales, tips, hours worked, and more. We\'ve pre-filled an example - scroll down and tap Save!',
+    targetId: 'tip-entry-save-button',
+    title: 'Save Your Entry',
+    description: 'We\'ve pre-filled an example shift. Scroll down if needed and tap Save to log it!',
     action: 'wait',
-    position: 'bottom',
+    position: 'top',
   },
   {
     id: 'entry-saved',
