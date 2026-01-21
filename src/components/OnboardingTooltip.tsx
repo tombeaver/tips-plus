@@ -188,9 +188,14 @@ export const OnboardingTooltip: React.FC<OnboardingTooltipProps> = ({
     };
   }, []);
 
-  // Scroll target into view when step changes
+  // Scroll target into view when step changes (skip for elements inside modals/dialogs)
   useEffect(() => {
     if (!step || !isVisible) return;
+    
+    // Don't auto-scroll for form elements inside dialogs - let user explore naturally
+    if (step.targetId.includes('save') || step.targetId.includes('form')) {
+      return;
+    }
     
     const target = document.getElementById(step.targetId);
     if (target) {
