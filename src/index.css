@@ -4,17 +4,27 @@
 .onboarding-highlight {
   position: relative;
   z-index: 9999 !important;
-  box-shadow: 0 0 0 4px hsl(var(--primary) / 0.3), 0 0 20px hsl(var(--primary) / 0.2) !important;
-  border-radius: 12px;
-  animation: pulse-highlight 2s ease-in-out infinite;
+  outline: 3px solid hsl(var(--primary) / 0.6) !important;
+  outline-offset: 2px;
+  border-radius: 8px;
+  animation: pulse-highlight 1.5s ease-in-out infinite;
+}
+
+/* When highlighted element is inside a dialog/modal */
+[role="dialog"] .onboarding-highlight,
+.onboarding-highlight[id="tip-entry-form"] {
+  z-index: auto !important;
+  outline: 3px solid hsl(var(--primary) / 0.8) !important;
 }
 
 @keyframes pulse-highlight {
   0%, 100% {
-    box-shadow: 0 0 0 4px hsl(var(--primary) / 0.3), 0 0 20px hsl(var(--primary) / 0.2);
+    outline-color: hsl(var(--primary) / 0.6);
+    outline-offset: 2px;
   }
   50% {
-    box-shadow: 0 0 0 6px hsl(var(--primary) / 0.4), 0 0 30px hsl(var(--primary) / 0.3);
+    outline-color: hsl(var(--primary) / 0.9);
+    outline-offset: 4px;
   }
 }
 @tailwind components;
