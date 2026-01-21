@@ -514,7 +514,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
           </div>
 
           {/* Individual Metric Cards */}
-          <div className="grid grid-cols-2 gap-4">
+          <div id="analytics-insights" className="grid grid-cols-2 gap-4">
             {stats.hasAlcoholData && (
               <Card 
                 className="col-span-2 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.99]"

@@ -189,7 +189,7 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
 
   return (
     <Dialog open={true} onOpenChange={onCancel}>
-      <DialogContent className="w-screen h-screen max-w-none p-0 gap-0 border-0 flex flex-col">
+      <DialogContent id="tip-entry-form" className="w-screen h-screen max-w-none p-0 gap-0 border-0 flex flex-col">
         <PurpleModalHeader 
           title={existingEntry ? 'Edit Tip Entry' : 'Add Tip Entry'} 
           onClose={onCancel} 

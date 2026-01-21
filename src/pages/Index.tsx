@@ -54,9 +54,17 @@ const Index = () => {
   const { goals: realGoals, financialData: realFinancialData, loading: goalsLoading, addGoal, updateGoal, deleteGoal, updateFinancialData } = useGoals();
   const {
     isOnboardingActive,
-    currentOnboardingTab,
+    currentTab: currentOnboardingTab,
+    currentStep,
+    currentStepIndex,
+    totalSteps,
+    waitingForAction,
+    nextStep,
+    previousStep,
     checkTabOnboarding,
     completeTabOnboarding,
+    actionCompleted,
+    handleTargetClick,
     skipAllOnboarding,
   } = useOnboarding();
   const { demoEntries, demoGoals, demoFinancialData } = useDemoData();
@@ -272,7 +280,7 @@ const Index = () => {
               top: 0
             }}
           >
-            <TabsList className={`grid w-full grid-cols-4 shadow-sm transition-all duration-200 ${
+            <TabsList id="tab-list" className={`grid w-full grid-cols-4 shadow-sm transition-all duration-200 ${
               isSticky 
                 ? 'bg-background/80 border-0 rounded-lg max-w-md mx-auto' 
                 : 'bg-card/50 border rounded-lg backdrop-blur-sm'
@@ -623,9 +631,15 @@ const Index = () => {
 
         {/* Onboarding Tour */}
         <OnboardingTour
-          activeTab={currentOnboardingTab}
-          onComplete={() => currentOnboardingTab && completeTabOnboarding(currentOnboardingTab)}
+          step={currentStep}
+          currentStepIndex={currentStepIndex}
+          totalSteps={totalSteps}
+          isWaitingForAction={!!waitingForAction}
+          onNext={nextStep}
+          onPrevious={previousStep}
           onSkip={skipAllOnboarding}
+          onFinish={completeTabOnboarding}
+          onTargetClick={handleTargetClick}
         />
       </div>
     </div>

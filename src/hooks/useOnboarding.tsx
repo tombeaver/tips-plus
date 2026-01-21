@@ -1,8 +1,17 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
-const ONBOARDING_KEY = 'tips-plus-onboarding';
+const ONBOARDING_KEY = 'tips-plus-onboarding-v2';
 
 export type TabKey = 'calendar' | 'analytics' | 'finance' | 'goals';
+
+export interface OnboardingStep {
+  id: string;
+  targetId: string;
+  title: string;
+  description: string;
+  action?: 'click' | 'wait' | 'auto-advance';
+  position?: 'top' | 'bottom' | 'left' | 'right';
+}
 
 interface OnboardingState {
   completedTabs: TabKey[];
@@ -10,18 +19,13 @@ interface OnboardingState {
 }
 
 const getInitialState = (): OnboardingState => {
+  // For testing, always start fresh - remove this line for production
+  // return { completedTabs: [], hasCompletedOnboarding: false };
+  
   try {
     const stored = localStorage.getItem(ONBOARDING_KEY);
     if (stored) {
-      const parsed = JSON.parse(stored);
-      // Migration: convert old format
-      if ('hasSeenWelcome' in parsed) {
-        return {
-          completedTabs: parsed.completedTabs || [],
-          hasCompletedOnboarding: parsed.hasSeenWelcome && parsed.completedTabs?.length >= 4,
-        };
-      }
-      return parsed;
+      return JSON.parse(stored);
     }
   } catch (e) {
     console.error('Error reading onboarding state:', e);
@@ -32,23 +36,168 @@ const getInitialState = (): OnboardingState => {
   };
 };
 
+// Define steps for each tab
+const calendarSteps: OnboardingStep[] = [
+  {
+    id: 'tab-navigation',
+    targetId: 'tab-list',
+    title: 'Your Dashboard',
+    description: 'Navigate between Calendar, Analytics, Finance, and Goals to manage all aspects of your income.',
+    position: 'bottom',
+  },
+  {
+    id: 'calendar-view',
+    targetId: 'earnings-calendar',
+    title: 'Earnings Calendar',
+    description: 'Days you worked are highlighted in green. The brighter the green, the more you earned!',
+    position: 'bottom',
+  },
+  {
+    id: 'date-card',
+    targetId: 'selected-date-card',
+    title: 'Shift Details',
+    description: 'See your earnings breakdown for the selected date. Let\'s add an entry!',
+    position: 'top',
+  },
+  {
+    id: 'add-entry-prompt',
+    targetId: 'add-entry-button',
+    title: 'Log Your Shift',
+    description: 'Tap this button to record your tips and earnings.',
+    action: 'click',
+    position: 'top',
+  },
+  {
+    id: 'entry-form',
+    targetId: 'tip-entry-form',
+    title: 'Record Your Shift',
+    description: 'Fill in your sales, tips, and hours. We\'ve pre-filled an example - tap Save to continue!',
+    action: 'wait',
+    position: 'top',
+  },
+  {
+    id: 'entry-saved',
+    targetId: 'selected-date-card',
+    title: 'Great Job!',
+    description: 'Your entry is saved! You can always edit or delete it later. Tap Finish to complete the Calendar tour.',
+    position: 'top',
+  },
+];
+
+const analyticsSteps: OnboardingStep[] = [
+  {
+    id: 'analytics-overview',
+    targetId: 'analytics-period-selector',
+    title: 'Time Periods',
+    description: 'Switch between weekly, monthly, and yearly views to spot trends in your earnings.',
+    position: 'bottom',
+  },
+  {
+    id: 'analytics-charts',
+    targetId: 'analytics-charts',
+    title: 'Visual Insights',
+    description: 'Charts show your earnings patterns. Identify your best days and peak periods.',
+    position: 'top',
+  },
+  {
+    id: 'analytics-metrics',
+    targetId: 'analytics-insights',
+    title: 'Performance Metrics',
+    description: 'Tap any metric card to see detailed breakdowns and trends over time.',
+    position: 'top',
+  },
+];
+
+const financeSteps: OnboardingStep[] = [
+  {
+    id: 'budget-intro',
+    targetId: 'financial-health-score',
+    title: 'Set Your Budget',
+    description: 'Enter your monthly expenses and savings goal to unlock financial insights.',
+    position: 'bottom',
+  },
+  {
+    id: 'budget-save',
+    targetId: 'budget-save-button',
+    title: 'Save Your Budget',
+    description: 'Tap Save to set up your budget and see your Financial Health Score!',
+    action: 'wait',
+    position: 'top',
+  },
+  {
+    id: 'health-score',
+    targetId: 'financial-health-score',
+    title: 'Financial Health Score',
+    description: 'Your overall financial wellness on a 0-100 scale. Tap for a detailed breakdown and tips to improve.',
+    position: 'bottom',
+  },
+  {
+    id: 'shift-recommendations',
+    targetId: 'shift-recommendations',
+    title: 'Shift Calculator',
+    description: 'See exactly how many shifts you need this month to cover your expenses and savings.',
+    position: 'top',
+  },
+];
+
+const goalsSteps: OnboardingStep[] = [
+  {
+    id: 'goals-intro',
+    targetId: 'goals-progress',
+    title: 'Set Your Annual Goal',
+    description: 'Define your yearly income target and we\'ll break it into monthly and weekly milestones.',
+    position: 'bottom',
+  },
+  {
+    id: 'goals-save',
+    targetId: 'goal-save-button',
+    title: 'Save Your Goal',
+    description: 'Enter your target and tap Save to start tracking your progress!',
+    action: 'wait',
+    position: 'top',
+  },
+  {
+    id: 'goals-progress-view',
+    targetId: 'goals-progress',
+    title: 'Track Your Progress',
+    description: 'Watch your progress toward yearly, monthly, and weekly targets in real time.',
+    position: 'bottom',
+  },
+  {
+    id: 'goals-strategy',
+    targetId: 'goals-settings',
+    title: 'Shift Strategy',
+    description: 'See how many shifts you need to hit your targets based on your average earnings.',
+    position: 'top',
+  },
+];
+
+const stepsByTab: Record<TabKey, OnboardingStep[]> = {
+  calendar: calendarSteps,
+  analytics: analyticsSteps,
+  finance: financeSteps,
+  goals: goalsSteps,
+};
+
 export const useOnboarding = () => {
   const [state, setState] = useState<OnboardingState>(getInitialState);
-  const [currentOnboardingTab, setCurrentOnboardingTab] = useState<TabKey | null>(null);
+  const [currentTab, setCurrentTab] = useState<TabKey | null>(null);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isOnboardingActive, setIsOnboardingActive] = useState(false);
+  const [waitingForAction, setWaitingForAction] = useState<string | null>(null);
 
   // Start onboarding on mount if not completed
   useEffect(() => {
     if (!state.hasCompletedOnboarding) {
       setIsOnboardingActive(true);
-      // Start with calendar tab onboarding
       if (!state.completedTabs.includes('calendar')) {
-        setCurrentOnboardingTab('calendar');
+        setCurrentTab('calendar');
+        setCurrentStepIndex(0);
       }
     }
   }, []);
 
-  // Save state to localStorage whenever it changes
+  // Save state to localStorage
   useEffect(() => {
     try {
       localStorage.setItem(ONBOARDING_KEY, JSON.stringify(state));
@@ -57,15 +206,45 @@ export const useOnboarding = () => {
     }
   }, [state]);
 
-  const checkTabOnboarding = useCallback((tab: TabKey) => {
-    // Only show tab onboarding if in onboarding mode and tab hasn't been completed
-    if (isOnboardingActive && !state.completedTabs.includes(tab)) {
-      setCurrentOnboardingTab(tab);
-    }
-  }, [isOnboardingActive, state.completedTabs]);
+  const currentStep = useMemo(() => {
+    if (!currentTab) return null;
+    const steps = stepsByTab[currentTab];
+    return steps[currentStepIndex] || null;
+  }, [currentTab, currentStepIndex]);
 
-  const completeTabOnboarding = useCallback((tab: TabKey) => {
-    const newCompletedTabs = [...state.completedTabs, tab];
+  const totalSteps = useMemo(() => {
+    if (!currentTab) return 0;
+    return stepsByTab[currentTab].length;
+  }, [currentTab]);
+
+  const nextStep = useCallback(() => {
+    if (!currentTab) return;
+    
+    const steps = stepsByTab[currentTab];
+    if (currentStepIndex < steps.length - 1) {
+      const nextStepData = steps[currentStepIndex + 1];
+      setCurrentStepIndex(prev => prev + 1);
+      
+      // Set waiting state if next step requires action
+      if (nextStepData.action === 'wait' || nextStepData.action === 'click') {
+        setWaitingForAction(nextStepData.id);
+      } else {
+        setWaitingForAction(null);
+      }
+    }
+  }, [currentTab, currentStepIndex]);
+
+  const previousStep = useCallback(() => {
+    if (currentStepIndex > 0) {
+      setCurrentStepIndex(prev => prev - 1);
+      setWaitingForAction(null);
+    }
+  }, [currentStepIndex]);
+
+  const completeTabOnboarding = useCallback(() => {
+    if (!currentTab) return;
+    
+    const newCompletedTabs = [...state.completedTabs, currentTab];
     const allTabsComplete = newCompletedTabs.length >= 4;
     
     setState(prev => ({
@@ -74,29 +253,61 @@ export const useOnboarding = () => {
       hasCompletedOnboarding: allTabsComplete,
     }));
     
-    setCurrentOnboardingTab(null);
+    setCurrentTab(null);
+    setCurrentStepIndex(0);
+    setWaitingForAction(null);
     
     if (allTabsComplete) {
       setIsOnboardingActive(false);
     }
-  }, [state.completedTabs]);
+  }, [currentTab, state.completedTabs]);
+
+  const checkTabOnboarding = useCallback((tab: TabKey) => {
+    if (isOnboardingActive && !state.completedTabs.includes(tab)) {
+      setCurrentTab(tab);
+      setCurrentStepIndex(0);
+      setWaitingForAction(null);
+    }
+  }, [isOnboardingActive, state.completedTabs]);
+
+  // Called when user completes an action (like saving a form)
+  const actionCompleted = useCallback((actionId: string) => {
+    if (waitingForAction === actionId) {
+      setWaitingForAction(null);
+      nextStep();
+    }
+  }, [waitingForAction, nextStep]);
+
+  // Called when user clicks a highlighted element
+  const handleTargetClick = useCallback((targetId: string) => {
+    if (!currentStep) return;
+    
+    if (currentStep.action === 'click' && currentStep.targetId === targetId) {
+      nextStep();
+    }
+  }, [currentStep, nextStep]);
 
   const skipAllOnboarding = useCallback(() => {
     setState({
       completedTabs: ['calendar', 'analytics', 'finance', 'goals'],
       hasCompletedOnboarding: true,
     });
-    setCurrentOnboardingTab(null);
+    setCurrentTab(null);
+    setCurrentStepIndex(0);
     setIsOnboardingActive(false);
+    setWaitingForAction(null);
   }, []);
 
   const resetOnboarding = useCallback(() => {
+    localStorage.removeItem(ONBOARDING_KEY);
     setState({
       completedTabs: [],
       hasCompletedOnboarding: false,
     });
-    setCurrentOnboardingTab('calendar');
+    setCurrentTab('calendar');
+    setCurrentStepIndex(0);
     setIsOnboardingActive(true);
+    setWaitingForAction(null);
   }, []);
 
   const isTabOnboarded = useCallback((tab: TabKey) => {
@@ -105,9 +316,17 @@ export const useOnboarding = () => {
 
   return {
     isOnboardingActive,
-    currentOnboardingTab,
+    currentTab,
+    currentStep,
+    currentStepIndex,
+    totalSteps,
+    waitingForAction,
+    nextStep,
+    previousStep,
     checkTabOnboarding,
     completeTabOnboarding,
+    actionCompleted,
+    handleTargetClick,
     skipAllOnboarding,
     resetOnboarding,
     isTabOnboarded,

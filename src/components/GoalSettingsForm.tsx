@@ -146,6 +146,7 @@ export const GoalSettingsForm: React.FC<GoalSettingsFormProps> = ({
           
           <div className="flex gap-3 pt-2">
             <Button 
+              id="goal-save-button"
               type="submit" 
               className="flex-1"
               disabled={isSubmitting}
