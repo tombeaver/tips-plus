@@ -67,10 +67,13 @@ const Index = () => {
     handleTargetClick,
     skipAllOnboarding,
   } = useOnboarding();
-  const { demoEntries, demoGoals, demoFinancialData } = useDemoData();
+  const { demoEntries, demoGoals, demoFinancialData, getDemoFormEntry } = useDemoData();
+  const [onboardingDemoEntry, setOnboardingDemoEntry] = useState<TipEntry | null>(null);
   
   // Use demo data during onboarding, real data after
-  const tipEntries = isOnboardingActive ? demoEntries : realTipEntries;
+  // During calendar onboarding, show the saved demo entry if we're past the save step
+  const showOnboardingSavedEntry = isOnboardingActive && currentOnboardingTab === 'calendar' && onboardingDemoEntry;
+  const tipEntries = isOnboardingActive ? (showOnboardingSavedEntry ? [...demoEntries, onboardingDemoEntry] : demoEntries) : realTipEntries;
   const goals = isOnboardingActive ? demoGoals : realGoals;
   const financialData = isOnboardingActive ? demoFinancialData : realFinancialData;
   
@@ -474,7 +477,13 @@ const Index = () => {
                     id="add-entry-button"
                     className="w-full interactive-glow" 
                     size="lg"
-                    onClick={() => setShowEntryForm(true)}
+                    onClick={() => {
+                      // During onboarding, advance to entry form step
+                      if (isOnboardingActive && currentOnboardingTab === 'calendar') {
+                        handleTargetClick('add-entry-button');
+                      }
+                      setShowEntryForm(true);
+                    }}
                   >
                     <Plus className="h-5 w-5 mr-2" />
                     Add Tip Entry
@@ -521,10 +530,25 @@ const Index = () => {
             existingEntry={selectedEntry}
             previousEntry={getMostRecentEntry()}
             sections={sections}
-            onSave={selectedEntry ? 
-              (entry) => handleUpdateTipEntry(selectedEntry.id, entry) : 
-              handleAddTipEntry
-            }
+            // During onboarding, pre-fill with demo data
+            prefillData={isOnboardingActive && currentOnboardingTab === 'calendar' && !selectedEntry ? getDemoFormEntry(selectedDate) : undefined}
+            onSave={(entry) => {
+              // During onboarding, simulate saving by creating a demo entry
+              if (isOnboardingActive && currentOnboardingTab === 'calendar') {
+                const demoEntry: TipEntry = {
+                  ...entry,
+                  id: 'onboarding-demo-entry',
+                };
+                setOnboardingDemoEntry(demoEntry);
+                setShowEntryForm(false);
+                // Advance to the final step showing the saved entry
+                actionCompleted('entry-form');
+              } else if (selectedEntry) {
+                handleUpdateTipEntry(selectedEntry.id, entry);
+              } else {
+                handleAddTipEntry(entry);
+              }
+            }}
             onCancel={() => setShowEntryForm(false)}
             onDelete={selectedEntry ? 
               () => {
