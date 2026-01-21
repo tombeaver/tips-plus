@@ -48,7 +48,15 @@ export const OnboardingTooltip: React.FC<OnboardingTooltipProps> = ({
     }
     
     if (!target) {
-      // Element not found yet - retry
+      // Element not found yet - retry with slightly longer delay for dialogs
+      positionUpdateRef.current = window.setTimeout(updatePosition, 150);
+      return;
+    }
+    
+    // Check if target is visible and has dimensions
+    const rect = target.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) {
+      // Element exists but not yet rendered - retry
       positionUpdateRef.current = window.setTimeout(updatePosition, 100);
       return;
     }
@@ -57,7 +65,6 @@ export const OnboardingTooltip: React.FC<OnboardingTooltipProps> = ({
     target.classList.add('onboarding-highlight');
     previousTargetRef.current = target;
 
-    const rect = target.getBoundingClientRect();
     const tooltipWidth = 300;
     const tooltipHeight = 200;
     const padding = 12;
@@ -137,10 +144,16 @@ export const OnboardingTooltip: React.FC<OnboardingTooltipProps> = ({
     // Reset visibility for transition
     setIsVisible(false);
     
-    // Small delay for DOM updates, then position
+    // Check if target is inside a dialog - use longer delay for dialogs to fully render
+    const isDialogTarget = step.targetId === 'tip-entry-form' || 
+                           step.targetId.includes('form') ||
+                           step.targetId.includes('modal');
+    const delay = isDialogTarget ? 400 : 150;
+    
+    // Delay for DOM updates, then position
     const timer = setTimeout(() => {
       updatePosition();
-    }, 150);
+    }, delay);
 
     // Reposition on scroll/resize
     const handleReposition = () => {
