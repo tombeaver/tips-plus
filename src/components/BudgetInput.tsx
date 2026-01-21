@@ -238,6 +238,7 @@ export const BudgetInput: React.FC<BudgetInputProps> = ({
         </div>
 
         <Button 
+          id="budget-save-button"
           onClick={handleSave} 
           disabled={isSaving}
           className="w-full"
