@@ -70,6 +70,13 @@ const Index = () => {
   const { demoEntries, demoGoals, demoFinancialData, getDemoFormEntry } = useDemoData();
   const [onboardingDemoEntry, setOnboardingDemoEntry] = useState<TipEntry | null>(null);
   
+  // Clear demo entry when onboarding ends
+  useEffect(() => {
+    if (!isOnboardingActive) {
+      setOnboardingDemoEntry(null);
+    }
+  }, [isOnboardingActive]);
+  
   // Use demo data during onboarding, real data after
   // During calendar onboarding, show the saved demo entry if we're past the save step
   const showOnboardingSavedEntry = isOnboardingActive && currentOnboardingTab === 'calendar' && onboardingDemoEntry;
