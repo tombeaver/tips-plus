@@ -77,12 +77,17 @@ const Index = () => {
     }
   }, [isOnboardingActive]);
   
-  // Use demo data during onboarding, real data after
-  // During calendar onboarding, show the saved demo entry if we're past the save step
-  const showOnboardingSavedEntry = isOnboardingActive && currentOnboardingTab === 'calendar' && onboardingDemoEntry;
-  const tipEntries = isOnboardingActive ? (showOnboardingSavedEntry ? [...demoEntries, onboardingDemoEntry] : demoEntries) : realTipEntries;
-  const goals = isOnboardingActive ? demoGoals : realGoals;
-  const financialData = isOnboardingActive ? demoFinancialData : realFinancialData;
+  // Use demo data only during the active onboarding for that specific tab
+  // Once a tab's onboarding is complete, show real data for that section
+  const isCalendarOnboarding = isOnboardingActive && currentOnboardingTab === 'calendar';
+  const isGoalsOnboarding = isOnboardingActive && currentOnboardingTab === 'goals';
+  const isFinanceOnboarding = isOnboardingActive && currentOnboardingTab === 'finance';
+  
+  // Show demo entry during calendar onboarding if saved
+  const showOnboardingSavedEntry = isCalendarOnboarding && onboardingDemoEntry;
+  const tipEntries = isCalendarOnboarding ? (showOnboardingSavedEntry ? [...demoEntries, onboardingDemoEntry] : demoEntries) : realTipEntries;
+  const goals = isGoalsOnboarding ? demoGoals : realGoals;
+  const financialData = isFinanceOnboarding ? demoFinancialData : realFinancialData;
   
   const { achievements, loading: achievementsLoading } = useAchievements(tipEntries, goals, financialData);
   const [showEntryForm, setShowEntryForm] = useState(false);
