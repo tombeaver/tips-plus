@@ -395,7 +395,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
           <p className="body-md text-muted-foreground">
             Viewing data for: {getTimeFrameLabel()}
           </p>
-          <div className="flex items-center gap-2 mt-4">
+          <div id="analytics-period-selector" className="flex items-center gap-2 mt-4">
             <Select value={periodType} onValueChange={(value: 'all' | 'week' | 'month' | 'year') => setPeriodType(value)}>
               <SelectTrigger className="w-32">
                 <SelectValue />
@@ -434,6 +434,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         <>
           {/* Total Earnings Card with Stack Bar Chart */}
           <Card 
+            id="analytics-charts"
             className="bg-gradient-to-r from-emerald-500 to-emerald-600 cursor-pointer hover:shadow-lg transition-shadow active:scale-[0.99]"
             onClick={() => setSelectedMetric('totalEarnings')}
           >
@@ -647,7 +648,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
           </div>
 
           {/* Performance Analysis */}
-          <Card>
+          <Card id="analytics-insights">
             <CardHeader>
               <CardTitle className="text-lg">Performance Analysis</CardTitle>
               <CardDescription>Compare your earnings by section and day of week</CardDescription>
