@@ -159,32 +159,28 @@ export const GoalSettings: React.FC<GoalSettingsProps> = ({
       {/* Annual Goal Card OR Setup */}
       {yearlyGoal ? (
         <>
-          <div id="goals-progress">
-            <AnnualGoalCard
-              yearlyGoal={yearlyGoal.amount}
-              yearlyAchieved={yearlyProgress.achieved}
-              yearlyPercentage={yearlyProgress.percentage}
-              weeklyTarget={weeklyData.target}
-              weeklyEarned={weeklyData.earned}
-              monthlyTarget={monthlyData.target}
-              monthlyEarned={monthlyData.earned}
-              onClick={() => setIsGoalModalOpen(true)}
-            />
-          </div>
+          <AnnualGoalCard
+            yearlyGoal={yearlyGoal.amount}
+            yearlyAchieved={yearlyProgress.achieved}
+            yearlyPercentage={yearlyProgress.percentage}
+            weeklyTarget={weeklyData.target}
+            weeklyEarned={weeklyData.earned}
+            monthlyTarget={monthlyData.target}
+            monthlyEarned={monthlyData.earned}
+            onClick={() => setIsGoalModalOpen(true)}
+          />
           
           {/* Shift Strategy */}
-          <div id="goals-settings">
-            <GoalShiftStrategy
-              weeklyTarget={weeklyData.target}
-              weeklyEarned={weeklyData.earned}
-              monthlyTarget={monthlyData.target}
-              monthlyEarned={monthlyData.earned}
-              averagePerShift={averagePerShift}
-            />
-          </div>
+          <GoalShiftStrategy
+            weeklyTarget={weeklyData.target}
+            weeklyEarned={weeklyData.earned}
+            monthlyTarget={monthlyData.target}
+            monthlyEarned={monthlyData.earned}
+            averagePerShift={averagePerShift}
+          />
         </>
       ) : (
-        <Card id="goals-progress" className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+        <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
           <CardContent className="py-8">
             {!showForm ? (
               <div className="text-center">

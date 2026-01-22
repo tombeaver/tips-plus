@@ -1,34 +1,4 @@
 @tailwind base;
-
-/* Onboarding highlight effect */
-.onboarding-highlight {
-  position: relative;
-  z-index: 9999 !important;
-  outline: 3px solid hsl(var(--primary) / 0.7) !important;
-  outline-offset: 3px;
-  border-radius: 8px;
-  animation: pulse-highlight 1.5s ease-in-out infinite;
-  pointer-events: auto !important;
-  cursor: pointer;
-}
-
-/* When highlighted element is inside a dialog/modal */
-[role="dialog"] .onboarding-highlight,
-.onboarding-highlight[id="tip-entry-form"] {
-  z-index: auto !important;
-  outline: 3px solid hsl(var(--primary) / 0.8) !important;
-}
-
-@keyframes pulse-highlight {
-  0%, 100% {
-    outline-color: hsl(var(--primary) / 0.6);
-    outline-offset: 3px;
-  }
-  50% {
-    outline-color: hsl(var(--primary) / 1);
-    outline-offset: 5px;
-  }
-}
 @tailwind components;
 @tailwind utilities;
 

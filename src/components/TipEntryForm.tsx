@@ -16,7 +16,6 @@ import { PurpleModalHeader } from '@/components/PurpleModalHeader';
 interface TipEntryFormProps {
   selectedDate: Date;
   existingEntry?: TipEntry;
-  prefillData?: Omit<TipEntry, 'id'>;
   onSave: (entry: Omit<TipEntry, 'id'>) => void;
   onCancel: () => void;
   onDelete?: () => void;
@@ -28,7 +27,6 @@ interface TipEntryFormProps {
 export const TipEntryForm: React.FC<TipEntryFormProps> = ({
   selectedDate,
   existingEntry,
-  prefillData,
   onSave,
   onCancel,
   onDelete,
@@ -36,36 +34,34 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
   sections,
   onUpdateSections
 }) => {
-  // Use prefillData for onboarding, existingEntry for editing, or empty for new
-  const initialData = existingEntry || prefillData;
-  
   // Food sales is the main input (was totalSales)
   const [foodSales, setFoodSales] = useState(() => {
-    if (initialData?.salesBreakdown) {
-      const breakdown = initialData.salesBreakdown;
+    // If editing and we have breakdown, calculate food from total - alcohol - misc
+    if (existingEntry?.salesBreakdown) {
+      const breakdown = existingEntry.salesBreakdown;
       const additionalSales = breakdown.liquor + breakdown.beer + breakdown.wine + breakdown.misc;
-      return (initialData.totalSales - additionalSales).toString();
+      return (existingEntry.totalSales - additionalSales).toString();
     }
-    return initialData?.totalSales.toString() || '';
+    return existingEntry?.totalSales.toString() || '';
   });
-  const [salesBreakdownOpen, setSalesBreakdownOpen] = useState(!!prefillData?.salesBreakdown);
+  const [salesBreakdownOpen, setSalesBreakdownOpen] = useState(false);
   const [salesCategories, setSalesCategories] = useState({
-    liquor: initialData?.salesBreakdown?.liquor || 0,
-    beer: initialData?.salesBreakdown?.beer || 0,
-    wine: initialData?.salesBreakdown?.wine || 0,
-    misc: initialData?.salesBreakdown?.misc || 0,
+    liquor: existingEntry?.salesBreakdown?.liquor || 0,
+    beer: existingEntry?.salesBreakdown?.beer || 0,
+    wine: existingEntry?.salesBreakdown?.wine || 0,
+    misc: existingEntry?.salesBreakdown?.misc || 0,
   });
-  const [creditTips, setCreditTips] = useState(initialData?.creditTips?.toString() || '');
-  const [cashTips, setCashTips] = useState(initialData?.cashTips?.toString() || '');
-  const [guestCount, setGuestCount] = useState(initialData?.guestCount?.toString() || '');
-  const [section, setSection] = useState(initialData?.section || '');
+  const [creditTips, setCreditTips] = useState(existingEntry?.creditTips.toString() || '');
+  const [cashTips, setCashTips] = useState(existingEntry?.cashTips.toString() || '');
+  const [guestCount, setGuestCount] = useState(existingEntry?.guestCount.toString() || '');
+  const [section, setSection] = useState(existingEntry?.section || '');
   
-  const [shift, setShift] = useState<'AM' | 'PM' | 'Double'>(initialData?.shift || 'PM');
-  const [hoursWorked, setHoursWorked] = useState(initialData?.hoursWorked?.toString() || '');
+  const [shift, setShift] = useState<'AM' | 'PM' | 'Double'>(existingEntry?.shift || 'PM');
+  const [hoursWorked, setHoursWorked] = useState(existingEntry?.hoursWorked.toString() || '');
   const [hourlyRate, setHourlyRate] = useState(
-    initialData?.hourlyRate?.toString() || previousEntry?.hourlyRate?.toString() || ''
+    existingEntry?.hourlyRate.toString() || previousEntry?.hourlyRate.toString() || ''
   );
-  const [moodRating, setMoodRating] = useState<number | undefined>(initialData?.moodRating);
+  const [moodRating, setMoodRating] = useState<number | undefined>(existingEntry?.moodRating);
   const [showSectionEditor, setShowSectionEditor] = useState(false);
   const [editingSectionId, setEditingSectionId] = useState<string>('');
   const [editingSectionName, setEditingSectionName] = useState('');
@@ -193,10 +189,7 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
 
   return (
     <Dialog open={true} onOpenChange={onCancel}>
-      <DialogContent id="tip-entry-form" className="w-screen h-screen max-w-none p-0 gap-0 border-0 flex flex-col" aria-describedby={undefined}>
-        <DialogTitle className="sr-only">
-          {existingEntry ? 'Edit Tip Entry' : 'Add Tip Entry'}
-        </DialogTitle>
+      <DialogContent className="w-screen h-screen max-w-none p-0 gap-0 border-0 flex flex-col">
         <PurpleModalHeader 
           title={existingEntry ? 'Edit Tip Entry' : 'Add Tip Entry'} 
           onClose={onCancel} 
@@ -612,7 +605,7 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
               </div>
             )}
 
-            <div id="tip-entry-save-area" className="flex gap-2 pt-4">
+            <div className="flex gap-2 pt-4">
               {onDelete && (
                 <Button 
                   type="button" 
@@ -625,7 +618,6 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
                 </Button>
               )}
               <Button 
-                id="tip-entry-save-button"
                 type="submit" 
                 disabled={!isValid}
                 className="flex-1"

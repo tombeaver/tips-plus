@@ -18,9 +18,6 @@ import { AchievementsModal } from '@/components/AchievementsModal';
 import { ProfileModal } from '@/components/ProfileModal';
 import { AchievementUnlockModal } from '@/components/AchievementUnlockModal';
 import { YearInReviewModal, shouldShowYearInReview, markYearInReviewShown, getReviewYear } from '@/components/YearInReviewModal';
-import { useDemoData } from '@/hooks/useDemoData';
-import { OnboardingTour } from '@/components/OnboardingTour';
-import { useOnboarding, type TabKey } from '@/hooks/useOnboarding';
 import { CalendarDays, TrendingUp, Target, Plus, Wallet, LogOut, MessageCircle, Frown, Meh, Smile, Laugh, Zap, DollarSign, CreditCard, Clock, Receipt, Users, Trophy, User as UserIcon } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
 import { useTipEntries, type TipEntry } from '@/hooks/useTipEntries';
@@ -50,53 +47,11 @@ const Index = () => {
   const tabsRef = React.useRef<HTMLDivElement>(null);
   const stickyTriggerRef = React.useRef<HTMLDivElement>(null);
   
-  const { tipEntries: realTipEntries, loading: tipEntriesLoading, addTipEntry, updateTipEntry, deleteTipEntry } = useTipEntries();
-  const { goals: realGoals, financialData: realFinancialData, loading: goalsLoading, addGoal, updateGoal, deleteGoal, updateFinancialData } = useGoals();
-  const {
-    isOnboardingActive,
-    currentTab: currentOnboardingTab,
-    currentStep,
-    currentStepIndex,
-    totalSteps,
-    waitingForAction,
-    nextStep,
-    previousStep,
-    checkTabOnboarding,
-    completeTabOnboarding,
-    actionCompleted,
-    handleTargetClick,
-    skipAllOnboarding,
-  } = useOnboarding();
-  const { demoEntries, demoGoals, demoFinancialData, getDemoFormEntry } = useDemoData();
-  const [onboardingDemoEntry, setOnboardingDemoEntry] = useState<TipEntry | null>(null);
-  
-  // Clear demo entry when onboarding ends
-  useEffect(() => {
-    if (!isOnboardingActive) {
-      setOnboardingDemoEntry(null);
-    }
-  }, [isOnboardingActive]);
-  
-  // Use demo data ONLY when actively viewing the onboarding for that specific tab
-  // currentOnboardingTab is only set when both:
-  // 1. isOnboardingActive is true AND
-  // 2. That specific tab's tutorial hasn't been completed yet
-  // Once ANY tab tutorial is completed, that tab's data reverts to real data
-  const isCalendarOnboarding = currentOnboardingTab === 'calendar';
-  const isGoalsOnboarding = currentOnboardingTab === 'goals';
-  const isFinanceOnboarding = currentOnboardingTab === 'finance';
-  
-  // Show demo entry during calendar onboarding if saved
-  const showOnboardingSavedEntry = isCalendarOnboarding && onboardingDemoEntry;
-  
-  // Always use real data unless actively in that tab's onboarding tour
-  const tipEntries = isCalendarOnboarding ? (showOnboardingSavedEntry ? [...demoEntries, onboardingDemoEntry] : demoEntries) : realTipEntries;
-  const goals = isGoalsOnboarding ? demoGoals : realGoals;
-  const financialData = isFinanceOnboarding ? demoFinancialData : realFinancialData;
-  
+  const { tipEntries, loading: tipEntriesLoading, addTipEntry, updateTipEntry, deleteTipEntry } = useTipEntries();
+  const { goals, financialData, loading: goalsLoading, addGoal, updateGoal, deleteGoal, updateFinancialData } = useGoals();
   const { achievements, loading: achievementsLoading } = useAchievements(tipEntries, goals, financialData);
   const [showEntryForm, setShowEntryForm] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabKey>("calendar");
+  const [activeTab, setActiveTab] = useState("calendar");
   const [sections, setSections] = useState<{ [key: string]: string }>(createDefaultSections());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
@@ -277,11 +232,7 @@ const Index = () => {
         <div ref={stickyTriggerRef} />
         
         {/* Main Navigation */}
-        <Tabs value={activeTab} onValueChange={(value) => {
-          const tab = value as TabKey;
-          setActiveTab(tab);
-          checkTabOnboarding(tab);
-        }} className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div 
             ref={tabsRef}
             className={`sticky z-50 transition-all duration-200 ${isSticky ? 'shadow-lg' : ''}`}
@@ -300,7 +251,7 @@ const Index = () => {
               top: 0
             }}
           >
-            <TabsList id="tab-list" className={`grid w-full grid-cols-4 shadow-sm transition-all duration-200 ${
+            <TabsList className={`grid w-full grid-cols-4 shadow-sm transition-all duration-200 ${
               isSticky 
                 ? 'bg-background/80 border-0 rounded-lg max-w-md mx-auto' 
                 : 'bg-card/50 border rounded-lg backdrop-blur-sm'
@@ -331,7 +282,7 @@ const Index = () => {
 
           {/* Calendar Tab */}
           <TabsContent value="calendar" className="space-group">
-            <Card id="earnings-calendar" className="card-interactive">
+            <Card className="card-interactive">
               <CardContent className="pt-6">
                 <EarningsCalendar
                   selected={selectedDate}
@@ -353,7 +304,7 @@ const Index = () => {
 
 
             {/* Selected Date Info */}
-            <Card id="selected-date-card" className="card-interactive">
+            <Card className="card-interactive">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div>
@@ -491,16 +442,9 @@ const Index = () => {
                   </div>
                 ) : (
                   <Button 
-                    id="add-entry-button"
                     className="w-full interactive-glow" 
                     size="lg"
-                    onClick={() => {
-                      // During onboarding, advance to entry form step
-                      if (isOnboardingActive && currentOnboardingTab === 'calendar') {
-                        handleTargetClick('add-entry-button');
-                      }
-                      setShowEntryForm(true);
-                    }}
+                    onClick={() => setShowEntryForm(true)}
                   >
                     <Plus className="h-5 w-5 mr-2" />
                     Add Tip Entry
@@ -547,25 +491,10 @@ const Index = () => {
             existingEntry={selectedEntry}
             previousEntry={getMostRecentEntry()}
             sections={sections}
-            // During onboarding, pre-fill with demo data
-            prefillData={isOnboardingActive && currentOnboardingTab === 'calendar' && !selectedEntry ? getDemoFormEntry(selectedDate) : undefined}
-            onSave={(entry) => {
-              // During onboarding, simulate saving by creating a demo entry
-              if (isOnboardingActive && currentOnboardingTab === 'calendar') {
-                const demoEntry: TipEntry = {
-                  ...entry,
-                  id: 'onboarding-demo-entry',
-                };
-                setOnboardingDemoEntry(demoEntry);
-                setShowEntryForm(false);
-                // Advance to the final step showing the saved entry
-                actionCompleted('entry-form');
-              } else if (selectedEntry) {
-                handleUpdateTipEntry(selectedEntry.id, entry);
-              } else {
-                handleAddTipEntry(entry);
-              }
-            }}
+            onSave={selectedEntry ? 
+              (entry) => handleUpdateTipEntry(selectedEntry.id, entry) : 
+              handleAddTipEntry
+            }
             onCancel={() => setShowEntryForm(false)}
             onDelete={selectedEntry ? 
               () => {
@@ -668,19 +597,6 @@ const Index = () => {
           }}
           tipEntries={tipEntries}
           year={getReviewYear()}
-        />
-
-        {/* Onboarding Tour */}
-        <OnboardingTour
-          step={currentStep}
-          currentStepIndex={currentStepIndex}
-          totalSteps={totalSteps}
-          isWaitingForAction={!!waitingForAction}
-          onNext={nextStep}
-          onPrevious={previousStep}
-          onSkip={skipAllOnboarding}
-          onFinish={completeTabOnboarding}
-          onTargetClick={handleTargetClick}
         />
       </div>
     </div>
