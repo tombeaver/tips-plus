@@ -181,21 +181,21 @@ const stepsByTab: Record<TabKey, OnboardingStep[]> = {
 
 export const useOnboarding = () => {
   const [state, setState] = useState<OnboardingState>(getInitialState);
-  const [currentTab, setCurrentTab] = useState<TabKey | null>(null);
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [isOnboardingActive, setIsOnboardingActive] = useState(false);
-  const [waitingForAction, setWaitingForAction] = useState<string | null>(null);
-
-  // Start onboarding on mount if not completed
-  useEffect(() => {
-    if (!state.hasCompletedOnboarding) {
-      setIsOnboardingActive(true);
-      if (!state.completedTabs.includes('calendar')) {
-        setCurrentTab('calendar');
-        setCurrentStepIndex(0);
-      }
+  const [currentTab, setCurrentTab] = useState<TabKey | null>(() => {
+    const initial = getInitialState();
+    // Start on calendar tab if onboarding not completed and calendar not done
+    if (!initial.hasCompletedOnboarding && !initial.completedTabs.includes('calendar')) {
+      return 'calendar';
     }
-  }, []);
+    return null;
+  });
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  // Initialize from persisted state - if completed, never show onboarding
+  const [isOnboardingActive, setIsOnboardingActive] = useState(() => {
+    const initial = getInitialState();
+    return !initial.hasCompletedOnboarding;
+  });
+  const [waitingForAction, setWaitingForAction] = useState<string | null>(null);
 
   // Save state to localStorage
   useEffect(() => {
