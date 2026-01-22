@@ -77,14 +77,19 @@ const Index = () => {
     }
   }, [isOnboardingActive]);
   
-  // Use demo data only during the active onboarding for that specific tab
-  // Once a tab's onboarding is complete, show real data for that section
-  const isCalendarOnboarding = isOnboardingActive && currentOnboardingTab === 'calendar';
-  const isGoalsOnboarding = isOnboardingActive && currentOnboardingTab === 'goals';
-  const isFinanceOnboarding = isOnboardingActive && currentOnboardingTab === 'finance';
+  // Use demo data ONLY when actively viewing the onboarding for that specific tab
+  // currentOnboardingTab is only set when both:
+  // 1. isOnboardingActive is true AND
+  // 2. That specific tab's tutorial hasn't been completed yet
+  // Once ANY tab tutorial is completed, that tab's data reverts to real data
+  const isCalendarOnboarding = currentOnboardingTab === 'calendar';
+  const isGoalsOnboarding = currentOnboardingTab === 'goals';
+  const isFinanceOnboarding = currentOnboardingTab === 'finance';
   
   // Show demo entry during calendar onboarding if saved
   const showOnboardingSavedEntry = isCalendarOnboarding && onboardingDemoEntry;
+  
+  // Always use real data unless actively in that tab's onboarding tour
   const tipEntries = isCalendarOnboarding ? (showOnboardingSavedEntry ? [...demoEntries, onboardingDemoEntry] : demoEntries) : realTipEntries;
   const goals = isGoalsOnboarding ? demoGoals : realGoals;
   const financialData = isFinanceOnboarding ? demoFinancialData : realFinancialData;
