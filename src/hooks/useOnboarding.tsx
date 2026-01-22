@@ -19,21 +19,23 @@ interface OnboardingState {
 }
 
 const getInitialState = (): OnboardingState => {
-  // For testing, always start fresh - remove this line for production
-  // return { completedTabs: [], hasCompletedOnboarding: false };
+  // For testing, always start fresh - remove this block for production
+  localStorage.removeItem(ONBOARDING_KEY);
+  return { completedTabs: [], hasCompletedOnboarding: false };
   
-  try {
-    const stored = localStorage.getItem(ONBOARDING_KEY);
-    if (stored) {
-      return JSON.parse(stored);
-    }
-  } catch (e) {
-    console.error('Error reading onboarding state:', e);
-  }
-  return {
-    completedTabs: [],
-    hasCompletedOnboarding: false,
-  };
+  // Production code (uncomment when testing is complete):
+  // try {
+  //   const stored = localStorage.getItem(ONBOARDING_KEY);
+  //   if (stored) {
+  //     return JSON.parse(stored);
+  //   }
+  // } catch (e) {
+  //   console.error('Error reading onboarding state:', e);
+  // }
+  // return {
+  //   completedTabs: [],
+  //   hasCompletedOnboarding: false,
+  // };
 };
 
 // Define steps for each tab
