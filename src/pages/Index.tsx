@@ -6,9 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TipEntryForm } from '@/components/TipEntryForm';
 import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
-import { GoalSettings } from '@/components/GoalSettings';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
-import { FinanceStrategy } from '@/components/FinanceStrategy';
+import { StrategyPage } from '@/components/StrategyPage';
 
 import { FeedbackModal } from '@/components/FeedbackModal';
 import { EarningsCalendar } from '@/components/EarningsCalendar';
@@ -18,7 +17,7 @@ import { AchievementsModal } from '@/components/AchievementsModal';
 import { ProfileModal } from '@/components/ProfileModal';
 import { AchievementUnlockModal } from '@/components/AchievementUnlockModal';
 import { YearInReviewModal, shouldShowYearInReview, markYearInReviewShown, getReviewYear } from '@/components/YearInReviewModal';
-import { CalendarDays, TrendingUp, Target, Plus, Wallet, LogOut, MessageCircle, Frown, Meh, Smile, Laugh, Zap, DollarSign, CreditCard, Clock, Receipt, Users, Trophy, User as UserIcon } from 'lucide-react';
+import { CalendarDays, TrendingUp, Target, Plus, LogOut, MessageCircle, Frown, Meh, Smile, Laugh, Zap, DollarSign, CreditCard, Clock, Receipt, Users, Trophy, User as UserIcon } from 'lucide-react';
 import { format, isToday, isSameDay } from 'date-fns';
 import { useTipEntries, type TipEntry } from '@/hooks/useTipEntries';
 import { useGoals, type Goal } from '@/hooks/useGoals';
@@ -251,7 +250,7 @@ const Index = () => {
               top: 0
             }}
           >
-            <TabsList className={`grid w-full grid-cols-4 shadow-sm transition-all duration-200 ${
+            <TabsList className={`grid w-full grid-cols-3 shadow-sm transition-all duration-200 ${
               isSticky 
                 ? 'bg-background/80 border-0 rounded-lg max-w-md mx-auto' 
                 : 'bg-card/50 border rounded-lg backdrop-blur-sm'
@@ -264,13 +263,9 @@ const Index = () => {
               <TrendingUp className="h-4 w-4" />
               <span className="hidden sm:inline">Analytics</span>
             </TabsTrigger>
-            <TabsTrigger value="finance" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary hover:bg-muted/50">
-              <Wallet className="h-4 w-4" />
-              <span className="hidden sm:inline">Finance</span>
-            </TabsTrigger>
-            <TabsTrigger value="goals" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary hover:bg-muted/50">
+            <TabsTrigger value="strategy" className="flex items-center gap-1 transition-all duration-200 data-[state=active]:bg-primary/10 data-[state=active]:text-primary hover:bg-muted/50">
               <Target className="h-4 w-4" />
-              <span className="hidden sm:inline">Goals</span>
+              <span className="hidden sm:inline">Strategy</span>
             </TabsTrigger>
           </TabsList>
           </div>
@@ -459,27 +454,16 @@ const Index = () => {
             <AnalyticsDashboard tipEntries={tipEntries} />
           </TabsContent>
 
-          {/* Finance Strategy Tab */}
-          <TabsContent value="finance">
-            <FinanceStrategy 
-              financialData={financialData}
-              onUpdateFinancialData={updateFinancialData}
-              tipEntries={tipEntries}
-              hasGoalSet={goals.some(g => g.type === 'yearly')}
-              onNavigateToGoal={() => setActiveTab('goals')}
-            />
-          </TabsContent>
-
-          {/* Goals Tab */}
-          <TabsContent value="goals">
-            <GoalSettings 
+          {/* Strategy Tab */}
+          <TabsContent value="strategy">
+            <StrategyPage
               goals={goals}
               financialData={financialData}
               onAddGoal={async (goal) => { await addGoal(goal); }}
               onUpdateGoal={async (goalId, goal) => { await updateGoal(goalId, goal); }}
               onDeleteGoal={deleteGoal}
+              onUpdateFinancialData={updateFinancialData}
               tipEntries={tipEntries}
-              onNavigateToBudget={() => setActiveTab('finance')}
             />
           </TabsContent>
         </Tabs>
