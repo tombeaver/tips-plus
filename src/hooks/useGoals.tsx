@@ -48,13 +48,15 @@ export const useGoals = () => {
         monthlySpendingLimit: 0,
       };
       
-      (data || []).forEach(goal => {
-        // Store financial data from the most recent goal row
-        latestFinancialData = {
-          monthlyExpenses: Number(goal.monthly_expenses) || 0,
-          monthlySavingsGoal: Number(goal.monthly_savings_goal) || 0,
-          monthlySpendingLimit: Number(goal.monthly_spending_limit) || 0,
-        };
+      (data || []).forEach((goal, index) => {
+        // Store financial data from the most recent goal row only
+        if (index === 0) {
+          latestFinancialData = {
+            monthlyExpenses: Number(goal.monthly_expenses) || 0,
+            monthlySavingsGoal: Number(goal.monthly_savings_goal) || 0,
+            monthlySpendingLimit: Number(goal.monthly_spending_limit) || 0,
+          };
+        }
 
         if (goal.daily_goal > 0) {
           formattedGoals.push({
