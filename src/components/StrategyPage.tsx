@@ -615,150 +615,9 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
     </div>
   );
 
-  // ─── LAYOUT 2: SCORE-FIRST ─────────────────────────────────
-
-  const ScoreFirstLayout = () => (
-    <div className="space-y-4 animate-fade-in">
-      {/* Health score hero */}
-      {hasBudgetSet ? (
-        <Card 
-          className="overflow-hidden border-0 shadow-depth-lg cursor-pointer interactive-rise"
-          onClick={() => setIsHealthScoreModalOpen(true)}
-        >
-          <div className="bg-gradient-to-br from-card to-secondary p-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="label-lg text-muted-foreground">{format(new Date(), 'MMMM')} Health Score</span>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </div>
-            <div className="flex items-center gap-6">
-              <HealthScoreRing size="lg" />
-              <div className="flex-1 space-y-3">
-                <div>
-                  <p className="caption">Income</p>
-                  <p className="font-semibold text-success">${metrics.monthlyEarned.toFixed(0)}</p>
-                </div>
-                <div>
-                  <p className="caption">Expenses</p>
-                  <p className="font-semibold text-destructive">${financialData.monthlyExpenses.toFixed(0)}</p>
-                </div>
-                <div>
-                  <p className="caption">Savings</p>
-                  <p className="font-semibold text-primary">${metrics.currentSavings.toFixed(0)}</p>
-                </div>
-              </div>
-            </div>
-            <p className="body-sm text-muted-foreground text-center mt-3">Tap for full breakdown</p>
-          </div>
-        </Card>
-      ) : (
-        <BudgetInput
-          monthlyExpenses={financialData.monthlyExpenses}
-          monthlySavingsGoal={financialData.monthlySavingsGoal}
-          monthlySpendingLimit={financialData.monthlySpendingLimit}
-          onSave={onUpdateFinancialData}
-        />
-      )}
-
-      {/* Annual goal below */}
-      <AnnualGoalHero />
-      
-      {hasBudgetSet && <ShiftStrategyCard />}
-      <MonthlyHistoryCard />
-      <InsightsCard />
-    </div>
-  );
-
-  // ─── LAYOUT 3: DASHBOARD OVERVIEW ──────────────────────────
-
-  const DashboardLayout = () => (
-    <div className="space-y-4 animate-fade-in">
-      {/* Summary row - 3 compact cards */}
-      <div className="grid grid-cols-3 gap-2">
-        {/* Annual Goal mini */}
-        <Card 
-          className="cursor-pointer interactive-rise"
-          onClick={() => yearlyGoal ? setIsGoalModalOpen(true) : setShowGoalForm(true)}
-        >
-          <CardContent className="p-3 text-center">
-            <Target className="h-5 w-5 mx-auto mb-1 text-primary" />
-            <p className="caption">Annual</p>
-            {yearlyGoal ? (
-              <>
-                <p className="font-bold text-sm">{metrics.yearlyPercentage.toFixed(0)}%</p>
-                <div className="h-1 bg-muted rounded-full mt-1 overflow-hidden">
-                  <div className="h-full bg-primary rounded-full" style={{ width: `${metrics.yearlyPercentage}%` }} />
-                </div>
-              </>
-            ) : (
-              <p className="body-sm text-primary">Set Goal</p>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Budget mini */}
-        <Card 
-          className="cursor-pointer interactive-rise"
-          onClick={() => hasBudgetSet ? setIsHealthScoreModalOpen(true) : undefined}
-        >
-          <CardContent className="p-3 text-center">
-            <Wallet className="h-5 w-5 mx-auto mb-1 text-primary" />
-            <p className="caption">Budget</p>
-            {hasBudgetSet ? (
-              <>
-                <p className="font-bold text-sm">{metrics.budgetProgress.toFixed(0)}%</p>
-                <div className="h-1 bg-muted rounded-full mt-1 overflow-hidden">
-                  <div className="h-full bg-primary rounded-full" style={{ width: `${metrics.budgetProgress}%` }} />
-                </div>
-              </>
-            ) : (
-              <p className="body-sm text-muted-foreground">—</p>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Health score mini */}
-        <Card className="cursor-pointer interactive-rise" onClick={() => hasBudgetSet ? setIsHealthScoreModalOpen(true) : undefined}>
-          <CardContent className="p-3 text-center">
-            <BarChart3 className="h-5 w-5 mx-auto mb-1 text-primary" />
-            <p className="caption">Score</p>
-            {hasBudgetSet ? (
-              <p className={`font-bold text-sm ${getScoreColor(metrics.healthScore)}`}>{metrics.healthScore}</p>
-            ) : (
-              <p className="body-sm text-muted-foreground">—</p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Main content sections */}
-      {!yearlyGoal && <AnnualGoalHero />}
-      
-      {yearlyGoal && (
-        <AnnualGoalHero compact />
-      )}
-
-      {hasBudgetSet ? (
-        <>
-          <BudgetProgressCard />
-          <ShiftStrategyCard />
-        </>
-      ) : (
-        <BudgetInput
-          monthlyExpenses={financialData.monthlyExpenses}
-          monthlySavingsGoal={financialData.monthlySavingsGoal}
-          monthlySpendingLimit={financialData.monthlySpendingLimit}
-          onSave={onUpdateFinancialData}
-        />
-      )}
-      
-      <MonthlyHistoryCard />
-      <InsightsCard />
-    </div>
-  );
-
   return (
     <div className="space-y-4">
-      {/* Layout switcher */}
+      {/* Header */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2">
@@ -769,27 +628,9 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
             Your complete financial game plan
           </p>
         </CardHeader>
-        <CardContent className="pt-0 pb-4">
-          <Tabs value={layout} onValueChange={setLayout}>
-            <TabsList className="grid w-full grid-cols-3 bg-muted/50">
-              <TabsTrigger value="goal-first" className="text-xs data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
-                Goal First
-              </TabsTrigger>
-              <TabsTrigger value="score-first" className="text-xs data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
-                Score First
-              </TabsTrigger>
-              <TabsTrigger value="dashboard" className="text-xs data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
-                Dashboard
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </CardContent>
       </Card>
 
-      {/* Render selected layout */}
-      {layout === 'goal-first' && <GoalFirstLayout />}
-      {layout === 'score-first' && <ScoreFirstLayout />}
-      {layout === 'dashboard' && <DashboardLayout />}
+      <GoalFirstLayout />
 
       {/* Modals */}
       <AnnualGoalModal
