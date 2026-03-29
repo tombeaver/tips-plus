@@ -519,6 +519,59 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
     );
   };
 
+  const MonthlyHistoryCard = () => {
+    if (!yearlyGoal || metrics.monthlyHistory.length === 0) return null;
+
+    const metCount = metrics.monthlyHistory.filter(m => m.met).length;
+
+    return (
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Calendar className="h-4 w-4" />
+              <span className="label-lg">Monthly History</span>
+            </div>
+            <span className="label-sm text-muted-foreground">
+              {metCount}/{metrics.monthlyHistory.length} hit
+            </span>
+          </div>
+
+          <div className="space-y-2">
+            {metrics.monthlyHistory.map((m, i) => (
+              <div key={i} className={`flex items-center gap-3 p-2.5 rounded-lg ${m.met ? 'bg-success/5' : 'bg-destructive/5'}`}>
+                {m.met ? (
+                  <CheckCircle className="h-5 w-5 text-success flex-shrink-0" />
+                ) : (
+                  <XCircle className="h-5 w-5 text-destructive flex-shrink-0" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <span className="label-md">{m.monthFull}</span>
+                    <span className="font-semibold text-sm">${m.earned.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                  </div>
+                  <div className="flex items-center justify-between mt-0.5">
+                    <div className="flex-1 mr-3">
+                      <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full transition-all ${m.met ? 'bg-success' : 'bg-destructive/60'}`} 
+                          style={{ width: `${m.percentage}%` }} 
+                        />
+                      </div>
+                    </div>
+                    <span className={`text-xs font-medium ${m.met ? 'text-success' : 'text-destructive'}`}>
+                      {m.surplus >= 0 ? `+$${m.surplus.toFixed(0)}` : `-$${Math.abs(m.surplus).toFixed(0)}`}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
   // ─── LAYOUT 1: GOAL-FIRST ──────────────────────────────────
 
   const GoalFirstLayout = () => (
