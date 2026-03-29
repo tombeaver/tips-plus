@@ -197,8 +197,11 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
         />
         
         <div className="overflow-y-auto flex-1 bg-background p-6">
-          <p className="text-sm text-muted-foreground mb-6">
+          <p className="text-sm text-muted-foreground mb-2">
             {selectedDate.toLocaleDateString()}
+          </p>
+          <p className="text-xs text-muted-foreground mb-6">
+            <span className="text-destructive">*</span> Required fields — tap <Info className="h-3 w-3 inline" /> for details
           </p>
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Food Sales by default, becomes Total Sales when additional categories added */}
