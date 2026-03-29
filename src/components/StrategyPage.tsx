@@ -136,6 +136,26 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
     const weeksRemaining = Math.max(0, weeksInYear - weeksPassed);
     const isOnTrack = yearlyPercentage >= (weeksPassed / weeksInYear) * 100;
 
+    // Monthly history - previous months this year
+    const currentMonthIndex = getMonth(now);
+    const monthlyHistory = [];
+    for (let i = 0; i < currentMonthIndex; i++) {
+      const mStart = new Date(getYear(now), i, 1);
+      const mEnd = endOfMonth(mStart);
+      const earned = realEntries
+        .filter(entry => isWithinInterval(entry.date, { start: mStart, end: mEnd }))
+        .reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
+      monthlyHistory.push({
+        month: format(mStart, 'MMM'),
+        monthFull: format(mStart, 'MMMM'),
+        earned,
+        target: monthlyTarget,
+        met: monthlyTarget > 0 && earned >= monthlyTarget,
+        percentage: monthlyTarget > 0 ? Math.min((earned / monthlyTarget) * 100, 100) : 0,
+        surplus: earned - monthlyTarget,
+      });
+    }
+
     return {
       yearlyAchieved, yearlyPercentage,
       weeklyTarget, weeklyEarned, monthlyTarget, monthlyEarned,
@@ -143,7 +163,7 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
       currentSavings, monthlyTargetIncome, shortfall, shiftsNeeded, budgetProgress,
       healthScore, proratedExpenses, proratedSavingsGoal,
       annualSurplus, weeksRemaining, isOnTrack, weeksPassed,
-      monthProgress,
+      monthProgress, monthlyHistory,
     };
   }, [realEntries, tipEntries, yearlyGoal, financialData]);
 
