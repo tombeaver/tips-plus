@@ -665,6 +665,7 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
       <AnnualGoalHero />
       
       {hasBudgetSet && <ShiftStrategyCard />}
+      <MonthlyHistoryCard />
       <InsightsCard />
     </div>
   );
@@ -752,6 +753,7 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
         />
       )}
       
+      <MonthlyHistoryCard />
       <InsightsCard />
     </div>
   );
