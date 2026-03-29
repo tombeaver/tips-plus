@@ -17,8 +17,10 @@ import { BudgetInput } from '@/components/BudgetInput';
 import { GoalCelebrationModal } from '@/components/GoalCelebrationModal';
 import { 
   startOfYear, endOfYear, startOfMonth, endOfMonth, startOfWeek, endOfWeek,
-  isWithinInterval, differenceInDays, format, getDaysInMonth, getDate
+  isWithinInterval, differenceInDays, format, getDaysInMonth, getDate,
+  subMonths, getMonth, getYear
 } from 'date-fns';
+import { CheckCircle, XCircle } from 'lucide-react';
 
 interface StrategyPageProps {
   goals: Goal[];
