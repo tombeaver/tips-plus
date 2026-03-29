@@ -507,11 +507,24 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
         <div className="overflow-y-auto flex-1 bg-background">
           <div className="p-4 space-y-4">
             {/* Main Value */}
-            <div className="text-center py-2">
-              <p className="text-4xl font-bold text-foreground">{config.mainValue}</p>
-              <p className="text-muted-foreground text-sm mt-1">{config.subtitle}</p>
-              <p className="text-muted-foreground/70 text-xs mt-1">{timeFrameLabel}</p>
-            </div>
+             <div className="text-center py-2">
+               <p className="text-4xl font-bold text-foreground">{config.mainValue}</p>
+               <p className="text-muted-foreground text-sm mt-1">{config.subtitle}</p>
+               <p className="text-muted-foreground/70 text-xs mt-1">{timeFrameLabel}</p>
+               {(() => {
+                 const doubleCount = detailData.entries.filter(e => e.shift === 'Double').length;
+                 const singleCount = detailData.entries.length - doubleCount;
+                 if (doubleCount > 0) {
+                   return (
+                     <p className="text-xs text-muted-foreground mt-2 flex items-center justify-center gap-1">
+                       <span className="bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded font-bold text-[10px]">2x</span>
+                       {doubleCount} double{doubleCount > 1 ? 's' : ''} counted as {doubleCount * 2} shifts
+                     </p>
+                   );
+                 }
+                 return null;
+               })()}
+             </div>
 
             {/* Trend Chart */}
             {detailData.entries.length > 1 && (
@@ -543,14 +556,26 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
                         <XAxis dataKey="date" fontSize={10} stroke="hsl(var(--muted-foreground))" />
                         <YAxis fontSize={10} stroke="hsl(var(--muted-foreground))" />
                         <Tooltip 
-                          formatter={(value, name) => {
-                            const labels: Record<string, string> = { earnings: 'Total Earnings', wages: 'Wages', creditTips: 'Credit Tips', cashTips: 'Cash Tips' };
-                            return [`$${Number(value).toFixed(2)}`, labels[name as string] || name];
-                          }}
-                          contentStyle={{
-                            backgroundColor: 'hsl(var(--background))',
-                            border: '1px solid hsl(var(--border))',
-                            borderRadius: '8px',
+                          content={({ active, payload, label }) => {
+                            if (!active || !payload?.length) return null;
+                            const entry = payload[0]?.payload;
+                            const isDouble = entry?.shift === 'Double';
+                            return (
+                              <div className="bg-background border border-border rounded-lg p-2 shadow-md text-xs">
+                                <p className="font-medium flex items-center gap-1">
+                                  {label}
+                                  {isDouble && <span className="bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded text-[10px] font-bold">2x</span>}
+                                </p>
+                                {payload.map((p: any, i: number) => {
+                                  const labels: Record<string, string> = { earnings: 'Total Earnings', wages: 'Wages', creditTips: 'Credit Tips', cashTips: 'Cash Tips' };
+                                  return (
+                                    <p key={i} style={{ color: p.stroke || p.color }}>
+                                      {labels[p.dataKey] || p.dataKey}: ${Number(p.value).toFixed(2)}
+                                    </p>
+                                  );
+                                })}
+                              </div>
+                            );
                           }}
                         />
                         <Area 
@@ -598,11 +623,19 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
                         <XAxis dataKey="date" fontSize={10} stroke="hsl(var(--muted-foreground))" />
                         <YAxis fontSize={10} stroke="hsl(var(--muted-foreground))" />
                         <Tooltip 
-                          formatter={(value) => [config.formatValue(Number(value)), config.title]}
-                          contentStyle={{
-                            backgroundColor: 'hsl(var(--background))',
-                            border: '1px solid hsl(var(--border))',
-                            borderRadius: '8px',
+                          content={({ active, payload, label }) => {
+                            if (!active || !payload?.length) return null;
+                            const entry = payload[0]?.payload;
+                            const isDouble = entry?.shift === 'Double';
+                            return (
+                              <div className="bg-background border border-border rounded-lg p-2 shadow-md text-xs">
+                                <p className="font-medium flex items-center gap-1">
+                                  {label}
+                                  {isDouble && <span className="bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded text-[10px] font-bold">2x</span>}
+                                </p>
+                                <p>{config.title}: {config.formatValue(Number(payload[0].value))}</p>
+                              </div>
+                            );
                           }}
                         />
                         <Area 
