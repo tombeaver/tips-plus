@@ -8,7 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Trash2, Save, X, Edit2, Plus, Frown, Meh, Smile, Laugh, Zap, ChevronDown, ChevronUp, Wine, Beer, GlassWater, ShoppingBag } from 'lucide-react';
+import { Trash2, Save, X, Edit2, Plus, Frown, Meh, Smile, Laugh, Zap, ChevronDown, ChevronUp, Wine, Beer, GlassWater, ShoppingBag, Info } from 'lucide-react';
 import { TipEntry, SalesBreakdown } from '@/hooks/useTipEntries';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { PurpleModalHeader } from '@/components/PurpleModalHeader';
