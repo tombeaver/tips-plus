@@ -12,6 +12,7 @@ import { Trash2, Save, X, Edit2, Plus, Frown, Meh, Smile, Laugh, Zap, ChevronDow
 import { TipEntry, SalesBreakdown } from '@/hooks/useTipEntries';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { PurpleModalHeader } from '@/components/PurpleModalHeader';
+import { FieldLabel } from '@/components/FieldLabel';
 
 interface TipEntryFormProps {
   selectedDate: Date;
@@ -202,9 +203,13 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Food Sales by default, becomes Total Sales when additional categories added */}
             <div className="space-y-2">
-              <Label htmlFor="foodSales">
-                {hasAdditionalSales ? 'Total Sales ($)' : 'Food Sales ($)'}
-              </Label>
+              <FieldLabel
+                htmlFor="foodSales"
+                label={hasAdditionalSales ? 'Total Sales ($)' : 'Food Sales ($)'}
+                required
+                infoTitle="Sales Tracking"
+                infoDescription="Your total sales directly impact your tip percentage calculation. Tracking this helps you understand how much you earn relative to what you sell — a key metric for identifying your most profitable shifts and optimizing your schedule."
+              />
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <Input
@@ -333,7 +338,12 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="creditTips">Credit Tips ($)</Label>
+                <FieldLabel
+                  htmlFor="creditTips"
+                  label="Credit Tips ($)"
+                  infoTitle="Credit Tips"
+                  infoDescription="Credit card tips are your documented earnings. Tracking credit vs cash tips separately helps you understand your true income breakdown, plan for taxes, and identify trends in how customers tip by payment method."
+                />
                 <Input
                   id="creditTips"
                   type="number"
@@ -344,7 +354,12 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="cashTips">Cash Tips ($)</Label>
+                <FieldLabel
+                  htmlFor="cashTips"
+                  label="Cash Tips ($)"
+                  infoTitle="Cash Tips"
+                  infoDescription="Cash tips complete your total earnings picture. Even if you didn't receive cash tips, entering $0 helps keep your records accurate for budgeting, goal tracking, and understanding your full income."
+                />
                 <Input
                   id="cashTips"
                   type="number"
@@ -357,7 +372,13 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="guestCount">Guest Count</Label>
+              <FieldLabel
+                htmlFor="guestCount"
+                label="Guest Count"
+                required
+                infoTitle="Guest Count"
+                infoDescription="Guest count lets you calculate your per-guest average — one of the most useful metrics for servers. It reveals which sections, shifts, and days bring higher-spending guests so you can strategize for maximum earnings."
+              />
               <Input
                 id="guestCount"
                 type="number"
@@ -370,7 +391,13 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="section">Section</Label>
+                <FieldLabel
+                  htmlFor="section"
+                  label="Section"
+                  required
+                  infoTitle="Section"
+                  infoDescription="Tracking which section you work in reveals which areas of the restaurant are most profitable. Over time, you'll see clear patterns — helping you request better sections and maximize your earning potential."
+                />
                 <Dialog open={showSectionEditor} onOpenChange={setShowSectionEditor}>
                   <DialogTrigger asChild>
                     <Button variant="outline" size="sm">
@@ -473,7 +500,12 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label>Shift</Label>
+              <FieldLabel
+                label="Shift"
+                required
+                infoTitle="Shift Type"
+                infoDescription="AM, PM, or Double — each shift type has different earning potential. Tracking this helps you compare performance across shift types and identify whether mornings, evenings, or doubles are most profitable for you."
+              />
               <RadioGroup value={shift} onValueChange={(value) => setShift(value as 'AM' | 'PM' | 'Double')}>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="flex items-center space-x-2">
@@ -494,7 +526,13 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="hoursWorked">Hours Worked</Label>
+                <FieldLabel
+                  htmlFor="hoursWorked"
+                  label="Hours Worked"
+                  required
+                  infoTitle="Hours Worked"
+                  infoDescription="Hours worked is essential for calculating your true hourly earnings (tips + wages). This helps you see if longer shifts are proportionally more profitable or if shorter, high-volume shifts are the better play."
+                />
                 <Input
                   id="hoursWorked"
                   type="number"
@@ -506,7 +544,13 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="hourlyRate">Hourly Rate ($)</Label>
+                <FieldLabel
+                  htmlFor="hourlyRate"
+                  label="Hourly Rate ($)"
+                  required
+                  infoTitle="Hourly Rate"
+                  infoDescription="Your base hourly wage is combined with tips to calculate total earnings. This gives you an accurate picture of what you actually make per hour — crucial for budgeting, goal setting, and comparing job opportunities."
+                />
                 <Input
                   id="hourlyRate"
                   type="number"
@@ -520,7 +564,11 @@ export const TipEntryForm: React.FC<TipEntryFormProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label>Shift Mood / Difficulty</Label>
+              <FieldLabel
+                label="Shift Mood / Difficulty"
+                infoTitle="Shift Mood"
+                infoDescription="Rating your shift mood helps you spot burnout patterns and correlate how you feel with how much you earn. Over time, you might find that your best-earning shifts aren't always the hardest — useful insight for planning your schedule."
+              />
               <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                 {[1, 2, 3, 4, 5].map((rating) => {
                   const icons = [Frown, Meh, Smile, Laugh, Zap];
