@@ -165,7 +165,27 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
           break;
       }
       
-      return { day: day.slice(0, 3), value, count: dayEntries.length };
+      // Compute raw total for this day (before per-shift averaging)
+      let rawTotal = 0;
+      switch (metricType) {
+        case 'totalEarnings': case 'avgDailyIncome':
+          rawTotal = dayEntries.reduce((sum, e) => sum + e.earnings, 0); break;
+        case 'totalTips':
+          rawTotal = dayEntries.reduce((sum, e) => sum + e.tips, 0); break;
+        case 'totalCashTips':
+          rawTotal = dayEntries.reduce((sum, e) => sum + e.cashTips, 0); break;
+        case 'totalCreditTips':
+          rawTotal = dayEntries.reduce((sum, e) => sum + e.creditTips, 0); break;
+        case 'totalAlcoholSales':
+          rawTotal = dayEntries.reduce((sum, e) => sum + e.alcoholSales, 0); break;
+        case 'totalMiscSales':
+          rawTotal = dayEntries.reduce((sum, e) => sum + e.miscSales, 0); break;
+        default: rawTotal = value * totalShifts; break;
+      }
+      const hasDoubles = dayEntries.some(e => e.shift === 'Double');
+      const doubleCount = dayEntries.filter(e => e.shift === 'Double').length;
+      
+      return { day: day.slice(0, 3), value, count: dayEntries.length, totalShifts, rawTotal, hasDoubles, doubleCount };
     });
 
     // Calculate best/worst entries
@@ -662,11 +682,28 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
                     <XAxis dataKey="day" fontSize={10} stroke="hsl(var(--muted-foreground))" />
                     <YAxis fontSize={10} stroke="hsl(var(--muted-foreground))" />
                     <Tooltip 
-                      formatter={(value) => [config.formatValue(Number(value)), 'Avg']}
-                      contentStyle={{
-                        backgroundColor: 'hsl(var(--background))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px',
+                      content={({ active, payload }) => {
+                        if (!active || !payload?.length) return null;
+                        const d = payload[0]?.payload;
+                        if (!d || d.count === 0) return null;
+                        const isCurrency = !['totalShifts', 'totalHours', 'avgTipPercent'].includes(metricType || '');
+                        return (
+                          <div className="bg-background border border-border rounded-lg p-2.5 shadow-md text-xs">
+                            <p className="font-semibold text-sm mb-1">{d.day}</p>
+                            {d.hasDoubles && (
+                              <p className="flex items-center gap-1 mb-1">
+                                <span className="bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded text-[10px] font-bold">2x</span>
+                                <span className="text-muted-foreground">{d.doubleCount} double{d.doubleCount > 1 ? 's' : ''}</span>
+                              </p>
+                            )}
+                            <p className="text-muted-foreground">
+                              Avg: <span className="text-foreground font-medium">{config.formatValue(d.value)}</span>
+                              {isCurrency && d.count > 0 && (
+                                <span> · Total: <span className="text-foreground font-medium">${d.rawTotal.toFixed(0)}</span></span>
+                              )}
+                            </p>
+                          </div>
+                        );
                       }}
                     />
                     <Bar dataKey="value" fill={config.chartColor} radius={[4, 4, 0, 0]} />
