@@ -507,11 +507,24 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
         <div className="overflow-y-auto flex-1 bg-background">
           <div className="p-4 space-y-4">
             {/* Main Value */}
-            <div className="text-center py-2">
-              <p className="text-4xl font-bold text-foreground">{config.mainValue}</p>
-              <p className="text-muted-foreground text-sm mt-1">{config.subtitle}</p>
-              <p className="text-muted-foreground/70 text-xs mt-1">{timeFrameLabel}</p>
-            </div>
+             <div className="text-center py-2">
+               <p className="text-4xl font-bold text-foreground">{config.mainValue}</p>
+               <p className="text-muted-foreground text-sm mt-1">{config.subtitle}</p>
+               <p className="text-muted-foreground/70 text-xs mt-1">{timeFrameLabel}</p>
+               {(() => {
+                 const doubleCount = detailData.entries.filter(e => e.shift === 'Double').length;
+                 const singleCount = detailData.entries.length - doubleCount;
+                 if (doubleCount > 0) {
+                   return (
+                     <p className="text-xs text-muted-foreground mt-2 flex items-center justify-center gap-1">
+                       <span className="bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded font-bold text-[10px]">2x</span>
+                       {doubleCount} double{doubleCount > 1 ? 's' : ''} counted as {doubleCount * 2} shifts
+                     </p>
+                   );
+                 }
+                 return null;
+               })()}
+             </div>
 
             {/* Trend Chart */}
             {detailData.entries.length > 1 && (
