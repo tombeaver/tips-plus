@@ -2,10 +2,9 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Target, TrendingUp, TrendingDown, CheckCircle2, Clock, Calendar,
-  ChevronRight, Wallet, Plus, Zap, Sparkles, Lightbulb, BarChart3,
+  ChevronRight, Wallet, Plus, Zap, Sparkles, Lightbulb,
   ArrowUpRight, ArrowDownRight, Minus
 } from 'lucide-react';
 import { Goal, FinancialData } from '@/hooks/useGoals';
@@ -48,7 +47,6 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
   onUpdateFinancialData,
   tipEntries,
 }) => {
-  const [layout, setLayout] = useState('goal-first');
   const [showGoalForm, setShowGoalForm] = useState(false);
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
   const [isHealthScoreModalOpen, setIsHealthScoreModalOpen] = useState(false);
