@@ -612,6 +612,7 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
         </Card>
       )}
       
+      <MonthlyHistoryCard />
       <InsightsCard />
     </div>
   );
