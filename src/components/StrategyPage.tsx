@@ -17,8 +17,10 @@ import { BudgetInput } from '@/components/BudgetInput';
 import { GoalCelebrationModal } from '@/components/GoalCelebrationModal';
 import { 
   startOfYear, endOfYear, startOfMonth, endOfMonth, startOfWeek, endOfWeek,
-  isWithinInterval, differenceInDays, format, getDaysInMonth, getDate
+  isWithinInterval, differenceInDays, format, getDaysInMonth, getDate,
+  subMonths, getMonth, getYear
 } from 'date-fns';
+import { CheckCircle, XCircle } from 'lucide-react';
 
 interface StrategyPageProps {
   goals: Goal[];
@@ -134,6 +136,26 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
     const weeksRemaining = Math.max(0, weeksInYear - weeksPassed);
     const isOnTrack = yearlyPercentage >= (weeksPassed / weeksInYear) * 100;
 
+    // Monthly history - previous months this year
+    const currentMonthIndex = getMonth(now);
+    const monthlyHistory = [];
+    for (let i = 0; i < currentMonthIndex; i++) {
+      const mStart = new Date(getYear(now), i, 1);
+      const mEnd = endOfMonth(mStart);
+      const earned = realEntries
+        .filter(entry => isWithinInterval(entry.date, { start: mStart, end: mEnd }))
+        .reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
+      monthlyHistory.push({
+        month: format(mStart, 'MMM'),
+        monthFull: format(mStart, 'MMMM'),
+        earned,
+        target: monthlyTarget,
+        met: monthlyTarget > 0 && earned >= monthlyTarget,
+        percentage: monthlyTarget > 0 ? Math.min((earned / monthlyTarget) * 100, 100) : 0,
+        surplus: earned - monthlyTarget,
+      });
+    }
+
     return {
       yearlyAchieved, yearlyPercentage,
       weeklyTarget, weeklyEarned, monthlyTarget, monthlyEarned,
@@ -141,7 +163,7 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
       currentSavings, monthlyTargetIncome, shortfall, shiftsNeeded, budgetProgress,
       healthScore, proratedExpenses, proratedSavingsGoal,
       annualSurplus, weeksRemaining, isOnTrack, weeksPassed,
-      monthProgress,
+      monthProgress, monthlyHistory,
     };
   }, [realEntries, tipEntries, yearlyGoal, financialData]);
 
@@ -497,6 +519,59 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
     );
   };
 
+  const MonthlyHistoryCard = () => {
+    if (!yearlyGoal || metrics.monthlyHistory.length === 0) return null;
+
+    const metCount = metrics.monthlyHistory.filter(m => m.met).length;
+
+    return (
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Calendar className="h-4 w-4" />
+              <span className="label-lg">Monthly History</span>
+            </div>
+            <span className="label-sm text-muted-foreground">
+              {metCount}/{metrics.monthlyHistory.length} hit
+            </span>
+          </div>
+
+          <div className="space-y-2">
+            {metrics.monthlyHistory.map((m, i) => (
+              <div key={i} className={`flex items-center gap-3 p-2.5 rounded-lg ${m.met ? 'bg-success/5' : 'bg-destructive/5'}`}>
+                {m.met ? (
+                  <CheckCircle className="h-5 w-5 text-success flex-shrink-0" />
+                ) : (
+                  <XCircle className="h-5 w-5 text-destructive flex-shrink-0" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <span className="label-md">{m.monthFull}</span>
+                    <span className="font-semibold text-sm">${m.earned.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                  </div>
+                  <div className="flex items-center justify-between mt-0.5">
+                    <div className="flex-1 mr-3">
+                      <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full transition-all ${m.met ? 'bg-success' : 'bg-destructive/60'}`} 
+                          style={{ width: `${m.percentage}%` }} 
+                        />
+                      </div>
+                    </div>
+                    <span className={`text-xs font-medium ${m.met ? 'text-success' : 'text-destructive'}`}>
+                      {m.surplus >= 0 ? `+$${m.surplus.toFixed(0)}` : `-$${Math.abs(m.surplus).toFixed(0)}`}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
   // ─── LAYOUT 1: GOAL-FIRST ──────────────────────────────────
 
   const GoalFirstLayout = () => (
@@ -537,6 +612,7 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
         </Card>
       )}
       
+      <MonthlyHistoryCard />
       <InsightsCard />
     </div>
   );
@@ -589,6 +665,7 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
       <AnnualGoalHero />
       
       {hasBudgetSet && <ShiftStrategyCard />}
+      <MonthlyHistoryCard />
       <InsightsCard />
     </div>
   );
@@ -676,6 +753,7 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
         />
       )}
       
+      <MonthlyHistoryCard />
       <InsightsCard />
     </div>
   );
