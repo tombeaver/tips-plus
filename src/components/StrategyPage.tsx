@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { 
   Target, TrendingUp, TrendingDown, CheckCircle2, Clock, Calendar,
-  ChevronRight, Wallet, Plus, Zap, Sparkles, Lightbulb,
+  ChevronRight, Wallet, Plus, Sparkles, Lightbulb,
   ArrowUpRight, ArrowDownRight, Minus
 } from 'lucide-react';
 import { Goal, FinancialData } from '@/hooks/useGoals';
@@ -326,153 +326,126 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
     );
   };
 
-  const HealthScoreRing = ({ size = 'lg' }: { size?: 'sm' | 'lg' }) => {
-    const score = metrics.healthScore;
-    const radius = size === 'lg' ? 54 : 32;
-    const circumference = 2 * Math.PI * radius;
-    const svgSize = size === 'lg' ? 128 : 80;
-    
-    return (
-      <div className="relative" style={{ width: svgSize, height: svgSize }}>
-        <svg className="-rotate-90" width={svgSize} height={svgSize}>
-          <circle
-            cx={svgSize / 2} cy={svgSize / 2} r={radius}
-            stroke="hsl(var(--border))" strokeWidth={size === 'lg' ? 8 : 5} fill="none"
-          />
-          <circle
-            cx={svgSize / 2} cy={svgSize / 2} r={radius}
-            stroke={score >= 80 ? 'hsl(var(--success))' : score >= 60 ? 'hsl(var(--warning))' : 'hsl(var(--destructive))'}
-            strokeWidth={size === 'lg' ? 8 : 5} fill="none"
-            strokeDasharray={`${(score / 100) * circumference} ${circumference}`}
-            strokeLinecap="round"
-            className="transition-all duration-700"
-          />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className={`font-bold ${size === 'lg' ? 'text-2xl' : 'text-lg'} ${getScoreColor(score)}`}>{score}</span>
-          {size === 'lg' && <span className="body-sm text-muted-foreground">{getScoreLabel(score)}</span>}
-        </div>
-      </div>
-    );
-  };
 
-  const BudgetProgressCard = () => {
+
+
+  const MonthlyBudgetHero = () => {
     if (!hasBudgetSet) return null;
     const isOnTrack = metrics.budgetProgress >= 100;
     const surplus = metrics.monthlyEarned - metrics.monthlyTargetIncome;
+    const score = metrics.healthScore;
+    const ringR = 22;
+    const ringC = 2 * Math.PI * ringR;
 
     return (
-      <Card className="overflow-hidden">
-        <div className={`p-4 ${isOnTrack ? 'bg-success/5' : 'bg-card'}`}>
-          <div className="flex items-center justify-between mb-3">
+      <Card 
+        className="overflow-hidden border-0 shadow-depth-lg cursor-pointer interactive-rise"
+        onClick={() => setIsHealthScoreModalOpen(true)}
+      >
+        <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 p-5 text-white">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Wallet className="h-4 w-4 text-muted-foreground" />
-              <span className="label-lg">Monthly Budget</span>
+              <Wallet className="h-5 w-5" />
+              <span className="label-lg text-white">Monthly Budget</span>
             </div>
-            {isOnTrack ? (
-              <CheckCircle2 className="h-5 w-5 text-success" />
-            ) : (
-              <span className="label-sm text-muted-foreground">{metrics.daysLeftInMonth}d left</span>
-            )}
+            <div className="flex items-center gap-2">
+              {isOnTrack ? (
+                <CheckCircle2 className="h-5 w-5 text-emerald-200" />
+              ) : (
+                <span className="label-sm bg-white/20 px-2.5 py-1 rounded-full text-white">{metrics.daysLeftInMonth}d left</span>
+              )}
+              <ChevronRight className="h-4 w-4 opacity-60" />
+            </div>
           </div>
-          
-          <div className="flex justify-between items-end mb-2">
+
+          <div className="flex items-end justify-between mb-3">
             <div>
-              <p className="display-md">${metrics.monthlyEarned.toFixed(0)}</p>
-              <p className="caption">of ${metrics.monthlyTargetIncome.toFixed(0)} target</p>
+              <p className="text-3xl font-bold">${metrics.monthlyEarned.toFixed(0)}</p>
+              <p className="body-sm text-white/60">of ${metrics.monthlyTargetIncome.toFixed(0)} target</p>
             </div>
-            <p className={`heading-sm ${isOnTrack ? 'text-success' : 'text-muted-foreground'}`}>
+            <p className={`text-2xl font-bold ${isOnTrack ? 'text-emerald-200' : 'text-white'}`}>
               {metrics.budgetProgress.toFixed(0)}%
             </p>
           </div>
-          <Progress value={metrics.budgetProgress} className="h-2" />
-          
-          <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-border/50">
+          <Progress value={metrics.budgetProgress} className="h-2.5 bg-white/20" />
+
+          <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-white/15">
             <div className="text-center">
-              <p className="caption">Expenses</p>
-              <p className="font-semibold text-sm">${financialData.monthlyExpenses.toFixed(0)}</p>
+              <p className="text-xs text-white/50">Expenses</p>
+              <p className="font-semibold text-white">${financialData.monthlyExpenses.toFixed(0)}</p>
             </div>
             <div className="text-center">
-              <p className="caption">Savings Goal</p>
-              <p className="font-semibold text-sm">${financialData.monthlySavingsGoal.toFixed(0)}</p>
+              <p className="text-xs text-white/50">Savings Goal</p>
+              <p className="font-semibold text-white">${financialData.monthlySavingsGoal.toFixed(0)}</p>
             </div>
             <div className="text-center">
-              <p className="caption">Saved</p>
-              <p className="font-semibold text-sm text-success">${metrics.currentSavings.toFixed(0)}</p>
+              <p className="text-xs text-white/50">Saved</p>
+              <p className="font-semibold text-emerald-200">${metrics.currentSavings.toFixed(0)}</p>
             </div>
           </div>
+
+          <div className="mt-4 pt-4 border-t border-white/15">
+            <div className="flex items-center justify-between">
+              <div>
+                {isOnTrack ? (
+                  <>
+                    <div className="flex items-center gap-2 mb-1">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-200" />
+                      <span className="label-sm text-emerald-200">Target Reached!</span>
+                    </div>
+                    <p className="text-xl font-bold text-emerald-200">+${surplus.toFixed(0)} surplus</p>
+                  </>
+                ) : metrics.averagePerShift > 0 ? (
+                  <>
+                    <div className="flex items-center gap-2 mb-1">
+                      <Target className="h-4 w-4 text-white/70" />
+                      <span className="label-sm text-white/70">Need {metrics.shiftsNeeded} more shift{metrics.shiftsNeeded !== 1 ? 's' : ''}</span>
+                    </div>
+                    <p className="text-sm text-white/50">${metrics.averagePerShift.toFixed(0)}/shift avg</p>
+                  </>
+                ) : (
+                  <p className="text-sm text-white/50">Log shifts to see strategy</p>
+                )}
+              </div>
+              <div className="relative" style={{ width: 56, height: 56 }}>
+                <svg className="-rotate-90" width={56} height={56}>
+                  <circle cx={28} cy={28} r={ringR} stroke="rgba(255,255,255,0.2)" strokeWidth={4} fill="none" />
+                  <circle cx={28} cy={28} r={ringR}
+                    stroke={score >= 80 ? '#86efac' : score >= 60 ? '#fde68a' : '#fca5a5'}
+                    strokeWidth={4} fill="none"
+                    strokeDasharray={`${(score / 100) * ringC} ${ringC}`}
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-sm font-bold text-white">{score}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 mt-3 pt-3 border-t border-white/15">
+              <div className="text-center">
+                <p className="font-semibold text-white">{metrics.shiftsWorkedThisMonth}</p>
+                <p className="text-xs text-white/50">Shifts</p>
+              </div>
+              <div className="text-center">
+                <p className="font-semibold text-white">{metrics.daysLeftInMonth}</p>
+                <p className="text-xs text-white/50">Days Left</p>
+              </div>
+              <div className="text-center">
+                <p className="font-semibold text-white">${metrics.averagePerShift.toFixed(0)}</p>
+                <p className="text-xs text-white/50">Per Shift</p>
+              </div>
+            </div>
+          </div>
+
+          <p className="text-xs text-center text-white/40 mt-3">Tap for breakdown & details</p>
         </div>
       </Card>
     );
   };
 
-  const ShiftStrategyCard = () => {
-    if (!hasBudgetSet && !yearlyGoal) return null;
-    if (metrics.averagePerShift === 0) {
-      return (
-        <Card className="border-dashed">
-          <CardContent className="p-6 text-center">
-            <Zap className="h-8 w-8 mx-auto mb-3 text-muted-foreground" />
-            <p className="body-md text-muted-foreground">Log more shifts to see shift strategy</p>
-          </CardContent>
-        </Card>
-      );
-    }
 
-    const isOnTrack = metrics.budgetProgress >= 100;
-
-    return (
-      <Card className="overflow-hidden">
-        <div className={`p-5 ${isOnTrack ? 'bg-success/10' : 'bg-gradient-primary text-primary-foreground'}`}>
-          <div className="flex items-start justify-between">
-            <div>
-              {isOnTrack ? (
-                <>
-                  <div className="flex items-center gap-2 mb-1">
-                    <CheckCircle2 className="h-5 w-5 text-success" />
-                    <span className="label-lg text-success">Target Reached!</span>
-                  </div>
-                  <p className="display-lg text-success">+${(metrics.monthlyEarned - metrics.monthlyTargetIncome).toFixed(0)} surplus</p>
-                </>
-              ) : (
-                <>
-                  <div className="flex items-center gap-2 mb-1">
-                    <Target className="h-5 w-5 text-primary-foreground/80" />
-                    <span className="label-lg text-primary-foreground/80">Shifts Needed</span>
-                  </div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-bold">{metrics.shiftsNeeded}</span>
-                    <span className="text-lg text-primary-foreground/70">shift{metrics.shiftsNeeded !== 1 ? 's' : ''}</span>
-                  </div>
-                  <p className="body-sm text-primary-foreground/60 mt-1">
-                    {metrics.daysLeftInMonth}d left • ${metrics.averagePerShift.toFixed(0)}/shift avg
-                  </p>
-                </>
-              )}
-            </div>
-            {!isOnTrack && <HealthScoreRing size="sm" />}
-          </div>
-        </div>
-        
-        <CardContent className="p-4">
-          <div className="flex justify-between">
-            <div className="text-center">
-              <p className="display-md">{metrics.shiftsWorkedThisMonth}</p>
-              <p className="caption">Shifts</p>
-            </div>
-            <div className="text-center">
-              <p className="display-md">{metrics.daysLeftInMonth}</p>
-              <p className="caption">Days Left</p>
-            </div>
-            <div className="text-center">
-              <p className="display-md">${metrics.averagePerShift.toFixed(0)}</p>
-              <p className="caption">Per Shift</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
 
   const InsightsCard = () => {
     const tips: { icon: React.ReactNode; message: string; type: 'success' | 'warning' | 'info' }[] = [];
@@ -578,10 +551,7 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
       
       {/* Budget section */}
       {hasBudgetSet ? (
-        <>
-          <BudgetProgressCard />
-          <ShiftStrategyCard />
-        </>
+        <MonthlyBudgetHero />
       ) : (
         <BudgetInput
           monthlyExpenses={financialData.monthlyExpenses}
@@ -589,25 +559,6 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
           monthlySpendingLimit={financialData.monthlySpendingLimit}
           onSave={onUpdateFinancialData}
         />
-      )}
-      
-      {/* Health score if budget set */}
-      {hasBudgetSet && (
-        <Card 
-          className="cursor-pointer interactive-rise"
-          onClick={() => setIsHealthScoreModalOpen(true)}
-        >
-          <CardContent className="p-4">
-            <div className="flex items-center gap-4">
-              <HealthScoreRing size="sm" />
-              <div className="flex-1">
-                <p className="label-lg">{format(new Date(), 'MMMM')} Health Score</p>
-                <p className="caption">Tap for breakdown & details</p>
-              </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
       )}
       
       <MonthlyHistoryCard />
