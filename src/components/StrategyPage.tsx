@@ -578,10 +578,7 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
       
       {/* Budget section */}
       {hasBudgetSet ? (
-        <>
-          <BudgetProgressCard />
-          <ShiftStrategyCard />
-        </>
+        <MonthlyBudgetHero />
       ) : (
         <BudgetInput
           monthlyExpenses={financialData.monthlyExpenses}
@@ -589,25 +586,6 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
           monthlySpendingLimit={financialData.monthlySpendingLimit}
           onSave={onUpdateFinancialData}
         />
-      )}
-      
-      {/* Health score if budget set */}
-      {hasBudgetSet && (
-        <Card 
-          className="cursor-pointer interactive-rise"
-          onClick={() => setIsHealthScoreModalOpen(true)}
-        >
-          <CardContent className="p-4">
-            <div className="flex items-center gap-4">
-              <HealthScoreRing size="sm" />
-              <div className="flex-1">
-                <p className="label-lg">{format(new Date(), 'MMMM')} Health Score</p>
-                <p className="caption">Tap for breakdown & details</p>
-              </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
       )}
       
       <MonthlyHistoryCard />
