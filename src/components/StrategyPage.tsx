@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { 
   Target, TrendingUp, TrendingDown, CheckCircle2, Clock, Calendar,
-  ChevronRight, Wallet, Plus, Zap, Sparkles, Lightbulb,
+  ChevronRight, Wallet, Plus, Sparkles, Lightbulb,
   ArrowUpRight, ArrowDownRight, Minus
 } from 'lucide-react';
 import { Goal, FinancialData } from '@/hooks/useGoals';
