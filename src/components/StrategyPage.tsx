@@ -356,7 +356,121 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
     );
   };
 
-  const BudgetProgressCard = () => {
+  const MonthlyBudgetHero = () => {
+    if (!hasBudgetSet) return null;
+    const isOnTrack = metrics.budgetProgress >= 100;
+    const surplus = metrics.monthlyEarned - metrics.monthlyTargetIncome;
+    const score = metrics.healthScore;
+    const ringR = 22;
+    const ringC = 2 * Math.PI * ringR;
+
+    return (
+      <Card 
+        className="overflow-hidden border-0 shadow-depth-lg cursor-pointer interactive-rise"
+        onClick={() => setIsHealthScoreModalOpen(true)}
+      >
+        <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 p-5 text-white">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Wallet className="h-5 w-5" />
+              <span className="label-lg text-white">Monthly Budget</span>
+            </div>
+            <div className="flex items-center gap-2">
+              {isOnTrack ? (
+                <CheckCircle2 className="h-5 w-5 text-emerald-200" />
+              ) : (
+                <span className="label-sm bg-white/20 px-2.5 py-1 rounded-full text-white">{metrics.daysLeftInMonth}d left</span>
+              )}
+              <ChevronRight className="h-4 w-4 opacity-60" />
+            </div>
+          </div>
+
+          <div className="flex items-end justify-between mb-3">
+            <div>
+              <p className="text-3xl font-bold">${metrics.monthlyEarned.toFixed(0)}</p>
+              <p className="body-sm text-white/60">of ${metrics.monthlyTargetIncome.toFixed(0)} target</p>
+            </div>
+            <p className={`text-2xl font-bold ${isOnTrack ? 'text-emerald-200' : 'text-white'}`}>
+              {metrics.budgetProgress.toFixed(0)}%
+            </p>
+          </div>
+          <Progress value={metrics.budgetProgress} className="h-2.5 bg-white/20" />
+
+          <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-white/15">
+            <div className="text-center">
+              <p className="text-xs text-white/50">Expenses</p>
+              <p className="font-semibold text-white">${financialData.monthlyExpenses.toFixed(0)}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-xs text-white/50">Savings Goal</p>
+              <p className="font-semibold text-white">${financialData.monthlySavingsGoal.toFixed(0)}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-xs text-white/50">Saved</p>
+              <p className="font-semibold text-emerald-200">${metrics.currentSavings.toFixed(0)}</p>
+            </div>
+          </div>
+
+          <div className="mt-4 pt-4 border-t border-white/15">
+            <div className="flex items-center justify-between">
+              <div>
+                {isOnTrack ? (
+                  <>
+                    <div className="flex items-center gap-2 mb-1">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-200" />
+                      <span className="label-sm text-emerald-200">Target Reached!</span>
+                    </div>
+                    <p className="text-xl font-bold text-emerald-200">+${surplus.toFixed(0)} surplus</p>
+                  </>
+                ) : metrics.averagePerShift > 0 ? (
+                  <>
+                    <div className="flex items-center gap-2 mb-1">
+                      <Target className="h-4 w-4 text-white/70" />
+                      <span className="label-sm text-white/70">Need {metrics.shiftsNeeded} more shift{metrics.shiftsNeeded !== 1 ? 's' : ''}</span>
+                    </div>
+                    <p className="text-sm text-white/50">${metrics.averagePerShift.toFixed(0)}/shift avg</p>
+                  </>
+                ) : (
+                  <p className="text-sm text-white/50">Log shifts to see strategy</p>
+                )}
+              </div>
+              <div className="relative" style={{ width: 56, height: 56 }}>
+                <svg className="-rotate-90" width={56} height={56}>
+                  <circle cx={28} cy={28} r={ringR} stroke="rgba(255,255,255,0.2)" strokeWidth={4} fill="none" />
+                  <circle cx={28} cy={28} r={ringR}
+                    stroke={score >= 80 ? '#86efac' : score >= 60 ? '#fde68a' : '#fca5a5'}
+                    strokeWidth={4} fill="none"
+                    strokeDasharray={`${(score / 100) * ringC} ${ringC}`}
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-sm font-bold text-white">{score}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 mt-3 pt-3 border-t border-white/15">
+              <div className="text-center">
+                <p className="font-semibold text-white">{metrics.shiftsWorkedThisMonth}</p>
+                <p className="text-xs text-white/50">Shifts</p>
+              </div>
+              <div className="text-center">
+                <p className="font-semibold text-white">{metrics.daysLeftInMonth}</p>
+                <p className="text-xs text-white/50">Days Left</p>
+              </div>
+              <div className="text-center">
+                <p className="font-semibold text-white">${metrics.averagePerShift.toFixed(0)}</p>
+                <p className="text-xs text-white/50">Per Shift</p>
+              </div>
+            </div>
+          </div>
+
+          <p className="text-xs text-center text-white/40 mt-3">Tap for breakdown & details</p>
+        </div>
+      </Card>
+    );
+  };
     if (!hasBudgetSet) return null;
     const isOnTrack = metrics.budgetProgress >= 100;
     const surplus = metrics.monthlyEarned - metrics.monthlyTargetIncome;
