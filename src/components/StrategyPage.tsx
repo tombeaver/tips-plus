@@ -326,35 +326,8 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
     );
   };
 
-  const HealthScoreRing = ({ size = 'lg' }: { size?: 'sm' | 'lg' }) => {
-    const score = metrics.healthScore;
-    const radius = size === 'lg' ? 54 : 32;
-    const circumference = 2 * Math.PI * radius;
-    const svgSize = size === 'lg' ? 128 : 80;
-    
-    return (
-      <div className="relative" style={{ width: svgSize, height: svgSize }}>
-        <svg className="-rotate-90" width={svgSize} height={svgSize}>
-          <circle
-            cx={svgSize / 2} cy={svgSize / 2} r={radius}
-            stroke="hsl(var(--border))" strokeWidth={size === 'lg' ? 8 : 5} fill="none"
-          />
-          <circle
-            cx={svgSize / 2} cy={svgSize / 2} r={radius}
-            stroke={score >= 80 ? 'hsl(var(--success))' : score >= 60 ? 'hsl(var(--warning))' : 'hsl(var(--destructive))'}
-            strokeWidth={size === 'lg' ? 8 : 5} fill="none"
-            strokeDasharray={`${(score / 100) * circumference} ${circumference}`}
-            strokeLinecap="round"
-            className="transition-all duration-700"
-          />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className={`font-bold ${size === 'lg' ? 'text-2xl' : 'text-lg'} ${getScoreColor(score)}`}>{score}</span>
-          {size === 'lg' && <span className="body-sm text-muted-foreground">{getScoreLabel(score)}</span>}
-        </div>
-      </div>
-    );
-  };
+
+
 
   const MonthlyBudgetHero = () => {
     if (!hasBudgetSet) return null;
