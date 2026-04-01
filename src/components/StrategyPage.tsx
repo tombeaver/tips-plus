@@ -169,6 +169,8 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
       });
     }
 
+    const budgetMonthName = format(budgetMonthStart, 'MMMM');
+
     return {
       yearlyAchieved, yearlyPercentage,
       weeklyTarget, weeklyEarned, monthlyTarget, monthlyEarned,
@@ -176,7 +178,7 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
       currentSavings, monthlyTargetIncome, shortfall, shiftsNeeded, budgetProgress,
       healthScore, proratedExpenses, proratedSavingsGoal,
       annualSurplus, weeksRemaining, isOnTrack, weeksPassed,
-      monthProgress, monthlyHistory,
+      monthProgress, monthlyHistory, budgetMonthName,
     };
   }, [realEntries, tipEntries, yearlyGoal, financialData]);
 
