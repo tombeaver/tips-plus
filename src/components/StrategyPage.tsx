@@ -38,6 +38,13 @@ const calculateTotalEarnings = (entry: TipEntry) => {
   return tips + wages;
 };
 
+// Get the month key based on the Sunday that starts the entry's week
+// This ensures consistency with analytics: a week belongs to the month of its Sunday
+const getMonthKeyBySunday = (date: Date) => {
+  const weekSunday = startOfWeek(date, { weekStartsOn: 0 });
+  return format(weekSunday, 'yyyy-MM');
+};
+
 export const StrategyPage: React.FC<StrategyPageProps> = ({
   goals,
   financialData,
@@ -62,13 +69,18 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
     const now = new Date();
     const yearStart = startOfYear(now);
     const yearEnd = endOfYear(now);
-    const weekStart = startOfWeek(now);
-    const weekEnd = endOfWeek(now);
-    const monthStart = startOfMonth(now);
-    const monthEnd = endOfMonth(now);
+    const weekStart = startOfWeek(now, { weekStartsOn: 0 });
+    const weekEnd = endOfWeek(now, { weekStartsOn: 0 });
+    
+    // Current "month" is determined by the Sunday of the current week
+    const currentMonthKey = getMonthKeyBySunday(now);
+    const [currentYear, currentMonthNum] = currentMonthKey.split('-').map(Number);
+    const budgetMonthStart = new Date(currentYear, currentMonthNum - 1, 1);
+    const budgetMonthEnd = endOfMonth(budgetMonthStart);
     const dayOfMonth = getDate(now);
-    const daysInMonth = getDaysInMonth(now);
-    const monthProgress = dayOfMonth / daysInMonth;
+    const daysInMonth = getDaysInMonth(budgetMonthStart);
+    // Progress through the budget month based on today's position
+    const monthProgress = Math.min(dayOfMonth / daysInMonth, 1);
 
     // Annual
     const yearlyAchieved = realEntries
@@ -84,8 +96,10 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
     const weeklyEarned = realEntries
       .filter(entry => isWithinInterval(entry.date, { start: weekStart, end: weekEnd }))
       .reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
+    
+    // Monthly earned uses Sunday-based month assignment (matching analytics)
     const monthlyEarned = realEntries
-      .filter(entry => isWithinInterval(entry.date, { start: monthStart, end: monthEnd }))
+      .filter(entry => getMonthKeyBySunday(entry.date) === currentMonthKey)
       .reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
 
     // Average per shift
@@ -93,12 +107,12 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
     const totalShifts = realEntries.reduce((sum, entry) => sum + (entry.shift === 'Double' ? 2 : 1), 0);
     const averagePerShift = totalShifts > 0 ? totalEarnings / totalShifts : 0;
 
-    // Shifts worked this month
-    const monthEntries = realEntries.filter(entry => isWithinInterval(entry.date, { start: monthStart, end: monthEnd }));
+    // Shifts worked this month (using Sunday-based month)
+    const monthEntries = realEntries.filter(entry => getMonthKeyBySunday(entry.date) === currentMonthKey);
     const shiftsWorkedThisMonth = monthEntries.reduce((sum, entry) => sum + (entry.shift === 'Double' ? 2 : 1), 0);
 
-    // Days left
-    const daysLeftInMonth = Math.max(0, differenceInDays(monthEnd, now) + 1);
+    // Days left in the budget month
+    const daysLeftInMonth = Math.max(0, differenceInDays(budgetMonthEnd, now) + 1);
 
     // Budget metrics
     const proratedExpenses = financialData.monthlyExpenses * monthProgress;
@@ -134,14 +148,15 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
     const weeksRemaining = Math.max(0, weeksInYear - weeksPassed);
     const isOnTrack = yearlyPercentage >= (weeksPassed / weeksInYear) * 100;
 
-    // Monthly history - previous months this year
-    const currentMonthIndex = getMonth(now);
+    // Monthly history - previous months this year (using Sunday-based month assignment)
+    // The current budget month is determined by Sunday of current week
+    const budgetMonthIndex = currentMonthNum - 1; // 0-indexed
     const monthlyHistory = [];
-    for (let i = 0; i < currentMonthIndex; i++) {
+    for (let i = 0; i < budgetMonthIndex; i++) {
       const mStart = new Date(getYear(now), i, 1);
-      const mEnd = endOfMonth(mStart);
+      const monthKey = format(mStart, 'yyyy-MM');
       const earned = realEntries
-        .filter(entry => isWithinInterval(entry.date, { start: mStart, end: mEnd }))
+        .filter(entry => getMonthKeyBySunday(entry.date) === monthKey)
         .reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
       monthlyHistory.push({
         month: format(mStart, 'MMM'),
@@ -154,6 +169,8 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
       });
     }
 
+    const budgetMonthName = format(budgetMonthStart, 'MMMM');
+
     return {
       yearlyAchieved, yearlyPercentage,
       weeklyTarget, weeklyEarned, monthlyTarget, monthlyEarned,
@@ -161,7 +178,7 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
       currentSavings, monthlyTargetIncome, shortfall, shiftsNeeded, budgetProgress,
       healthScore, proratedExpenses, proratedSavingsGoal,
       annualSurplus, weeksRemaining, isOnTrack, weeksPassed,
-      monthProgress, monthlyHistory,
+      monthProgress, monthlyHistory, budgetMonthName,
     };
   }, [realEntries, tipEntries, yearlyGoal, financialData]);
 
@@ -346,7 +363,7 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Wallet className="h-5 w-5" />
-              <span className="label-lg text-white">Monthly Budget</span>
+              <span className="label-lg text-white">{metrics.budgetMonthName} Budget</span>
             </div>
             <div className="flex items-center gap-2">
               {isOnTrack ? (
