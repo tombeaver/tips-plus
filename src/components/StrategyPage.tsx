@@ -69,13 +69,18 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
     const now = new Date();
     const yearStart = startOfYear(now);
     const yearEnd = endOfYear(now);
-    const weekStart = startOfWeek(now);
-    const weekEnd = endOfWeek(now);
-    const monthStart = startOfMonth(now);
-    const monthEnd = endOfMonth(now);
+    const weekStart = startOfWeek(now, { weekStartsOn: 0 });
+    const weekEnd = endOfWeek(now, { weekStartsOn: 0 });
+    
+    // Current "month" is determined by the Sunday of the current week
+    const currentMonthKey = getMonthKeyBySunday(now);
+    const [currentYear, currentMonthNum] = currentMonthKey.split('-').map(Number);
+    const budgetMonthStart = new Date(currentYear, currentMonthNum - 1, 1);
+    const budgetMonthEnd = endOfMonth(budgetMonthStart);
     const dayOfMonth = getDate(now);
-    const daysInMonth = getDaysInMonth(now);
-    const monthProgress = dayOfMonth / daysInMonth;
+    const daysInMonth = getDaysInMonth(budgetMonthStart);
+    // Progress through the budget month based on today's position
+    const monthProgress = Math.min(dayOfMonth / daysInMonth, 1);
 
     // Annual
     const yearlyAchieved = realEntries
@@ -91,8 +96,10 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
     const weeklyEarned = realEntries
       .filter(entry => isWithinInterval(entry.date, { start: weekStart, end: weekEnd }))
       .reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
+    
+    // Monthly earned uses Sunday-based month assignment (matching analytics)
     const monthlyEarned = realEntries
-      .filter(entry => isWithinInterval(entry.date, { start: monthStart, end: monthEnd }))
+      .filter(entry => getMonthKeyBySunday(entry.date) === currentMonthKey)
       .reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
 
     // Average per shift
@@ -100,12 +107,12 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
     const totalShifts = realEntries.reduce((sum, entry) => sum + (entry.shift === 'Double' ? 2 : 1), 0);
     const averagePerShift = totalShifts > 0 ? totalEarnings / totalShifts : 0;
 
-    // Shifts worked this month
-    const monthEntries = realEntries.filter(entry => isWithinInterval(entry.date, { start: monthStart, end: monthEnd }));
+    // Shifts worked this month (using Sunday-based month)
+    const monthEntries = realEntries.filter(entry => getMonthKeyBySunday(entry.date) === currentMonthKey);
     const shiftsWorkedThisMonth = monthEntries.reduce((sum, entry) => sum + (entry.shift === 'Double' ? 2 : 1), 0);
 
-    // Days left
-    const daysLeftInMonth = Math.max(0, differenceInDays(monthEnd, now) + 1);
+    // Days left in the budget month
+    const daysLeftInMonth = Math.max(0, differenceInDays(budgetMonthEnd, now) + 1);
 
     // Budget metrics
     const proratedExpenses = financialData.monthlyExpenses * monthProgress;
