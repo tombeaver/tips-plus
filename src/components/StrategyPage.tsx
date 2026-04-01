@@ -363,7 +363,7 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Wallet className="h-5 w-5" />
-              <span className="label-lg text-white">Monthly Budget</span>
+              <span className="label-lg text-white">{metrics.budgetMonthName} Budget</span>
             </div>
             <div className="flex items-center gap-2">
               {isOnTrack ? (
