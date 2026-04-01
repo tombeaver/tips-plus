@@ -38,6 +38,13 @@ const calculateTotalEarnings = (entry: TipEntry) => {
   return tips + wages;
 };
 
+// Get the month key based on the Sunday that starts the entry's week
+// This ensures consistency with analytics: a week belongs to the month of its Sunday
+const getMonthKeyBySunday = (date: Date) => {
+  const weekSunday = startOfWeek(date, { weekStartsOn: 0 });
+  return format(weekSunday, 'yyyy-MM');
+};
+
 export const StrategyPage: React.FC<StrategyPageProps> = ({
   goals,
   financialData,
