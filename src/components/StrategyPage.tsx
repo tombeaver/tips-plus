@@ -148,14 +148,15 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
     const weeksRemaining = Math.max(0, weeksInYear - weeksPassed);
     const isOnTrack = yearlyPercentage >= (weeksPassed / weeksInYear) * 100;
 
-    // Monthly history - previous months this year
-    const currentMonthIndex = getMonth(now);
+    // Monthly history - previous months this year (using Sunday-based month assignment)
+    // The current budget month is determined by Sunday of current week
+    const budgetMonthIndex = currentMonthNum - 1; // 0-indexed
     const monthlyHistory = [];
-    for (let i = 0; i < currentMonthIndex; i++) {
+    for (let i = 0; i < budgetMonthIndex; i++) {
       const mStart = new Date(getYear(now), i, 1);
-      const mEnd = endOfMonth(mStart);
+      const monthKey = format(mStart, 'yyyy-MM');
       const earned = realEntries
-        .filter(entry => isWithinInterval(entry.date, { start: mStart, end: mEnd }))
+        .filter(entry => getMonthKeyBySunday(entry.date) === monthKey)
         .reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
       monthlyHistory.push({
         month: format(mStart, 'MMM'),
