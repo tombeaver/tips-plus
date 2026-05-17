@@ -600,6 +600,13 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                       {stats.averageTipPercentage.toFixed(1)}% avg tip
                     </p>
                   </div>
+                  <ComparisonDelta
+                    current={stats.totalEarnings}
+                    previous={prevStats.totalEarnings}
+                    label={comparisonLabel}
+                    format="currency"
+                    variant="onColor"
+                  />
                 </div>
                 <div className="text-white/80">
                   <DollarSign className="h-12 w-12" />
@@ -635,6 +642,13 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                     <p className="text-white/70 text-xs mt-1">
                       Total earnings ÷ Hours worked
                     </p>
+                    <ComparisonDelta
+                      current={stats.earningsPerHour}
+                      previous={prevStats.earningsPerHour}
+                      label={comparisonLabel}
+                      format="currency"
+                      variant="onColor"
+                    />
                   </div>
                   <Clock className="h-10 w-10 text-white/80" />
                 </div>
@@ -655,6 +669,13 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                     <p className="text-white/70 text-xs mt-1">
                       Total earnings ÷ Days worked
                     </p>
+                    <ComparisonDelta
+                      current={stats.shiftsWorked > 0 ? stats.totalEarnings / stats.shiftsWorked : 0}
+                      previous={prevStats.avgDailyIncome}
+                      label={comparisonLabel}
+                      format="currency"
+                      variant="onColor"
+                    />
                   </div>
                   <CalendarRange className="h-10 w-10 text-white/80" />
                 </div>
@@ -677,6 +698,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                       <p className="text-xs text-muted-foreground mt-1">
                         {stats.totalSales > 0 ? ((stats.totalAlcoholSales / stats.totalSales) * 100).toFixed(1) : 0}% of total sales
                       </p>
+                      <ComparisonDelta
+                        current={stats.totalAlcoholSales}
+                        previous={prevStats.totalAlcoholSales}
+                        label={comparisonLabel}
+                        format="currency"
+                      />
                     </div>
                     <Wine className="h-6 w-6 text-rose-600" />
                   </div>
@@ -697,6 +724,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                       <p className="text-xs text-muted-foreground mt-1">
                         {stats.totalSales > 0 ? ((stats.totalMiscSales / stats.totalSales) * 100).toFixed(1) : 0}% of total sales
                       </p>
+                      <ComparisonDelta
+                        current={stats.totalMiscSales}
+                        previous={prevStats.totalMiscSales}
+                        label={comparisonLabel}
+                        format="currency"
+                      />
                     </div>
                     <ShoppingBag className="h-6 w-6 text-amber-600" />
                   </div>
@@ -713,6 +746,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                   <div>
                     <p className="text-sm text-muted-foreground">Total Cash Tips</p>
                     <p className="text-xl font-bold text-emerald-600">${stats.totalCashTips.toFixed(2)}</p>
+                    <ComparisonDelta
+                      current={stats.totalCashTips}
+                      previous={prevStats.totalCashTips}
+                      label={comparisonLabel}
+                      format="currency"
+                    />
                   </div>
                   <Banknote className="h-6 w-6 text-emerald-600" />
                 </div>
@@ -728,6 +767,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                   <div>
                     <p className="text-sm text-muted-foreground">Total Credit Tips</p>
                     <p className="text-xl font-bold text-blue-600">${stats.totalCreditTips.toFixed(2)}</p>
+                    <ComparisonDelta
+                      current={stats.totalCreditTips}
+                      previous={prevStats.totalCreditTips}
+                      label={comparisonLabel}
+                      format="currency"
+                    />
                   </div>
                   <CreditCard className="h-6 w-6 text-blue-600" />
                 </div>
@@ -743,6 +788,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                   <div>
                     <p className="text-sm text-muted-foreground">Avg per Guest</p>
                     <p className="text-xl font-bold text-orange-600">${stats.averagePerGuest.toFixed(2)}</p>
+                    <ComparisonDelta
+                      current={stats.averagePerGuest}
+                      previous={prevStats.averagePerGuest}
+                      label={comparisonLabel}
+                      format="currency"
+                    />
                   </div>
                   <Users className="h-6 w-6 text-orange-600" />
                 </div>
@@ -758,6 +809,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                   <div>
                     <p className="text-sm text-muted-foreground">Avg Tip %</p>
                     <p className="text-xl font-bold text-purple-600">{stats.averageTipPercentage.toFixed(1)}%</p>
+                    <ComparisonDelta
+                      current={stats.averageTipPercentage}
+                      previous={prevStats.averageTipPercentage}
+                      label={comparisonLabel}
+                      format="percent"
+                    />
                   </div>
                   <Percent className="h-6 w-6 text-purple-600" />
                 </div>
@@ -773,6 +830,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                   <div>
                     <p className="text-sm text-muted-foreground">Total Shifts</p>
                     <p className="text-xl font-bold text-slate-600">{stats.shiftsWorked}</p>
+                    <ComparisonDelta
+                      current={stats.shiftsWorked}
+                      previous={prevStats.shiftsWorked}
+                      label={comparisonLabel}
+                      format="number"
+                    />
                   </div>
                   <Calendar className="h-6 w-6 text-slate-600" />
                 </div>
@@ -788,6 +851,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                   <div>
                     <p className="text-sm text-muted-foreground">Total Hours</p>
                     <p className="text-xl font-bold text-indigo-600">{stats.totalHours.toFixed(1)}</p>
+                    <ComparisonDelta
+                      current={stats.totalHours}
+                      previous={prevStats.totalHours}
+                      label={comparisonLabel}
+                      format="decimal"
+                    />
                   </div>
                   <Clock className="h-6 w-6 text-indigo-600" />
                 </div>
