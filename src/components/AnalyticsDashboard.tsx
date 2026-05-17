@@ -14,6 +14,50 @@ interface AnalyticsDashboardProps {
   tipEntries: TipEntry[];
 }
 
+type DeltaFormat = 'currency' | 'percent' | 'number' | 'decimal';
+
+interface ComparisonDeltaProps {
+  current: number;
+  previous: number;
+  label: string;
+  format?: DeltaFormat;
+  variant?: 'default' | 'onColor';
+}
+
+const formatPrev = (value: number, fmt: DeltaFormat) => {
+  switch (fmt) {
+    case 'currency': return `$${value.toFixed(2)}`;
+    case 'percent': return `${value.toFixed(1)}%`;
+    case 'decimal': return value.toFixed(1);
+    default: return Math.round(value).toString();
+  }
+};
+
+const ComparisonDelta: React.FC<ComparisonDeltaProps> = ({ current, previous, label, format: fmt = 'currency', variant = 'default' }) => {
+  if (!previous || previous === 0) {
+    return (
+      <p className={`text-xs mt-1 ${variant === 'onColor' ? 'text-white/60' : 'text-muted-foreground/70'}`}>
+        No data {label}
+      </p>
+    );
+  }
+  const diff = current - previous;
+  const pct = (diff / Math.abs(previous)) * 100;
+  const isUp = diff >= 0;
+  const arrow = isUp ? '▲' : '▼';
+  const colorClass =
+    variant === 'onColor'
+      ? 'text-white/90'
+      : isUp
+        ? 'text-emerald-600'
+        : 'text-rose-600';
+  return (
+    <p className={`text-xs mt-1 font-medium ${colorClass}`}>
+      {arrow} {Math.abs(pct).toFixed(1)}% {label} ({formatPrev(previous, fmt)})
+    </p>
+  );
+};
+
 export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntries }) => {
   const [periodType, setPeriodType] = useState<'all' | 'week' | 'month' | 'year'>(() => {
     const saved = localStorage.getItem('analytics-period-type');
@@ -135,6 +179,61 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
     }
   }, [realEntries, periodType, selectedPeriod]);
 
+  // Entries for the equivalent prior-year period (for YoY deltas)
+  const previousEntries = useMemo(() => {
+    if (periodType === 'all') {
+      // YTD vs same date range last year
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const startPrev = new Date(currentYear - 1, 0, 1);
+      const endPrev = new Date(currentYear - 1, now.getMonth(), now.getDate(), 23, 59, 59);
+      return realEntries.filter(e => e.date >= startPrev && e.date <= endPrev);
+    }
+    if (periodType === 'year') {
+      const y = parseInt(selectedPeriod);
+      if (!y) return [];
+      return realEntries.filter(e => getYear(e.date) === y - 1);
+    }
+    if (periodType === 'month') {
+      if (!selectedPeriod) return [];
+      const [y, m] = selectedPeriod.split('-').map(Number);
+      if (!y || !m) return [];
+      const prevKey = `${y - 1}-${String(m).padStart(2, '0')}`;
+      return realEntries.filter(e => getMonthKeyBySunday(e.date) === prevKey);
+    }
+    if (periodType === 'week') {
+      if (!selectedPeriod) return [];
+      const [yStr, wPart] = selectedPeriod.split('-W');
+      const y = parseInt(yStr);
+      if (!y || !wPart) return [];
+      const prevKey = `${y - 1}-W${wPart}`;
+      return realEntries.filter(e => getWeekKey(e.date) === prevKey);
+    }
+    return [];
+  }, [realEntries, periodType, selectedPeriod]);
+
+  const getComparisonLabel = () => {
+    if (periodType === 'all') return 'vs last YTD';
+    if (periodType === 'year') {
+      const y = parseInt(selectedPeriod);
+      return y ? `vs ${y - 1}` : 'vs last year';
+    }
+    if (periodType === 'month') {
+      if (!selectedPeriod) return 'vs last year';
+      const [y, m] = selectedPeriod.split('-').map(Number);
+      const prevDate = new Date(y - 1, m - 1, 1);
+      return `vs ${format(prevDate, 'MMM yyyy')}`;
+    }
+    if (periodType === 'week') {
+      if (!selectedPeriod) return 'vs last year';
+      const [yStr, wPart] = selectedPeriod.split('-W');
+      return `vs Wk ${parseInt(wPart)}, ${parseInt(yStr) - 1}`;
+    }
+    return 'vs last year';
+  };
+
+  const comparisonLabel = getComparisonLabel();
+
   const getTimeFrameLabel = () => {
     if (periodType === 'all') return 'All Time';
     if (!selectedPeriod) return 'Select a period';
@@ -204,6 +303,57 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       hasMiscData
     };
   }, [filteredEntries]);
+
+  // Mirror of stats but for the prior-year comparison period
+  const prevStats = useMemo(() => {
+    if (previousEntries.length === 0) {
+      return {
+        totalTips: 0,
+        totalCashTips: 0,
+        totalCreditTips: 0,
+        totalSales: 0,
+        totalAlcoholSales: 0,
+        totalMiscSales: 0,
+        totalEarnings: 0,
+        averageTipPercentage: 0,
+        averagePerGuest: 0,
+        totalGuests: 0,
+        tipsPerHour: 0,
+        earningsPerHour: 0,
+        totalHours: 0,
+        shiftsWorked: 0,
+        avgDailyIncome: 0,
+      };
+    }
+    const totalCashTips = previousEntries.reduce((s, e) => s + e.cashTips, 0);
+    const totalCreditTips = previousEntries.reduce((s, e) => s + e.creditTips, 0);
+    const totalTips = totalCashTips + totalCreditTips;
+    const totalSales = previousEntries.reduce((s, e) => s + e.totalSales, 0);
+    const totalAlcoholSales = previousEntries.reduce((s, e) => s + (e.alcoholSales || 0), 0);
+    const totalMiscSales = previousEntries.reduce((s, e) => s + (e.salesBreakdown?.misc || 0), 0);
+    const totalGuests = previousEntries.reduce((s, e) => s + e.guestCount, 0);
+    const totalHours = previousEntries.reduce((s, e) => s + e.hoursWorked, 0);
+    const totalWages = previousEntries.reduce((s, e) => s + e.hoursWorked * e.hourlyRate, 0);
+    const totalEarnings = totalTips + totalWages;
+    const shiftsWorked = previousEntries.reduce((s, e) => s + (e.shift === 'Double' ? 2 : 1), 0);
+    return {
+      totalTips,
+      totalCashTips,
+      totalCreditTips,
+      totalSales,
+      totalAlcoholSales,
+      totalMiscSales,
+      totalEarnings,
+      averageTipPercentage: totalSales > 0 ? (totalTips / totalSales) * 100 : 0,
+      averagePerGuest: totalGuests > 0 ? totalTips / totalGuests : 0,
+      totalGuests,
+      tipsPerHour: totalHours > 0 ? totalTips / totalHours : 0,
+      earningsPerHour: totalHours > 0 ? totalEarnings / totalHours : 0,
+      totalHours,
+      shiftsWorked,
+      avgDailyIncome: shiftsWorked > 0 ? totalEarnings / shiftsWorked : 0,
+    };
+  }, [previousEntries]);
 
   const sectionStats = useMemo(() => {
     const sectionMap = new Map();
