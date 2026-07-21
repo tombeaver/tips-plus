@@ -58,10 +58,12 @@ const ComparisonDelta: React.FC<ComparisonDeltaProps> = ({ current, previous, la
   );
 };
 
+type PeriodType = 'all' | 'week' | 'month' | 'year' | 'last3' | 'last6';
+
 export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntries }) => {
-  const [periodType, setPeriodType] = useState<'all' | 'week' | 'month' | 'year'>(() => {
+  const [periodType, setPeriodType] = useState<PeriodType>(() => {
     const saved = localStorage.getItem('analytics-period-type');
-    return (saved as 'all' | 'week' | 'month' | 'year') || 'all';
+    return (saved as PeriodType) || 'all';
   });
   const [selectedPeriod, setSelectedPeriod] = useState(() => {
     return localStorage.getItem('analytics-selected-period') || '';
@@ -94,11 +96,21 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
     return format(weekStart, 'yyyy-MM');
   };
 
+  // Rolling window helper: returns [start, end] for last N months (inclusive of today)
+  const getRollingRange = (months: number) => {
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+    const start = subMonths(new Date(end.getFullYear(), end.getMonth(), end.getDate()), months - 1);
+    start.setDate(1);
+    start.setHours(0, 0, 0, 0);
+    return { start, end };
+  };
+
   // Get available options based on period type
   const availableOptions = useMemo(() => {
     const now = new Date();
     
-    if (periodType === 'all') {
+    if (periodType === 'all' || periodType === 'last3' || periodType === 'last6') {
       return [];
     } else if (periodType === 'week') {
       // Use year-week key to properly distinguish weeks across years
@@ -144,7 +156,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
 
   // Set default period when period type changes
   React.useEffect(() => {
-    if (periodType === 'all') {
+    if (periodType === 'all' || periodType === 'last3' || periodType === 'last6') {
       setSelectedPeriod('');
     } else if (availableOptions.length > 0) {
       // Check if current selectedPeriod is valid for this period type
@@ -165,7 +177,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
 
   // Filter entries based on selected period
   const filteredEntries = useMemo(() => {
-    if (periodType === 'all' || !selectedPeriod) return realEntries;
+    if (periodType === 'all') return realEntries;
+    if (periodType === 'last3' || periodType === 'last6') {
+      const { start, end } = getRollingRange(periodType === 'last3' ? 3 : 6);
+      return realEntries.filter(e => e.date >= start && e.date <= end);
+    }
+    if (!selectedPeriod) return realEntries;
     
     if (periodType === 'week') {
       // Filter by year-week key
@@ -187,6 +204,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       const currentYear = now.getFullYear();
       const startPrev = new Date(currentYear - 1, 0, 1);
       const endPrev = new Date(currentYear - 1, now.getMonth(), now.getDate(), 23, 59, 59);
+      return realEntries.filter(e => e.date >= startPrev && e.date <= endPrev);
+    }
+    if (periodType === 'last3' || periodType === 'last6') {
+      const { start, end } = getRollingRange(periodType === 'last3' ? 3 : 6);
+      const startPrev = new Date(start.getFullYear() - 1, start.getMonth(), start.getDate(), 0, 0, 0);
+      const endPrev = new Date(end.getFullYear() - 1, end.getMonth(), end.getDate(), 23, 59, 59);
       return realEntries.filter(e => e.date >= startPrev && e.date <= endPrev);
     }
     if (periodType === 'year') {
@@ -214,6 +237,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
 
   const getComparisonLabel = () => {
     if (periodType === 'all') return 'vs last YTD';
+    if (periodType === 'last3') return 'vs prior 3mo last year';
+    if (periodType === 'last6') return 'vs prior 6mo last year';
     if (periodType === 'year') {
       const y = parseInt(selectedPeriod);
       return y ? `vs ${y - 1}` : 'vs last year';
@@ -238,6 +263,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
 
   const getTimeFrameLabel = () => {
     if (periodType === 'all') return 'All Time';
+    if (periodType === 'last3') return 'Last 3 Months';
+    if (periodType === 'last6') return 'Last 6 Months';
     if (!selectedPeriod) return 'Select a period';
     
     const option = availableOptions.find(opt => opt.value === selectedPeriod);
