@@ -479,7 +479,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         ...item,
         total: item.tips + item.wages
       })).sort((a, b) => a.date.getTime() - b.date.getTime());
-    } else if (periodType === 'year') {
+    } else if (periodType === 'year' || periodType === 'last3' || periodType === 'last6') {
       // Monthly trend for selected year
       const months = new Map();
       filteredEntries.forEach(entry => {
@@ -554,6 +554,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
 
   const getTrendTitle = () => {
     if (periodType === 'all') return 'Yearly Tips Trend';
+    if (periodType === 'last3' || periodType === 'last6') return 'Monthly Tips Trend';
     if (periodType === 'year') return 'Monthly Tips Trend';
     if (periodType === 'month') return 'Weekly Tips Trend';
     return 'Daily Tips Trend';
@@ -575,21 +576,28 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
             Viewing data for: {getTimeFrameLabel()}
           </p>
           <div className="flex items-center gap-2 mt-4">
-            <Select value={periodType} onValueChange={(value: 'all' | 'week' | 'month' | 'year') => setPeriodType(value)}>
-              <SelectTrigger className="w-32">
+            <Select value={periodType} onValueChange={(value: PeriodType) => setPeriodType(value)}>
+              <SelectTrigger className="w-36">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All</SelectItem>
                 <SelectItem value="week">Week</SelectItem>
                 <SelectItem value="month">Month</SelectItem>
+                <SelectItem value="last3">Last 3 Months</SelectItem>
+                <SelectItem value="last6">Last 6 Months</SelectItem>
                 <SelectItem value="year">Year</SelectItem>
               </SelectContent>
             </Select>
             
-            <Select value={selectedPeriod} onValueChange={setSelectedPeriod} disabled={periodType === 'all'}>
+            <Select value={selectedPeriod} onValueChange={setSelectedPeriod} disabled={periodType === 'all' || periodType === 'last3' || periodType === 'last6'}>
               <SelectTrigger className="w-48">
-                <SelectValue placeholder={periodType === 'all' ? 'All time data' : `Select ${periodType}`} />
+                <SelectValue placeholder={
+                  periodType === 'all' ? 'All time data' :
+                  periodType === 'last3' ? 'Last 3 months' :
+                  periodType === 'last6' ? 'Last 6 months' :
+                  `Select ${periodType}`
+                } />
               </SelectTrigger>
               <SelectContent>
                 {availableOptions.map(option => (
