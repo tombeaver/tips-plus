@@ -221,12 +221,14 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
     if (periodType === 'month') {
       if (!selectedPeriod) return 'vs last year';
       const [y, m] = selectedPeriod.split('-').map(Number);
+      if (!y || !m) return 'vs last year';
       const prevDate = new Date(y - 1, m - 1, 1);
       return `vs ${format(prevDate, 'MMM yyyy')}`;
     }
     if (periodType === 'week') {
       if (!selectedPeriod) return 'vs last year';
       const [yStr, wPart] = selectedPeriod.split('-W');
+      if (!yStr || !wPart) return 'vs last year';
       return `vs Wk ${parseInt(wPart)}, ${parseInt(yStr) - 1}`;
     }
     return 'vs last year';
