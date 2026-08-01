@@ -17,6 +17,7 @@ export interface FinancialData {
 
 export const useGoals = () => {
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [yearlyHoursGoal, setYearlyHoursGoal] = useState<number>(0);
   const [financialData, setFinancialData] = useState<FinancialData>({
     monthlyExpenses: 0,
     monthlySavingsGoal: 0,
@@ -56,6 +57,7 @@ export const useGoals = () => {
             monthlySavingsGoal: Number(goal.monthly_savings_goal) || 0,
             monthlySpendingLimit: Number(goal.monthly_spending_limit) || 0,
           };
+          setYearlyHoursGoal(Number((goal as any).yearly_hours_goal) || 0);
         }
 
         if (goal.daily_goal > 0) {
