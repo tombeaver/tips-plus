@@ -1092,6 +1092,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         }
         entries={selectedBucket?.entries || []}
         groupBy={periodType === 'week' ? 'day' : 'week'}
+        allEntries={tipEntries}
       />
     </div>
   );
