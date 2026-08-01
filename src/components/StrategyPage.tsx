@@ -648,6 +648,16 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
         earned={celebrationType === 'monthly' ? metrics.monthlyEarned : metrics.weeklyEarned}
         target={celebrationType === 'monthly' ? metrics.monthlyTarget : metrics.weeklyTarget}
       />
+
+      <ShiftBreakdownModal
+        isOpen={historyMonth !== null}
+        onClose={() => setHistoryMonth(null)}
+        title={historyMonth ? `${historyMonth.monthFull} ${historyMonth.year}` : ''}
+        subtitle="Goal breakdown"
+        entries={historyMonth?.entries ?? []}
+        groupByWeek
+        goalTarget={historyMonth?.target}
+      />
     </div>
   );
 };
