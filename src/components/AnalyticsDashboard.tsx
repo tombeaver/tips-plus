@@ -657,7 +657,13 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                     data={trendData}
                     onClick={(state: any) => {
                       const bucket = state?.activePayload?.[0]?.payload;
-                      if (bucket?.entries?.length) {
+                      if (periodType === 'week') {
+                        // Week view: show the whole week broken down day by day,
+                        // matching the month/year drill-down layout
+                        if (filteredEntries.length) {
+                          setSelectedBucket({ label: getTimeFrameLabel(), entries: filteredEntries });
+                        }
+                      } else if (bucket?.entries?.length) {
                         setSelectedBucket({ label: bucket.period, entries: bucket.entries });
                       }
                     }}
@@ -1081,10 +1087,11 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
           periodType === 'month'
             ? 'Week breakdown · shifts worked'
             : periodType === 'week'
-              ? 'Shifts worked this day'
+              ? 'Day breakdown · shifts worked'
               : 'Month breakdown · shifts worked'
         }
         entries={selectedBucket?.entries || []}
+        groupBy={periodType === 'week' ? 'day' : 'week'}
       />
     </div>
   );
