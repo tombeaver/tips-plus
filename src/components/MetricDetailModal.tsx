@@ -610,12 +610,12 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-sm font-medium text-muted-foreground">Trend Over Time</p>
                   <p className="text-xs text-muted-foreground/70">
-                    {aggregateByMonth ? 'By month' : 'By shift'}
+                    {aggregateByMonth ? 'By month' : 'By shift'}{hasPrevSeries ? ' · vs last year' : ''}
                   </p>
                 </div>
                 <div className="h-40">
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={trendChartData}>
+                    <ComposedChart data={trendChartData}>
                       <defs>
                         <linearGradient id={`gradient-${metricType}`} x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor={config.chartColor} stopOpacity={0.3}/>
@@ -637,6 +637,11 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
                                 {isDouble && <span className="bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded text-[10px] font-bold">2x</span>}
                               </p>
                               <p>{config.title}: {config.formatValue(Number(payload[0].value))}</p>
+                              {typeof entry?.prevValue === 'number' && (
+                                <p className="text-muted-foreground">
+                                  Last year: {config.formatValue(Number(entry.prevValue))}
+                                </p>
+                              )}
                             </div>
                           );
                         }}
@@ -648,7 +653,19 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
                         fill={`url(#gradient-${metricType})`}
                         strokeWidth={2}
                       />
-                    </AreaChart>
+                      {hasPrevSeries && (
+                        <Line
+                          type="monotone"
+                          dataKey="prevValue"
+                          stroke="hsl(var(--muted-foreground))"
+                          strokeWidth={2}
+                          strokeOpacity={0.45}
+                          strokeDasharray="4 4"
+                          dot={false}
+                          connectNulls
+                        />
+                      )}
+                    </ComposedChart>
                   </ResponsiveContainer>
                 </div>
               </div>
