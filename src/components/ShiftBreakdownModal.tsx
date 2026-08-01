@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { TipEntry } from '@/hooks/useTipEntries';
-import { format, startOfWeek, startOfDay } from 'date-fns';
+import { format, startOfWeek, startOfDay, subYears, startOfMonth } from 'date-fns';
 import { X, Banknote, CreditCard, Clock, Users } from 'lucide-react';
 
 interface ShiftBreakdownModalProps {
@@ -15,6 +15,8 @@ interface ShiftBreakdownModalProps {
   groupBy?: 'week' | 'day' | 'none';
   /** Optional goal target for this period, renders a goal progress banner */
   goalTarget?: number;
+  /** Full entry list — used to derive the same period one year earlier for comparison */
+  allEntries?: TipEntry[];
 }
 
 export const ShiftBreakdownModal: React.FC<ShiftBreakdownModalProps> = ({
@@ -25,6 +27,7 @@ export const ShiftBreakdownModal: React.FC<ShiftBreakdownModalProps> = ({
   entries,
   groupBy = 'none',
   goalTarget,
+  allEntries,
 }) => {
   const shifts = useMemo(() => {
     return [...entries]
@@ -85,6 +88,32 @@ export const ShiftBreakdownModal: React.FC<ShiftBreakdownModalProps> = ({
   }, [shifts, groupBy]);
 
   const bestGroup = groups.length ? Math.max(...groups.map(w => w.earnings)) : 0;
+
+  // Same period, one year earlier
+  const prevGroups = useMemo(() => {
+    if (groupBy === 'none' || !allEntries?.length || entries.length === 0) return [];
+    const times = entries.map(e => e.date.getTime());
+    const from = subYears(startOfDay(new Date(Math.min(...times))), 1);
+    const to = subYears(startOfDay(new Date(Math.max(...times))), 1);
+    const rangeStart = groupBy === 'week' ? startOfWeek(from, { weekStartsOn: 0 }) : from;
+    const inRange = allEntries.filter(e => {
+      const t = startOfDay(e.date).getTime();
+      return t >= rangeStart.getTime() && t <= to.getTime() + 6 * 864e5;
+    });
+    if (!inRange.length) return [];
+    const map = new Map<string, { start: Date; earnings: number }>();
+    inRange.forEach(e => {
+      const start = groupBy === 'week' ? startOfWeek(e.date, { weekStartsOn: 0 }) : startOfDay(e.date);
+      const key = format(start, 'yyyy-MM-dd');
+      const g = map.get(key) ?? { start, earnings: 0 };
+      g.earnings += e.creditTips + e.cashTips + e.hoursWorked * e.hourlyRate;
+      map.set(key, g);
+    });
+    return [...map.values()].sort((a, b) => a.start.getTime() - b.start.getTime());
+  }, [allEntries, entries, groupBy]);
+
+  const prevTotal = prevGroups.reduce((s, g) => s + g.earnings, 0);
+  const bestBar = Math.max(bestGroup, ...prevGroups.map(g => g.earnings), 0);
   const groupAvg = groups.length ? groups.reduce((sum, g) => sum + g.earnings, 0) / groups.length : 0;
   const totalSales = shifts.reduce((sum, s) => sum + s.sales, 0);
   const overallTipPct = totalSales > 0 ? (totals.tips / totalSales) * 100 : 0;
@@ -117,6 +146,15 @@ export const ShiftBreakdownModal: React.FC<ShiftBreakdownModalProps> = ({
               <p className="text-muted-foreground/70 text-xs mt-1">
                 ${totals.tips.toFixed(2)} tips · ${totals.wages.toFixed(2)} wages
               </p>
+              {prevTotal > 0 && (
+                <p className="text-xs mt-1">
+                  <span className={totals.earnings >= prevTotal ? 'text-success' : 'text-destructive'}>
+                    {totals.earnings >= prevTotal ? '+' : ''}
+                    {(((totals.earnings - prevTotal) / prevTotal) * 100).toFixed(1)}%
+                  </span>
+                  <span className="text-muted-foreground/70"> vs last year (${prevTotal.toFixed(0)})</span>
+                </p>
+              )}
               {totalSales > 0 && (
                 <p className="text-muted-foreground/70 text-xs mt-0.5">
                   {overallTipPct.toFixed(1)}% avg tip on ${totalSales.toFixed(0)} sales
@@ -153,7 +191,15 @@ export const ShiftBreakdownModal: React.FC<ShiftBreakdownModalProps> = ({
                     Avg ${groupAvg.toFixed(2)}/{groupBy === 'week' ? 'week' : 'day'}
                   </p>
                 </div>
-                {groups.map(w => (
+                {prevGroups.length > 0 && (
+                  <div className="flex items-center gap-4 text-[11px] text-muted-foreground">
+                    <span className="flex items-center gap-1"><span className="h-1.5 w-4 rounded-full bg-emerald-500" /> This period</span>
+                    <span className="flex items-center gap-1"><span className="h-1.5 w-4 rounded-full bg-muted-foreground/40" /> Last year</span>
+                  </div>
+                )}
+                {groups.map((w, i) => {
+                  const prev = prevGroups[i];
+                  return (
                   <div key={w.start.toISOString()} className="rounded-lg border border-border/60 bg-muted/20 p-3">
                     <div className="flex items-center justify-between">
                       <p className="font-medium text-foreground text-sm">
@@ -161,15 +207,33 @@ export const ShiftBreakdownModal: React.FC<ShiftBreakdownModalProps> = ({
                       </p>
                       <p className="font-bold text-emerald-600">${w.earnings.toFixed(2)}</p>
                     </div>
-                    <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden my-2">
-                      <div className="h-full bg-emerald-500" style={{ width: `${bestGroup > 0 ? (w.earnings / bestGroup) * 100 : 0}%` }} />
+                    <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden mt-2">
+                      <div className="h-full bg-emerald-500" style={{ width: `${bestBar > 0 ? (w.earnings / bestBar) * 100 : 0}%` }} />
                     </div>
+                    {prev ? (
+                      <>
+                        <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden mt-1">
+                          <div className="h-full bg-muted-foreground/40" style={{ width: `${bestBar > 0 ? (prev.earnings / bestBar) * 100 : 0}%` }} />
+                        </div>
+                        <p className="text-[11px] text-muted-foreground/80 mt-1">
+                          Last year ${prev.earnings.toFixed(0)} ({format(prev.start, 'MMM d, yyyy')})
+                          {prev.earnings > 0 && (
+                            <span className={w.earnings >= prev.earnings ? ' text-success' : ' text-destructive'}>
+                              {' '}{w.earnings >= prev.earnings ? '+' : ''}
+                              {(((w.earnings - prev.earnings) / prev.earnings) * 100).toFixed(0)}%
+                            </span>
+                          )}
+                        </p>
+                      </>
+                    ) : null}
+                    <div className="mt-2" />
                     <p className="text-xs text-muted-foreground">
                       {w.shifts} shift{w.shifts === 1 ? '' : 's'} · {w.hours.toFixed(1)} hrs · ${w.hours > 0 ? (w.earnings / w.hours).toFixed(2) : '0.00'}/hr
                       {w.sales > 0 ? ` · ${((w.tips / w.sales) * 100).toFixed(1)}% tips` : ''}
                     </p>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
