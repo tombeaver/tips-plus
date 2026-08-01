@@ -236,6 +236,29 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
 
   if (!metricType || !detailData) return null;
 
+  // Aggregate the trend chart by month when the period is long, so the top
+  // chart stays readable instead of showing dozens of daily points.
+  const rateKeys = ['earningsPerHour', 'tipsPerHour', 'perGuest', 'tipPercent', 'hourlyRate'];
+  const spanDays = sortedEntries.length > 1
+    ? (sortedEntries[sortedEntries.length - 1].date.getTime() - sortedEntries[0].date.getTime()) / 86400000
+    : 0;
+  const aggregateByMonth = spanDays > 45;
+  const trendChartData = (() => {
+    if (!aggregateByMonth) return detailData.entries;
+    const buckets = new Map<string, { date: string; sum: number; count: number }>();
+    sortedEntries.forEach((entry, i) => {
+      const key = format(entry.date, 'MMM yyyy');
+      const row = detailData.entries[i] as any;
+      const value = Number(row[config!.chartDataKey]) || 0;
+      const existing = buckets.get(key) || { date: key, sum: 0, count: 0 };
+      buckets.set(key, { date: key, sum: existing.sum + value, count: existing.count + 1 });
+    });
+    return Array.from(buckets.values()).map(b => ({
+      date: b.date,
+      [config!.chartDataKey]: rateKeys.includes(config!.chartDataKey) ? b.sum / b.count : b.sum,
+    }));
+  })();
+
   const getMetricConfig = () => {
     const { totals, entries } = detailData;
     
