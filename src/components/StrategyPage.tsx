@@ -15,6 +15,7 @@ import { FinancialHealthScoreModal } from '@/components/FinancialHealthScoreModa
 import { BudgetInput } from '@/components/BudgetInput';
 import { GoalCelebrationModal } from '@/components/GoalCelebrationModal';
 import { ShiftBreakdownModal } from '@/components/ShiftBreakdownModal';
+import { AnnualHoursCard } from '@/components/AnnualHoursCard';
 import { 
   startOfYear, endOfYear, startOfMonth, endOfMonth, startOfWeek, endOfWeek,
   isWithinInterval, differenceInDays, format, getDaysInMonth, getDate,
@@ -30,6 +31,8 @@ interface StrategyPageProps {
   onDeleteGoal: (goalId: string) => Promise<void>;
   onUpdateFinancialData: (data: FinancialData) => Promise<void>;
   tipEntries: TipEntry[];
+  yearlyHoursGoal: number;
+  onUpdateYearlyHoursGoal: (hours: number) => Promise<void>;
 }
 
 // Helper to calculate total earnings
@@ -54,6 +57,8 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
   onDeleteGoal,
   onUpdateFinancialData,
   tipEntries,
+  yearlyHoursGoal,
+  onUpdateYearlyHoursGoal,
 }) => {
   const [showGoalForm, setShowGoalForm] = useState(false);
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
@@ -574,6 +579,12 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
   const GoalFirstLayout = () => (
     <div className="space-y-4 animate-fade-in">
       <AnnualGoalHero />
+
+      <AnnualHoursCard
+        yearlyHoursGoal={yearlyHoursGoal}
+        onSave={onUpdateYearlyHoursGoal}
+        tipEntries={tipEntries}
+      />
       
       {/* Budget section */}
       {hasBudgetSet ? (

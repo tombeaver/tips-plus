@@ -47,7 +47,7 @@ const Index = () => {
   const stickyTriggerRef = React.useRef<HTMLDivElement>(null);
   
   const { tipEntries, loading: tipEntriesLoading, addTipEntry, updateTipEntry, deleteTipEntry } = useTipEntries();
-  const { goals, financialData, loading: goalsLoading, addGoal, updateGoal, deleteGoal, updateFinancialData } = useGoals();
+  const { goals, financialData, yearlyHoursGoal, updateYearlyHoursGoal, loading: goalsLoading, addGoal, updateGoal, deleteGoal, updateFinancialData } = useGoals();
   const { achievements, loading: achievementsLoading } = useAchievements(tipEntries, goals, financialData);
   const [showEntryForm, setShowEntryForm] = useState(false);
   const [activeTab, setActiveTab] = useState("calendar");
@@ -464,6 +464,8 @@ const Index = () => {
               onDeleteGoal={deleteGoal}
               onUpdateFinancialData={updateFinancialData}
               tipEntries={tipEntries}
+              yearlyHoursGoal={yearlyHoursGoal}
+              onUpdateYearlyHoursGoal={updateYearlyHoursGoal}
             />
           </TabsContent>
         </Tabs>
