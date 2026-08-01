@@ -1104,6 +1104,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         onClose={() => setSelectedMetric(null)}
         metricType={selectedMetric}
         filteredEntries={filteredEntries}
+        previousEntries={previousEntries}
         timeFrameLabel={getTimeFrameLabel()}
       />
 

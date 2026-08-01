@@ -5,8 +5,8 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { TipEntry } from '@/hooks/useTipEntries';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, Cell } from 'recharts';
-import { format, getDay } from 'date-fns';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, Area, Line, Cell } from 'recharts';
+import { format, getDay, addYears } from 'date-fns';
 import { DollarSign, Clock, Users, Percent, HandCoins, Calendar, CalendarRange, ArrowUp, ArrowDown, X, Banknote, CreditCard, Wine, ShoppingBag } from 'lucide-react';
 
 export type MetricType = 
@@ -30,6 +30,8 @@ interface MetricDetailModalProps {
   metricType: MetricType | null;
   filteredEntries: TipEntry[];
   timeFrameLabel: string;
+  /** Entries from the same period one year earlier, for the muted comparison line */
+  previousEntries?: TipEntry[];
 }
 
 export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
@@ -38,6 +40,7 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
   metricType,
   filteredEntries,
   timeFrameLabel,
+  previousEntries = [],
 }) => {
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -490,7 +493,7 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
     : 0;
   const aggregateByMonth = spanDays > 45;
   const chartKey = config.chartDataKey;
-  const trendChartData: any[] = aggregateByMonth
+  const baseTrendData: any[] = aggregateByMonth
     ? (() => {
         const buckets = new Map<string, { date: string; sum: number; count: number }>();
         sortedEntries.forEach((entry, i) => {
@@ -505,6 +508,50 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
         }));
       })()
     : detailData.entries;
+
+  // Muted prior-year comparison series, aligned to the same x-axis buckets
+  const metricValueFor = (entry: TipEntry, key: string) => {
+    const tips = entry.creditTips + entry.cashTips;
+    const wages = entry.hoursWorked * entry.hourlyRate;
+    const map: Record<string, number> = {
+      tips,
+      cashTips: entry.cashTips,
+      creditTips: entry.creditTips,
+      wages,
+      earnings: tips + wages,
+      alcoholSales: entry.alcoholSales || 0,
+      miscSales: entry.salesBreakdown?.misc || 0,
+      hoursWorked: entry.hoursWorked,
+      hourlyRate: entry.hourlyRate,
+      shiftCount: entry.shift === 'Double' ? 2 : 1,
+      tipPercent: entry.totalSales > 0 ? (tips / entry.totalSales) * 100 : 0,
+      tipsPerHour: entry.hoursWorked > 0 ? tips / entry.hoursWorked : 0,
+      earningsPerHour: entry.hoursWorked > 0 ? (tips + wages) / entry.hoursWorked : 0,
+      perGuest: entry.guestCount > 0 ? tips / entry.guestCount : 0,
+    };
+    return map[key] ?? 0;
+  };
+
+  const prevMap = new Map<string, { sum: number; count: number }>();
+  previousEntries.forEach(entry => {
+    // shift forward one year so prior-year points line up with current labels
+    const shifted = addYears(entry.date, 1);
+    const key = aggregateByMonth ? format(shifted, 'MMM yyyy') : format(shifted, 'MMM d');
+    const existing = prevMap.get(key) || { sum: 0, count: 0 };
+    prevMap.set(key, { sum: existing.sum + metricValueFor(entry, chartKey), count: existing.count + 1 });
+  });
+
+  const trendChartData: any[] = baseTrendData.map(point => {
+    const bucket = prevMap.get(point.date);
+    return {
+      ...point,
+      prevValue: bucket
+        ? (rateKeys.includes(chartKey) ? bucket.sum / bucket.count : bucket.sum)
+        : undefined,
+    };
+  });
+
+  const hasPrevSeries = trendChartData.some(p => typeof p.prevValue === 'number');
 
   // Get header gradient based on color
   const getHeaderGradient = () => {
@@ -563,12 +610,12 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-sm font-medium text-muted-foreground">Trend Over Time</p>
                   <p className="text-xs text-muted-foreground/70">
-                    {aggregateByMonth ? 'By month' : 'By shift'}
+                    {aggregateByMonth ? 'By month' : 'By shift'}{hasPrevSeries ? ' · vs last year' : ''}
                   </p>
                 </div>
                 <div className="h-40">
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={trendChartData}>
+                    <ComposedChart data={trendChartData}>
                       <defs>
                         <linearGradient id={`gradient-${metricType}`} x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor={config.chartColor} stopOpacity={0.3}/>
@@ -590,6 +637,11 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
                                 {isDouble && <span className="bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded text-[10px] font-bold">2x</span>}
                               </p>
                               <p>{config.title}: {config.formatValue(Number(payload[0].value))}</p>
+                              {typeof entry?.prevValue === 'number' && (
+                                <p className="text-muted-foreground">
+                                  Last year: {config.formatValue(Number(entry.prevValue))}
+                                </p>
+                              )}
                             </div>
                           );
                         }}
@@ -601,7 +653,19 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
                         fill={`url(#gradient-${metricType})`}
                         strokeWidth={2}
                       />
-                    </AreaChart>
+                      {hasPrevSeries && (
+                        <Line
+                          type="monotone"
+                          dataKey="prevValue"
+                          stroke="hsl(var(--muted-foreground))"
+                          strokeWidth={2}
+                          strokeOpacity={0.45}
+                          strokeDasharray="4 4"
+                          dot={false}
+                          connectNulls
+                        />
+                      )}
+                    </ComposedChart>
                   </ResponsiveContainer>
                 </div>
               </div>
