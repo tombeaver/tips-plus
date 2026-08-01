@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { TipEntry } from '@/hooks/useTipEntries';
-import { format, startOfWeek } from 'date-fns';
+import { format, startOfWeek, startOfDay } from 'date-fns';
 import { X, Banknote, CreditCard, Clock, Users } from 'lucide-react';
 
 interface ShiftBreakdownModalProps {
@@ -11,8 +11,8 @@ interface ShiftBreakdownModalProps {
   title: string;
   subtitle?: string;
   entries: TipEntry[];
-  /** Show a week-by-week summary above the shift list (used for month drill-downs) */
-  groupByWeek?: boolean;
+  /** Show a grouped summary above the shift list: weeks (month+ views) or days (week view) */
+  groupBy?: 'week' | 'day' | 'none';
   /** Optional goal target for this period, renders a goal progress banner */
   goalTarget?: number;
 }
@@ -23,7 +23,7 @@ export const ShiftBreakdownModal: React.FC<ShiftBreakdownModalProps> = ({
   title,
   subtitle,
   entries,
-  groupByWeek = false,
+  groupBy = 'none',
   goalTarget,
 }) => {
   const shifts = useMemo(() => {
@@ -67,11 +67,11 @@ export const ShiftBreakdownModal: React.FC<ShiftBreakdownModalProps> = ({
 
   const best = shifts.length ? Math.max(...shifts.map(s => s.earnings)) : 0;
 
-  const weekGroups = useMemo(() => {
-    if (!groupByWeek) return [];
+  const groups = useMemo(() => {
+    if (groupBy === 'none') return [];
     const map = new Map<string, { start: Date; earnings: number; tips: number; sales: number; hours: number; shifts: number }>();
     shifts.forEach(s => {
-      const start = startOfWeek(s.date, { weekStartsOn: 0 });
+      const start = groupBy === 'week' ? startOfWeek(s.date, { weekStartsOn: 0 }) : startOfDay(s.date);
       const key = format(start, 'yyyy-MM-dd');
       const g = map.get(key) ?? { start, earnings: 0, tips: 0, sales: 0, hours: 0, shifts: 0 };
       g.earnings += s.earnings;
@@ -82,9 +82,10 @@ export const ShiftBreakdownModal: React.FC<ShiftBreakdownModalProps> = ({
       map.set(key, g);
     });
     return [...map.values()].sort((a, b) => a.start.getTime() - b.start.getTime());
-  }, [shifts, groupByWeek]);
+  }, [shifts, groupBy]);
 
-  const bestWeek = weekGroups.length ? Math.max(...weekGroups.map(w => w.earnings)) : 0;
+  const bestGroup = groups.length ? Math.max(...groups.map(w => w.earnings)) : 0;
+  const groupAvg = groups.length ? groups.reduce((sum, g) => sum + g.earnings, 0) / groups.length : 0;
   const totalSales = shifts.reduce((sum, s) => sum + s.sales, 0);
   const overallTipPct = totalSales > 0 ? (totals.tips / totalSales) * 100 : 0;
 
