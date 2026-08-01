@@ -143,17 +143,26 @@ export const ShiftBreakdownModal: React.FC<ShiftBreakdownModalProps> = ({
               </div>
             )}
 
-            {weekGroups.length > 0 && (
+            {groups.length > 0 && (
               <div className="space-y-2">
-                <p className="text-sm font-medium text-muted-foreground">Week by week</p>
-                {weekGroups.map(w => (
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium text-muted-foreground">
+                    {groupBy === 'week' ? 'Week by week' : 'Day by day'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Avg ${groupAvg.toFixed(2)}/{groupBy === 'week' ? 'week' : 'day'}
+                  </p>
+                </div>
+                {groups.map(w => (
                   <div key={w.start.toISOString()} className="rounded-lg border border-border/60 bg-muted/20 p-3">
                     <div className="flex items-center justify-between">
-                      <p className="font-medium text-foreground text-sm">Week of {format(w.start, 'MMM d')}</p>
+                      <p className="font-medium text-foreground text-sm">
+                        {groupBy === 'week' ? `Week of ${format(w.start, 'MMM d')}` : format(w.start, 'EEE, MMM d')}
+                      </p>
                       <p className="font-bold text-emerald-600">${w.earnings.toFixed(2)}</p>
                     </div>
                     <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden my-2">
-                      <div className="h-full bg-emerald-500" style={{ width: `${bestWeek > 0 ? (w.earnings / bestWeek) * 100 : 0}%` }} />
+                      <div className="h-full bg-emerald-500" style={{ width: `${bestGroup > 0 ? (w.earnings / bestGroup) * 100 : 0}%` }} />
                     </div>
                     <p className="text-xs text-muted-foreground">
                       {w.shifts} shift{w.shifts === 1 ? '' : 's'} · {w.hours.toFixed(1)} hrs · ${w.hours > 0 ? (w.earnings / w.hours).toFixed(2) : '0.00'}/hr
