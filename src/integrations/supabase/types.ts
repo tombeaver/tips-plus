@@ -87,6 +87,7 @@ export type Database = {
           user_id: string
           weekly_goal: number
           yearly_goal: number
+          yearly_hours_goal: number
         }
         Insert: {
           created_at?: string
@@ -100,6 +101,7 @@ export type Database = {
           user_id: string
           weekly_goal?: number
           yearly_goal?: number
+          yearly_hours_goal?: number
         }
         Update: {
           created_at?: string
@@ -113,6 +115,7 @@ export type Database = {
           user_id?: string
           weekly_goal?: number
           yearly_goal?: number
+          yearly_hours_goal?: number
         }
         Relationships: []
       }
