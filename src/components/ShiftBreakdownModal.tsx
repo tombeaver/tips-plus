@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { TipEntry } from '@/hooks/useTipEntries';
-import { format } from 'date-fns';
+import { format, startOfWeek } from 'date-fns';
 import { X, Banknote, CreditCard, Clock, Users } from 'lucide-react';
 
 interface ShiftBreakdownModalProps {
@@ -11,6 +11,10 @@ interface ShiftBreakdownModalProps {
   title: string;
   subtitle?: string;
   entries: TipEntry[];
+  /** Show a week-by-week summary above the shift list (used for month drill-downs) */
+  groupByWeek?: boolean;
+  /** Optional goal target for this period, renders a goal progress banner */
+  goalTarget?: number;
 }
 
 export const ShiftBreakdownModal: React.FC<ShiftBreakdownModalProps> = ({
@@ -19,6 +23,8 @@ export const ShiftBreakdownModal: React.FC<ShiftBreakdownModalProps> = ({
   title,
   subtitle,
   entries,
+  groupByWeek = false,
+  goalTarget,
 }) => {
   const shifts = useMemo(() => {
     return [...entries]
@@ -61,6 +67,27 @@ export const ShiftBreakdownModal: React.FC<ShiftBreakdownModalProps> = ({
 
   const best = shifts.length ? Math.max(...shifts.map(s => s.earnings)) : 0;
 
+  const weekGroups = useMemo(() => {
+    if (!groupByWeek) return [];
+    const map = new Map<string, { start: Date; earnings: number; tips: number; sales: number; hours: number; shifts: number }>();
+    shifts.forEach(s => {
+      const start = startOfWeek(s.date, { weekStartsOn: 0 });
+      const key = format(start, 'yyyy-MM-dd');
+      const g = map.get(key) ?? { start, earnings: 0, tips: 0, sales: 0, hours: 0, shifts: 0 };
+      g.earnings += s.earnings;
+      g.tips += s.tips;
+      g.sales += s.sales;
+      g.hours += s.hours;
+      g.shifts += s.shift === 'Double' ? 2 : 1;
+      map.set(key, g);
+    });
+    return [...map.values()].sort((a, b) => a.start.getTime() - b.start.getTime());
+  }, [shifts, groupByWeek]);
+
+  const bestWeek = weekGroups.length ? Math.max(...weekGroups.map(w => w.earnings)) : 0;
+  const totalSales = shifts.reduce((sum, s) => sum + s.sales, 0);
+  const overallTipPct = totalSales > 0 ? (totals.tips / totalSales) * 100 : 0;
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-screen h-screen max-w-none p-0 gap-0 border-0 flex flex-col">
@@ -89,7 +116,52 @@ export const ShiftBreakdownModal: React.FC<ShiftBreakdownModalProps> = ({
               <p className="text-muted-foreground/70 text-xs mt-1">
                 ${totals.tips.toFixed(2)} tips · ${totals.wages.toFixed(2)} wages
               </p>
+              {totalSales > 0 && (
+                <p className="text-muted-foreground/70 text-xs mt-0.5">
+                  {overallTipPct.toFixed(1)}% avg tip on ${totalSales.toFixed(0)} sales
+                </p>
+              )}
             </div>
+
+            {goalTarget !== undefined && goalTarget > 0 && (
+              <div className="rounded-lg border border-border/60 bg-muted/20 p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-muted-foreground">Goal ${goalTarget.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                  <span className={`text-sm font-semibold ${totals.earnings >= goalTarget ? 'text-success' : 'text-destructive'}`}>
+                    {totals.earnings >= goalTarget
+                      ? `+$${(totals.earnings - goalTarget).toFixed(0)}`
+                      : `-$${(goalTarget - totals.earnings).toFixed(0)}`}
+                  </span>
+                </div>
+                <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+                  <div
+                    className={`h-full rounded-full ${totals.earnings >= goalTarget ? 'bg-success' : 'bg-destructive/60'}`}
+                    style={{ width: `${Math.min((totals.earnings / goalTarget) * 100, 100)}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {weekGroups.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-muted-foreground">Week by week</p>
+                {weekGroups.map(w => (
+                  <div key={w.start.toISOString()} className="rounded-lg border border-border/60 bg-muted/20 p-3">
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium text-foreground text-sm">Week of {format(w.start, 'MMM d')}</p>
+                      <p className="font-bold text-emerald-600">${w.earnings.toFixed(2)}</p>
+                    </div>
+                    <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden my-2">
+                      <div className="h-full bg-emerald-500" style={{ width: `${bestWeek > 0 ? (w.earnings / bestWeek) * 100 : 0}%` }} />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {w.shifts} shift{w.shifts === 1 ? '' : 's'} · {w.hours.toFixed(1)} hrs · ${w.hours > 0 ? (w.earnings / w.hours).toFixed(2) : '0.00'}/hr
+                      {w.sales > 0 ? ` · ${((w.tips / w.sales) * 100).toFixed(1)}% tips` : ''}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {shifts.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">No shifts in this period</p>
