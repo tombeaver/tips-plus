@@ -9,6 +9,7 @@ import { TrendingUp, DollarSign, Users, Percent, Calendar, HandCoins, Clock, Cal
 import { TipEntry } from '@/hooks/useTipEntries';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, subDays, isWithinInterval, getDay, getYear, addWeeks, differenceInCalendarWeeks } from 'date-fns';
 import { MetricDetailModal, MetricType } from './MetricDetailModal';
+import { ShiftBreakdownModal } from './ShiftBreakdownModal';
 
 interface AnalyticsDashboardProps {
   tipEntries: TipEntry[];
@@ -69,6 +70,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
     return localStorage.getItem('analytics-selected-period') || '';
   });
   const [selectedMetric, setSelectedMetric] = useState<MetricType | null>(null);
+  const [selectedBucket, setSelectedBucket] = useState<{ label: string; entries: TipEntry[] } | null>(null);
   
   const realEntries = tipEntries.filter(entry => !entry.isPlaceholder);
   
@@ -464,7 +466,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       const years = new Map();
       filteredEntries.forEach(entry => {
         const yearKey = getYear(entry.date).toString();
-        const existing = years.get(yearKey) || { period: yearKey, tips: 0, wages: 0, sales: 0, guests: 0, hours: 0, date: new Date(parseInt(yearKey), 0, 1) };
+        const existing = years.get(yearKey) || { period: yearKey, tips: 0, wages: 0, sales: 0, guests: 0, hours: 0, date: new Date(parseInt(yearKey), 0, 1), entries: [] as TipEntry[] };
         const entryWages = entry.hoursWorked * entry.hourlyRate;
         years.set(yearKey, {
           ...existing,
@@ -472,7 +474,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
           wages: existing.wages + entryWages,
           sales: existing.sales + entry.totalSales,
           guests: existing.guests + entry.guestCount,
-          hours: existing.hours + entry.hoursWorked
+          hours: existing.hours + entry.hoursWorked,
+          entries: [...existing.entries, entry]
         });
       });
       return Array.from(years.values()).map(item => ({
@@ -485,7 +488,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       filteredEntries.forEach(entry => {
         const monthKey = format(entry.date, 'MMM yyyy');
         const monthStart = startOfMonth(entry.date);
-        const existing = months.get(monthKey) || { period: monthKey, tips: 0, wages: 0, sales: 0, guests: 0, hours: 0, date: monthStart };
+        const existing = months.get(monthKey) || { period: monthKey, tips: 0, wages: 0, sales: 0, guests: 0, hours: 0, date: monthStart, entries: [] as TipEntry[] };
         const entryWages = entry.hoursWorked * entry.hourlyRate;
         months.set(monthKey, {
           ...existing,
@@ -493,7 +496,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
           wages: existing.wages + entryWages,
           sales: existing.sales + entry.totalSales,
           guests: existing.guests + entry.guestCount,
-          hours: existing.hours + entry.hoursWorked
+          hours: existing.hours + entry.hoursWorked,
+          entries: [...existing.entries, entry]
         });
       });
       return Array.from(months.values()).map(item => ({
@@ -507,14 +511,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         // Use Sunday as start of week, stay in local time
         const weekStart = startOfWeek(entry.date, { weekStartsOn: 0 });
         const weekKey = format(weekStart, 'MMM d');
-        console.log('Week calculation:', {
-          entryDate: entry.date.toString(),
-          entryDateLocal: `${entry.date.getFullYear()}-${entry.date.getMonth()+1}-${entry.date.getDate()}`,
-          weekStart: weekStart.toString(),
-          weekStartLocal: `${weekStart.getFullYear()}-${weekStart.getMonth()+1}-${weekStart.getDate()}`,
-          weekKey
-        });
-        const existing = weeks.get(weekKey) || { period: weekKey, tips: 0, wages: 0, sales: 0, guests: 0, hours: 0, date: weekStart };
+        const existing = weeks.get(weekKey) || { period: weekKey, tips: 0, wages: 0, sales: 0, guests: 0, hours: 0, date: weekStart, entries: [] as TipEntry[] };
         const entryWages = entry.hoursWorked * entry.hourlyRate;
         weeks.set(weekKey, {
           ...existing,
@@ -522,7 +519,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
           wages: existing.wages + entryWages,
           sales: existing.sales + entry.totalSales,
           guests: existing.guests + entry.guestCount,
-          hours: existing.hours + entry.hoursWorked
+          hours: existing.hours + entry.hoursWorked,
+          entries: [...existing.entries, entry]
         });
       });
       return Array.from(weeks.values()).map(item => ({
@@ -534,7 +532,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       const days = new Map();
       filteredEntries.forEach(entry => {
         const dayKey = format(entry.date, 'MMM d');
-        const existing = days.get(dayKey) || { period: dayKey, tips: 0, wages: 0, sales: 0, guests: 0, hours: 0, date: entry.date };
+        const existing = days.get(dayKey) || { period: dayKey, tips: 0, wages: 0, sales: 0, guests: 0, hours: 0, date: entry.date, entries: [] as TipEntry[] };
         const entryWages = entry.hoursWorked * entry.hourlyRate;
         days.set(dayKey, {
           ...existing,
@@ -542,7 +540,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
           wages: existing.wages + entryWages,
           sales: existing.sales + entry.totalSales,
           guests: existing.guests + entry.guestCount,
-          hours: existing.hours + entry.hoursWorked
+          hours: existing.hours + entry.hoursWorked,
+          entries: [...existing.entries, entry]
         });
       });
       return Array.from(days.values()).map(item => ({
@@ -650,15 +649,41 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                 </div>
               </div>
               
-              {/* Monochromatic Stack Bar Chart - Non-interactive */}
-              <div className="h-48 pointer-events-none">
+              {/* Monochromatic Stack Bar Chart - tap a bar to see the shifts behind it */}
+              <p className="text-white/70 text-xs mb-1">Tap a bar to see the shifts behind it</p>
+              <div className="h-48" onClick={(e) => e.stopPropagation()}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={trendData}>
+                  <BarChart
+                    data={trendData}
+                    onClick={(state: any) => {
+                      const bucket = state?.activePayload?.[0]?.payload;
+                      if (bucket?.entries?.length) {
+                        setSelectedBucket({ label: bucket.period, entries: bucket.entries });
+                      }
+                    }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.2)" />
                     <XAxis dataKey="period" stroke="rgba(255,255,255,0.8)" fontSize={12} />
                     <YAxis stroke="rgba(255,255,255,0.8)" fontSize={12} />
-                    <Bar dataKey="tips" stackId="earnings" fill="rgba(255,255,255,0.9)" name="tips" />
-                    <Bar dataKey="wages" stackId="earnings" fill="rgba(255,255,255,0.6)" name="wages" />
+                    <Tooltip
+                      cursor={{ fill: 'rgba(255,255,255,0.15)' }}
+                      content={({ active, payload, label }) => {
+                        if (!active || !payload?.length) return null;
+                        const d: any = payload[0].payload;
+                        return (
+                          <div className="bg-background border border-border rounded-lg p-2 shadow-md text-xs">
+                            <p className="font-semibold">{label}</p>
+                            <p>Total: ${Number(d.total).toFixed(2)}</p>
+                            <p className="text-muted-foreground">
+                              ${Number(d.tips).toFixed(0)} tips · ${Number(d.wages).toFixed(0)} wages
+                            </p>
+                            <p className="text-muted-foreground/80 mt-1">Tap for shift breakdown</p>
+                          </div>
+                        );
+                      }}
+                    />
+                    <Bar dataKey="tips" stackId="earnings" fill="rgba(255,255,255,0.9)" name="tips" className="cursor-pointer" />
+                    <Bar dataKey="wages" stackId="earnings" fill="rgba(255,255,255,0.6)" name="wages" className="cursor-pointer" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -1046,6 +1071,20 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         metricType={selectedMetric}
         filteredEntries={filteredEntries}
         timeFrameLabel={getTimeFrameLabel()}
+      />
+
+      <ShiftBreakdownModal
+        isOpen={selectedBucket !== null}
+        onClose={() => setSelectedBucket(null)}
+        title={selectedBucket?.label || ''}
+        subtitle={
+          periodType === 'month'
+            ? 'Week breakdown · shifts worked'
+            : periodType === 'week'
+              ? 'Shifts worked this day'
+              : 'Month breakdown · shifts worked'
+        }
+        entries={selectedBucket?.entries || []}
       />
     </div>
   );
