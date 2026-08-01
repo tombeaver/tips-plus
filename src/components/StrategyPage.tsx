@@ -14,6 +14,7 @@ import { AnnualGoalModal } from '@/components/AnnualGoalModal';
 import { FinancialHealthScoreModal } from '@/components/FinancialHealthScoreModal';
 import { BudgetInput } from '@/components/BudgetInput';
 import { GoalCelebrationModal } from '@/components/GoalCelebrationModal';
+import { ShiftBreakdownModal } from '@/components/ShiftBreakdownModal';
 import { 
   startOfYear, endOfYear, startOfMonth, endOfMonth, startOfWeek, endOfWeek,
   isWithinInterval, differenceInDays, format, getDaysInMonth, getDate,
@@ -58,6 +59,7 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
   const [isHealthScoreModalOpen, setIsHealthScoreModalOpen] = useState(false);
   const [celebrationType, setCelebrationType] = useState<'weekly' | 'monthly' | null>(null);
+  const [historyMonth, setHistoryMonth] = useState<null | { monthFull: string; year: number; target: number; entries: TipEntry[] }>(null);
   const celebrationCheckedRef = useRef(false);
 
   const realEntries = tipEntries.filter(entry => !entry.isPlaceholder);
@@ -155,12 +157,13 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
     for (let i = 0; i < budgetMonthIndex; i++) {
       const mStart = new Date(getYear(now), i, 1);
       const monthKey = format(mStart, 'yyyy-MM');
-      const earned = realEntries
-        .filter(entry => getMonthKeyBySunday(entry.date) === monthKey)
-        .reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
+      const monthEntries = realEntries.filter(entry => getMonthKeyBySunday(entry.date) === monthKey);
+      const earned = monthEntries.reduce((sum, entry) => sum + calculateTotalEarnings(entry), 0);
       monthlyHistory.push({
         month: format(mStart, 'MMM'),
         monthFull: format(mStart, 'MMMM'),
+        year: getYear(now),
+        entries: monthEntries,
         earned,
         target: monthlyTarget,
         met: monthlyTarget > 0 && earned >= monthlyTarget,
@@ -527,7 +530,12 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
 
           <div className="space-y-2">
             {metrics.monthlyHistory.map((m, i) => (
-              <div key={i} className={`flex items-center gap-3 p-2.5 rounded-lg ${m.met ? 'bg-success/5' : 'bg-destructive/5'}`}>
+              <button
+                key={i}
+                type="button"
+                onClick={() => setHistoryMonth({ monthFull: m.monthFull, year: m.year, target: m.target, entries: m.entries })}
+                className={`w-full text-left flex items-center gap-3 p-2.5 rounded-lg transition-colors hover:bg-muted/60 ${m.met ? 'bg-success/5' : 'bg-destructive/5'}`}
+              >
                 {m.met ? (
                   <CheckCircle className="h-5 w-5 text-success flex-shrink-0" />
                 ) : (
@@ -552,7 +560,8 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
                     </span>
                   </div>
                 </div>
-              </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+              </button>
             ))}
           </div>
         </CardContent>
