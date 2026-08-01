@@ -1,7 +1,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, ComposedChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -681,9 +681,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
               <p className="text-white/70 text-xs mb-1">Tap this card for the full breakdown</p>
               <div className="h-48">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={trendDataWithPrev}
-                  >
+                  <ComposedChart data={trendDataWithPrev}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.2)" />
                     <XAxis dataKey="period" stroke="rgba(255,255,255,0.8)" fontSize={12} />
                     <YAxis stroke="rgba(255,255,255,0.8)" fontSize={12} />
@@ -720,7 +718,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                         name="last year"
                       />
                     )}
-                  </BarChart>
+                  </ComposedChart>
                 </ResponsiveContainer>
               </div>
             </CardContent>
