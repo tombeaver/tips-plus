@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { TrendingUp, DollarSign, Users, Percent, Calendar, HandCoins, Clock, CalendarRange, Banknote, CreditCard, Wine, ShoppingBag } from 'lucide-react';
 import { TipEntry } from '@/hooks/useTipEntries';
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, subDays, isWithinInterval, getDay, getYear, addWeeks, differenceInCalendarWeeks } from 'date-fns';
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, subDays, isWithinInterval, getDay, getYear, addWeeks, addYears, differenceInCalendarWeeks } from 'date-fns';
 import { MetricDetailModal, MetricType } from './MetricDetailModal';
 import { ShiftBreakdownModal } from './ShiftBreakdownModal';
 
@@ -551,6 +551,34 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
     }
   }, [filteredEntries, periodType]);
 
+  // Attach a muted "last year" total to each bucket for the trend chart
+  const trendDataWithPrev = useMemo(() => {
+    const keyFor = (date: Date) => {
+      if (periodType === 'all') return getYear(date).toString();
+      if (periodType === 'year' || periodType === 'last3' || periodType === 'last6') return format(date, 'MMM yyyy');
+      if (periodType === 'month') return format(startOfWeek(date, { weekStartsOn: 0 }), 'MMM d');
+      return format(date, 'MMM d');
+    };
+
+    const prevMap = new Map<string, number>();
+    previousEntries.forEach(entry => {
+      // shift forward a year so prior-year buckets line up with current ones
+      const key = keyFor(addYears(entry.date, 1));
+      const total = entry.creditTips + entry.cashTips + entry.hoursWorked * entry.hourlyRate;
+      prevMap.set(key, (prevMap.get(key) || 0) + total);
+    });
+
+    return trendData.map(item => ({
+      ...item,
+      prevTotal: prevMap.has(item.period) ? prevMap.get(item.period) : undefined,
+    }));
+  }, [trendData, previousEntries, periodType]);
+
+  const hasPrevTrend = useMemo(
+    () => trendDataWithPrev.some(d => typeof d.prevTotal === 'number'),
+    [trendDataWithPrev]
+  );
+
   const getTrendTitle = () => {
     if (periodType === 'all') return 'Yearly Tips Trend';
     if (periodType === 'last3' || periodType === 'last6') return 'Monthly Tips Trend';
@@ -649,24 +677,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                 </div>
               </div>
               
-              {/* Monochromatic Stack Bar Chart - tap a bar to see the shifts behind it */}
-              <p className="text-white/70 text-xs mb-1">Tap a bar to see the shifts behind it</p>
-              <div className="h-48" onClick={(e) => e.stopPropagation()}>
+              {/* Monochromatic Stack Bar Chart */}
+              <p className="text-white/70 text-xs mb-1">Tap this card for the full breakdown</p>
+              <div className="h-48">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
-                    data={trendData}
-                    onClick={(state: any) => {
-                      const bucket = state?.activePayload?.[0]?.payload;
-                      if (periodType === 'week') {
-                        // Week view: show the whole week broken down day by day,
-                        // matching the month/year drill-down layout
-                        if (filteredEntries.length) {
-                          setSelectedBucket({ label: getTimeFrameLabel(), entries: filteredEntries });
-                        }
-                      } else if (bucket?.entries?.length) {
-                        setSelectedBucket({ label: bucket.period, entries: bucket.entries });
-                      }
-                    }}
+                    data={trendDataWithPrev}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.2)" />
                     <XAxis dataKey="period" stroke="rgba(255,255,255,0.8)" fontSize={12} />
@@ -683,13 +699,27 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
                             <p className="text-muted-foreground">
                               ${Number(d.tips).toFixed(0)} tips · ${Number(d.wages).toFixed(0)} wages
                             </p>
-                            <p className="text-muted-foreground/80 mt-1">Tap for shift breakdown</p>
+                            {typeof d.prevTotal === 'number' && (
+                              <p className="text-muted-foreground/80 mt-1">Last year: ${Number(d.prevTotal).toFixed(2)}</p>
+                            )}
                           </div>
                         );
                       }}
                     />
-                    <Bar dataKey="tips" stackId="earnings" fill="rgba(255,255,255,0.9)" name="tips" className="cursor-pointer" />
-                    <Bar dataKey="wages" stackId="earnings" fill="rgba(255,255,255,0.6)" name="wages" className="cursor-pointer" />
+                    <Bar dataKey="tips" stackId="earnings" fill="rgba(255,255,255,0.9)" name="tips" />
+                    <Bar dataKey="wages" stackId="earnings" fill="rgba(255,255,255,0.6)" name="wages" />
+                    {hasPrevTrend && (
+                      <Line
+                        type="monotone"
+                        dataKey="prevTotal"
+                        stroke="rgba(255,255,255,0.45)"
+                        strokeWidth={2}
+                        strokeDasharray="4 4"
+                        dot={false}
+                        connectNulls
+                        name="last year"
+                      />
+                    )}
                   </BarChart>
                 </ResponsiveContainer>
               </div>
