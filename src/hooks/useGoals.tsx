@@ -17,6 +17,7 @@ export interface FinancialData {
 
 export const useGoals = () => {
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [yearlyHoursGoal, setYearlyHoursGoal] = useState<number>(0);
   const [financialData, setFinancialData] = useState<FinancialData>({
     monthlyExpenses: 0,
     monthlySavingsGoal: 0,
@@ -56,6 +57,7 @@ export const useGoals = () => {
             monthlySavingsGoal: Number(goal.monthly_savings_goal) || 0,
             monthlySpendingLimit: Number(goal.monthly_spending_limit) || 0,
           };
+          setYearlyHoursGoal(Number((goal as any).yearly_hours_goal) || 0);
         }
 
         if (goal.daily_goal > 0) {
@@ -281,6 +283,26 @@ export const useGoals = () => {
   }, []);
 
   const updateFinancialData = async (data: FinancialData) => {
+    return saveGoalRowFields({
+      monthly_expenses: data.monthlyExpenses,
+      monthly_savings_goal: data.monthlySavingsGoal,
+      monthly_spending_limit: data.monthlySpendingLimit,
+    }, () => setFinancialData(data), 'Budget updated successfully!');
+  };
+
+  const updateYearlyHoursGoal = async (hours: number) => {
+    return saveGoalRowFields(
+      { yearly_hours_goal: hours },
+      () => setYearlyHoursGoal(hours),
+      'Hours goal updated successfully!'
+    );
+  };
+
+  const saveGoalRowFields = async (
+    fields: Record<string, number>,
+    onSuccess: () => void,
+    successMessage: string,
+  ) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -307,10 +329,8 @@ export const useGoals = () => {
             weekly_goal: 0,
             monthly_goal: 0,
             yearly_goal: 0,
-            monthly_expenses: data.monthlyExpenses,
-            monthly_savings_goal: data.monthlySavingsGoal,
-            monthly_spending_limit: data.monthlySpendingLimit,
-          }])
+            ...fields,
+          } as any])
           .select()
           .single();
 
@@ -321,27 +341,23 @@ export const useGoals = () => {
       // Update financial data
       const { error } = await supabase
         .from('goals')
-        .update({
-          monthly_expenses: data.monthlyExpenses,
-          monthly_savings_goal: data.monthlySavingsGoal,
-          monthly_spending_limit: data.monthlySpendingLimit,
-        })
+        .update(fields as any)
         .eq('id', goalId)
         .eq('user_id', user.id);
 
       if (error) throw error;
 
-      setFinancialData(data);
+      onSuccess();
       
       toast({
         title: "Success",
-        description: "Budget updated successfully!",
+        description: successMessage,
       });
     } catch (error) {
-      console.error('Error updating financial data:', error);
+      console.error('Error updating goal data:', error);
       toast({
         title: "Error",
-        description: "Failed to update budget. Please try again.",
+        description: "Failed to save. Please try again.",
         variant: "destructive",
       });
       throw error;
@@ -351,6 +367,8 @@ export const useGoals = () => {
   return {
     goals,
     financialData,
+    yearlyHoursGoal,
+    updateYearlyHoursGoal,
     loading,
     addGoal: addOrUpdateGoal,
     updateGoal,

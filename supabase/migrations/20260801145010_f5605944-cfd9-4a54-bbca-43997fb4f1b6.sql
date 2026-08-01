@@ -1,0 +1,1 @@
+ALTER TABLE public.goals ADD COLUMN IF NOT EXISTS yearly_hours_goal numeric NOT NULL DEFAULT 0;
