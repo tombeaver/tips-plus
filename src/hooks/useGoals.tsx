@@ -353,6 +353,8 @@ export const useGoals = () => {
   return {
     goals,
     financialData,
+    yearlyHoursGoal,
+    updateYearlyHoursGoal,
     loading,
     addGoal: addOrUpdateGoal,
     updateGoal,
