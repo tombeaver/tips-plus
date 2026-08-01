@@ -482,6 +482,30 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
 
   const Icon = config.icon;
 
+  // Aggregate the trend chart by month when the period is long, so the top
+  // chart stays readable instead of a dozens-of-points scribble.
+  const rateKeys = ['earningsPerHour', 'tipsPerHour', 'perGuest', 'tipPercent', 'hourlyRate'];
+  const spanDays = sortedEntries.length > 1
+    ? (sortedEntries[sortedEntries.length - 1].date.getTime() - sortedEntries[0].date.getTime()) / 86400000
+    : 0;
+  const aggregateByMonth = spanDays > 45;
+  const chartKey = config.chartDataKey;
+  const trendChartData: any[] = aggregateByMonth
+    ? (() => {
+        const buckets = new Map<string, { date: string; sum: number; count: number }>();
+        sortedEntries.forEach((entry, i) => {
+          const key = format(entry.date, 'MMM yyyy');
+          const value = Number((detailData.entries[i] as any)[chartKey]) || 0;
+          const existing = buckets.get(key) || { date: key, sum: 0, count: 0 };
+          buckets.set(key, { date: key, sum: existing.sum + value, count: existing.count + 1 });
+        });
+        return Array.from(buckets.values()).map(b => ({
+          date: b.date,
+          [chartKey]: rateKeys.includes(chartKey) ? b.sum / b.count : b.sum,
+        }));
+      })()
+    : detailData.entries;
+
   // Get header gradient based on color
   const getHeaderGradient = () => {
     switch (config.color) {
