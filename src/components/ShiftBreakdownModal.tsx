@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { TipEntry } from '@/hooks/useTipEntries';
-import { format, startOfWeek, startOfDay, subYears, startOfMonth } from 'date-fns';
+import { format, startOfWeek, startOfDay, subYears } from 'date-fns';
 import { X, Banknote, CreditCard, Clock, Users } from 'lucide-react';
 
 interface ShiftBreakdownModalProps {
