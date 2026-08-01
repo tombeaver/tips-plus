@@ -493,7 +493,7 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
     : 0;
   const aggregateByMonth = spanDays > 45;
   const chartKey = config.chartDataKey;
-  const trendChartData: any[] = aggregateByMonth
+  const baseTrendData: any[] = aggregateByMonth
     ? (() => {
         const buckets = new Map<string, { date: string; sum: number; count: number }>();
         sortedEntries.forEach((entry, i) => {
@@ -508,6 +508,50 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
         }));
       })()
     : detailData.entries;
+
+  // Muted prior-year comparison series, aligned to the same x-axis buckets
+  const metricValueFor = (entry: TipEntry, key: string) => {
+    const tips = entry.creditTips + entry.cashTips;
+    const wages = entry.hoursWorked * entry.hourlyRate;
+    const map: Record<string, number> = {
+      tips,
+      cashTips: entry.cashTips,
+      creditTips: entry.creditTips,
+      wages,
+      earnings: tips + wages,
+      alcoholSales: entry.alcoholSales || 0,
+      miscSales: entry.salesBreakdown?.misc || 0,
+      hoursWorked: entry.hoursWorked,
+      hourlyRate: entry.hourlyRate,
+      shiftCount: entry.shift === 'Double' ? 2 : 1,
+      tipPercent: entry.totalSales > 0 ? (tips / entry.totalSales) * 100 : 0,
+      tipsPerHour: entry.hoursWorked > 0 ? tips / entry.hoursWorked : 0,
+      earningsPerHour: entry.hoursWorked > 0 ? (tips + wages) / entry.hoursWorked : 0,
+      perGuest: entry.guestCount > 0 ? tips / entry.guestCount : 0,
+    };
+    return map[key] ?? 0;
+  };
+
+  const prevMap = new Map<string, { sum: number; count: number }>();
+  previousEntries.forEach(entry => {
+    // shift forward one year so prior-year points line up with current labels
+    const shifted = addYears(entry.date, 1);
+    const key = aggregateByMonth ? format(shifted, 'MMM yyyy') : format(shifted, 'MMM d');
+    const existing = prevMap.get(key) || { sum: 0, count: 0 };
+    prevMap.set(key, { sum: existing.sum + metricValueFor(entry, chartKey), count: existing.count + 1 });
+  });
+
+  const trendChartData: any[] = baseTrendData.map(point => {
+    const bucket = prevMap.get(point.date);
+    return {
+      ...point,
+      prevValue: bucket
+        ? (rateKeys.includes(chartKey) ? bucket.sum / bucket.count : bucket.sum)
+        : undefined,
+    };
+  });
+
+  const hasPrevSeries = trendChartData.some(p => typeof p.prevValue === 'number');
 
   // Get header gradient based on color
   const getHeaderGradient = () => {
