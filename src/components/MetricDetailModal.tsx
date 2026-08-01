@@ -558,126 +558,50 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
              </div>
 
             {/* Trend Chart */}
-            {detailData.entries.length > 1 && (
+            {trendChartData.length > 1 && (
               <div className="bg-muted/30 rounded-lg p-3">
-                <p className="text-sm font-medium mb-2 text-muted-foreground">Trend Over Time</p>
-                <div className={metricType === 'totalEarnings' ? "h-48" : "h-32"}>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-medium text-muted-foreground">Trend Over Time</p>
+                  <p className="text-xs text-muted-foreground/70">
+                    {aggregateByMonth ? 'By month' : 'By shift'}
+                  </p>
+                </div>
+                <div className="h-40">
                   <ResponsiveContainer width="100%" height="100%">
-                    {metricType === 'totalEarnings' ? (
-                      <AreaChart data={detailData.entries}>
-                        <defs>
-                          <linearGradient id="gradient-earnings" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
-                          </linearGradient>
-                          <linearGradient id="gradient-wages" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
-                          </linearGradient>
-                          <linearGradient id="gradient-creditTips" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
-                          </linearGradient>
-                          <linearGradient id="gradient-cashTips" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#F97316" stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor="#F97316" stopOpacity={0}/>
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                        <XAxis dataKey="date" fontSize={10} stroke="hsl(var(--muted-foreground))" />
-                        <YAxis fontSize={10} stroke="hsl(var(--muted-foreground))" />
-                        <Tooltip 
-                          content={({ active, payload, label }) => {
-                            if (!active || !payload?.length) return null;
-                            const entry = payload[0]?.payload;
-                            const isDouble = entry?.shift === 'Double';
-                            return (
-                              <div className="bg-background border border-border rounded-lg p-2 shadow-md text-xs">
-                                <p className="font-medium flex items-center gap-1">
-                                  {label}
-                                  {isDouble && <span className="bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded text-[10px] font-bold">2x</span>}
-                                </p>
-                                {payload.map((p: any, i: number) => {
-                                  const labels: Record<string, string> = { earnings: 'Total Earnings', wages: 'Wages', creditTips: 'Credit Tips', cashTips: 'Cash Tips' };
-                                  return (
-                                    <p key={i} style={{ color: p.stroke || p.color }}>
-                                      {labels[p.dataKey] || p.dataKey}: ${Number(p.value).toFixed(2)}
-                                    </p>
-                                  );
-                                })}
-                              </div>
-                            );
-                          }}
-                        />
-                        <Area 
-                          type="monotone" 
-                          dataKey="earnings" 
-                          stroke="#10B981" 
-                          fill="url(#gradient-earnings)"
-                          strokeWidth={2}
-                          name="earnings"
-                        />
-                        <Area 
-                          type="monotone" 
-                          dataKey="wages" 
-                          stroke="#3B82F6" 
-                          fill="url(#gradient-wages)"
-                          strokeWidth={2}
-                          name="wages"
-                        />
-                        <Area 
-                          type="monotone" 
-                          dataKey="creditTips" 
-                          stroke="#8B5CF6" 
-                          fill="url(#gradient-creditTips)"
-                          strokeWidth={2}
-                          name="creditTips"
-                        />
-                        <Area 
-                          type="monotone" 
-                          dataKey="cashTips" 
-                          stroke="#F97316" 
-                          fill="url(#gradient-cashTips)"
-                          strokeWidth={2}
-                          name="cashTips"
-                        />
-                      </AreaChart>
-                    ) : (
-                      <AreaChart data={detailData.entries}>
-                        <defs>
-                          <linearGradient id={`gradient-${metricType}`} x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor={config.chartColor} stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor={config.chartColor} stopOpacity={0}/>
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                        <XAxis dataKey="date" fontSize={10} stroke="hsl(var(--muted-foreground))" />
-                        <YAxis fontSize={10} stroke="hsl(var(--muted-foreground))" />
-                        <Tooltip 
-                          content={({ active, payload, label }) => {
-                            if (!active || !payload?.length) return null;
-                            const entry = payload[0]?.payload;
-                            const isDouble = entry?.shift === 'Double';
-                            return (
-                              <div className="bg-background border border-border rounded-lg p-2 shadow-md text-xs">
-                                <p className="font-medium flex items-center gap-1">
-                                  {label}
-                                  {isDouble && <span className="bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded text-[10px] font-bold">2x</span>}
-                                </p>
-                                <p>{config.title}: {config.formatValue(Number(payload[0].value))}</p>
-                              </div>
-                            );
-                          }}
-                        />
-                        <Area 
-                          type="monotone" 
-                          dataKey={config.chartDataKey} 
-                          stroke={config.chartColor} 
-                          fill={`url(#gradient-${metricType})`}
-                          strokeWidth={2}
-                        />
-                      </AreaChart>
-                    )}
+                    <AreaChart data={trendChartData}>
+                      <defs>
+                        <linearGradient id={`gradient-${metricType}`} x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={config.chartColor} stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor={config.chartColor} stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis dataKey="date" fontSize={10} stroke="hsl(var(--muted-foreground))" />
+                      <YAxis fontSize={10} stroke="hsl(var(--muted-foreground))" />
+                      <Tooltip
+                        content={({ active, payload, label }) => {
+                          if (!active || !payload?.length) return null;
+                          const entry: any = payload[0]?.payload;
+                          const isDouble = entry?.shift === 'Double';
+                          return (
+                            <div className="bg-background border border-border rounded-lg p-2 shadow-md text-xs">
+                              <p className="font-medium flex items-center gap-1">
+                                {label}
+                                {isDouble && <span className="bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded text-[10px] font-bold">2x</span>}
+                              </p>
+                              <p>{config.title}: {config.formatValue(Number(payload[0].value))}</p>
+                            </div>
+                          );
+                        }}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey={chartKey}
+                        stroke={config.chartColor}
+                        fill={`url(#gradient-${metricType})`}
+                        strokeWidth={2}
+                      />
+                    </AreaChart>
                   </ResponsiveContainer>
                 </div>
               </div>
