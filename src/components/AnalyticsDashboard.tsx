@@ -464,7 +464,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       const years = new Map();
       filteredEntries.forEach(entry => {
         const yearKey = getYear(entry.date).toString();
-        const existing = years.get(yearKey) || { period: yearKey, tips: 0, wages: 0, sales: 0, guests: 0, hours: 0, date: new Date(parseInt(yearKey), 0, 1) };
+        const existing = years.get(yearKey) || { period: yearKey, tips: 0, wages: 0, sales: 0, guests: 0, hours: 0, date: new Date(parseInt(yearKey), 0, 1), entries: [] as TipEntry[] };
         const entryWages = entry.hoursWorked * entry.hourlyRate;
         years.set(yearKey, {
           ...existing,
@@ -472,7 +472,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
           wages: existing.wages + entryWages,
           sales: existing.sales + entry.totalSales,
           guests: existing.guests + entry.guestCount,
-          hours: existing.hours + entry.hoursWorked
+          hours: existing.hours + entry.hoursWorked,
+          entries: [...existing.entries, entry]
         });
       });
       return Array.from(years.values()).map(item => ({
@@ -485,7 +486,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       filteredEntries.forEach(entry => {
         const monthKey = format(entry.date, 'MMM yyyy');
         const monthStart = startOfMonth(entry.date);
-        const existing = months.get(monthKey) || { period: monthKey, tips: 0, wages: 0, sales: 0, guests: 0, hours: 0, date: monthStart };
+        const existing = months.get(monthKey) || { period: monthKey, tips: 0, wages: 0, sales: 0, guests: 0, hours: 0, date: monthStart, entries: [] as TipEntry[] };
         const entryWages = entry.hoursWorked * entry.hourlyRate;
         months.set(monthKey, {
           ...existing,
@@ -493,7 +494,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
           wages: existing.wages + entryWages,
           sales: existing.sales + entry.totalSales,
           guests: existing.guests + entry.guestCount,
-          hours: existing.hours + entry.hoursWorked
+          hours: existing.hours + entry.hoursWorked,
+          entries: [...existing.entries, entry]
         });
       });
       return Array.from(months.values()).map(item => ({
@@ -507,14 +509,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
         // Use Sunday as start of week, stay in local time
         const weekStart = startOfWeek(entry.date, { weekStartsOn: 0 });
         const weekKey = format(weekStart, 'MMM d');
-        console.log('Week calculation:', {
-          entryDate: entry.date.toString(),
-          entryDateLocal: `${entry.date.getFullYear()}-${entry.date.getMonth()+1}-${entry.date.getDate()}`,
-          weekStart: weekStart.toString(),
-          weekStartLocal: `${weekStart.getFullYear()}-${weekStart.getMonth()+1}-${weekStart.getDate()}`,
-          weekKey
-        });
-        const existing = weeks.get(weekKey) || { period: weekKey, tips: 0, wages: 0, sales: 0, guests: 0, hours: 0, date: weekStart };
+        const existing = weeks.get(weekKey) || { period: weekKey, tips: 0, wages: 0, sales: 0, guests: 0, hours: 0, date: weekStart, entries: [] as TipEntry[] };
         const entryWages = entry.hoursWorked * entry.hourlyRate;
         weeks.set(weekKey, {
           ...existing,
@@ -522,7 +517,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
           wages: existing.wages + entryWages,
           sales: existing.sales + entry.totalSales,
           guests: existing.guests + entry.guestCount,
-          hours: existing.hours + entry.hoursWorked
+          hours: existing.hours + entry.hoursWorked,
+          entries: [...existing.entries, entry]
         });
       });
       return Array.from(weeks.values()).map(item => ({
@@ -534,7 +530,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
       const days = new Map();
       filteredEntries.forEach(entry => {
         const dayKey = format(entry.date, 'MMM d');
-        const existing = days.get(dayKey) || { period: dayKey, tips: 0, wages: 0, sales: 0, guests: 0, hours: 0, date: entry.date };
+        const existing = days.get(dayKey) || { period: dayKey, tips: 0, wages: 0, sales: 0, guests: 0, hours: 0, date: entry.date, entries: [] as TipEntry[] };
         const entryWages = entry.hoursWorked * entry.hourlyRate;
         days.set(dayKey, {
           ...existing,
@@ -542,7 +538,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ tipEntri
           wages: existing.wages + entryWages,
           sales: existing.sales + entry.totalSales,
           guests: existing.guests + entry.guestCount,
-          hours: existing.hours + entry.hoursWorked
+          hours: existing.hours + entry.hoursWorked,
+          entries: [...existing.entries, entry]
         });
       });
       return Array.from(days.values()).map(item => ({
