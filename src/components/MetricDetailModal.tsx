@@ -5,8 +5,8 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { TipEntry } from '@/hooks/useTipEntries';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, Cell } from 'recharts';
-import { format, getDay } from 'date-fns';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, Area, Line, Cell } from 'recharts';
+import { format, getDay, addYears } from 'date-fns';
 import { DollarSign, Clock, Users, Percent, HandCoins, Calendar, CalendarRange, ArrowUp, ArrowDown, X, Banknote, CreditCard, Wine, ShoppingBag } from 'lucide-react';
 
 export type MetricType = 
@@ -30,6 +30,8 @@ interface MetricDetailModalProps {
   metricType: MetricType | null;
   filteredEntries: TipEntry[];
   timeFrameLabel: string;
+  /** Entries from the same period one year earlier, for the muted comparison line */
+  previousEntries?: TipEntry[];
 }
 
 export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
@@ -38,6 +40,7 @@ export const MetricDetailModal: React.FC<MetricDetailModalProps> = ({
   metricType,
   filteredEntries,
   timeFrameLabel,
+  previousEntries = [],
 }) => {
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
