@@ -655,7 +655,7 @@ export const StrategyPage: React.FC<StrategyPageProps> = ({
         title={historyMonth ? `${historyMonth.monthFull} ${historyMonth.year}` : ''}
         subtitle="Goal breakdown"
         entries={historyMonth?.entries ?? []}
-        groupByWeek
+        groupBy="week"
         goalTarget={historyMonth?.target}
       />
     </div>
